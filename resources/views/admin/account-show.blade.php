@@ -111,7 +111,7 @@
                                 </div>
                             </form>
                             @if($account->account_type != 'prepaid')
-                                <button class="btn-sm btn-success mt-3"
+                                <button class="btn-sm btn-dark mt-3"
                                         onclick="download_invoice_link(' {{$account->id }} ')"
                                         data-modalid="invoiceModal" data-original-title="test"
                                         data-modalcontent="' . htmlentities($modalinvoice) . '">
@@ -150,15 +150,15 @@
                             </div> -->
 
                             <div class="col-md-6">
-                                <div class="bg-danger card p-10">
-                                    <h5 class=" text-center font-dark" id="balance_headin">
+                                <div class="bg-secondary card p-10">
+                                    <h5 class=" text-center " id="balance_headin">
                                         @if($account->account_type != 'prepaid')
                                             Owed to Gocab
                                         @else
                                             Prepaid Balance
                                         @endif
                                     </h5>
-                                    <h6 id="total_gocab_paid" class=" text-center font-dark">$0</h6>
+                                    <h6 id="total_gocab_paid" class=" text-center ">$0</h6>
 
                                 </div>
                             </div>

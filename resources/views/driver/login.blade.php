@@ -9,7 +9,7 @@
             <div>
             <div>
                 <a class="logo" href="">
-                <img class="img-fluid" src="{{asset('assets/images/logo/gocab-logo.png')}}" width="200px" alt="looginpage">
+                <img class="img-fluid" src="{{asset('assets/images/logo/carsafe-logo.webp')}}" width="200px" alt="looginpage">
               </a>
             </div>
               <div class="login-main">

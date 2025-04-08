@@ -82,9 +82,9 @@
                                 </div>
                             </div> -->
                             <div class="col-md-6">
-                                <div class="bg-info card p-10">
-                                    <h5 class=" text-center font-dark">Total Last Week</h5>
-                                    <h6 class=" text-center font-dark" id="lastWeek">Loading....</h6>
+                                <div class="bg-secondary card p-10">
+                                    <h5 class=" text-center font-white">Total Last Week</h5>
+                                    <h6 class=" text-center font-white" id="lastWeek">Loading....</h6>
                                     
                                 </div>
                             </div>

@@ -5734,7 +5734,7 @@ progress {
 
 /* rtl:end:remove */
 .text-primary {
-  color: rgb(255, 212, 0) !important;
+  color: #f05829 !important;
   
 }
 
@@ -15473,7 +15473,7 @@ textarea.form-control-lg {
 
 /* rtl:end:remove */
 .text-primary {
-  color: rgb(255, 212, 0) !important;
+  color: #f05829 !important;
 }
 
 .text-secondary {

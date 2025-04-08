@@ -138,15 +138,15 @@
 
                             </div>
                             <div class="col-md-6" style="display:block">
-                                <div class="bg-info card p-8">
-                                    <h5 class="font-dark text-center">Unpaid From {{\Carbon\Carbon::now()->subWeek()->startOfWeek(\Carbon\Carbon::SUNDAY)->format('d M')}} to {{\Carbon\Carbon::now()->subWeek()->endOfWeek(\Carbon\Carbon::SATURDAY)->format('d M')}}</h5>
-                                    <h6 id="total_lastw" class="font-dark text-center">$0</h6>
-                                    <h7 id="paid_unpaid" class="font-dark text-center">$0</h7>
+                                <div class="bg-secondary card p-8">
+                                    <h5 class=" text-center">Unpaid From {{\Carbon\Carbon::now()->subWeek()->startOfWeek(\Carbon\Carbon::SUNDAY)->format('d M')}} to {{\Carbon\Carbon::now()->subWeek()->endOfWeek(\Carbon\Carbon::SATURDAY)->format('d M')}}</h5>
+                                    <h6 id="total_lastw" class=" text-center">$0</h6>
+                                    <h7 id="paid_unpaid" class=" text-center">$0</h7>
 
                                 </div>
                             </div>
                             <div class="col-md-6" style="display:block">
-                                <div class="bg-success card p-8">
+                                <div class="bg-primary card p-8">
                                     <h5 class="font-dark text-center">Unpaid From {{\Carbon\Carbon::now()->startOfWeek(\Carbon\Carbon::SUNDAY)->format('d M')}} to till today</h5>
 
                                     <h6 id="total_currentw" class="font-dark text-center">$0</h6>
@@ -158,11 +158,11 @@
 
                             <div class="col-md-6" >
                                 <div class="bg-secondary card p-8">
-                                    <h5 class="font-dark text-center">Deductions From {{\Carbon\Carbon::now()->subWeek()->startOfWeek(\Carbon\Carbon::SUNDAY)->format('d M')}} to {{\Carbon\Carbon::now()->subWeek()->endOfWeek(\Carbon\Carbon::SATURDAY)->format('d M')}}</h5>
+                                    <h5 class=" text-center">Deductions From {{\Carbon\Carbon::now()->subWeek()->startOfWeek(\Carbon\Carbon::SUNDAY)->format('d M')}} to {{\Carbon\Carbon::now()->subWeek()->endOfWeek(\Carbon\Carbon::SATURDAY)->format('d M')}}</h5>
 
 
-                                    <h6 id="total_deductions" class="font-dark text-center">$0</h6>
-                                    <button class="btn" id="deduction_history_btn">See Details</button>
+                                    <h6 id="total_deductions" class="text-center">$0</h6>
+                                    <button class="btn text-white" id="deduction_history_btn">See Details</button>
 
 
                                 </div>

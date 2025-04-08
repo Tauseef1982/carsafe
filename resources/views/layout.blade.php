@@ -7,9 +7,9 @@
     <meta name="description" content="Cuba admin is super flexible, powerful, clean &amp; modern responsive bootstrap 5 admin template with unlimited possibilities.">
     <meta name="keywords" content="admin template, Cuba admin template, dashboard template, flat admin template, responsive admin template, web app">
     <meta name="author" content="pixelstrap">
-    <link rel="icon" href="{{asset('assets/images/logo/gocab-logo.png')}}" type="image/x-icon">
-    <link rel="shortcut icon" href="{{asset('assets/images/logo/gocab-logo.png')}}" type="image/x-icon">
-    <title>GoCab -Driver Dashboard </title>
+    <link rel="icon" href="{{asset('assets/images/logo/carsafe-icon.png')}}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{asset('assets/images/logo/carsafe-icon.png')}}" type="image/x-icon">
+    <title>CarSafe - Driver Dashboard </title>
     <!-- Google font-->
     <link href="https://fonts.googleapis.com/css?family=Rubik:400,400i,500,500i,700,700i&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900&amp;display=swap" rel="stylesheet">
@@ -134,16 +134,14 @@ function googleTranslateElementInit() {
           <div class="header-logo-wrapper col-auto p-0">
             <div class="logo-wrapper">
                 <a href="{{url('dashboard')}}">
-                    <img class="img-fluid" src="{{asset('assets/images/logo/gocab-logo.png')}}" alt="">
+                    <img class="img-fluid" src="{{asset('assets/images/logo/carsafe-logo.webp')}}" alt="">
                 </a>
             </div>
             <div class="toggle-sidebar"><i class="status_toggle middle sidebar-toggle" data-feather="align-center"></i></div>
 
-            @if ($driver->beta == 0)
+           
             <a href="{{url('payment')}}" id="accept-payment-btn" class="btn btn-primary m-l-50 ac-btn">Accept Payment</a>
-           @else
-            <a href="{{url('payment-new')}}" class="btn btn-primary m-l-50 ac-btn">Accept New Payment</a>
-          @endif
+          
 
           </div>
           <div class="left-header col horizontal-wrapper ps-0">
@@ -178,16 +176,16 @@ function googleTranslateElementInit() {
         <!-- Page Sidebar Start-->
         <div class="sidebar-wrapper">
           <div>
-            <div class="logo-wrapper"><a href="{{url('dashboard')}}"><img class="img-fluid for-light" src="{{asset('assets/images/logo/gocab-logo.png')}}" width="80px"  alt=""></a>
+            <div class="logo-wrapper"><a href="{{url('dashboard')}}"><img class="img-fluid for-light" src="{{asset('assets/images/logo/carsafe-logo.webp')}}" width="50px"  alt=""></a>
               <div class="back-btn"><i class="fa fa-angle-left"></i></div>
               <div class="toggle-sidebar"><i class="status_toggle middle sidebar-toggle" data-feather="grid"> </i></div>
             </div>
-            <div class="logo-icon-wrapper"><a href="{{url('dashboard')}}"><img class="img-fluid" src="{{asset('assets/images/logo/gocab-logo.png')}}" width="80px" alt=""></a></div>
+            <div class="logo-icon-wrapper"><a href="{{url('dashboard')}}"><img class="img-fluid" src="{{asset('assets/images/logo/carsafe-logo.webp')}}" width="50px" alt=""></a></div>
             <nav class="sidebar-main">
               <div class="left-arrow" id="left-arrow"><i data-feather="arrow-left"></i></div>
               <div id="sidebar-menu">
                 <ul class="sidebar-links" id="simple-bar">
-                  <li class="back-btn"><a href="{{url('dashboard')}}"><img class="img-fluid" src="{{asset('assets/images/logo/gocab-logo.png')}}" width="80px" alt=""></a>
+                  <li class="back-btn"><a href="{{url('dashboard')}}"><img class="img-fluid" src="{{asset('assets/images/logo/carsafe-logo.webp')}}" width="50px" alt=""></a>
                     <div class="mobile-back text-end"><span>Back</span><i class="fa fa-angle-right ps-2" aria-hidden="true"></i></div>
                   </li>
                     <li class="sidebar-main-title">
@@ -199,7 +197,7 @@ function googleTranslateElementInit() {
                     </div>
                     </a>
                   </li>
-                  @if ($driver->beta == 0)
+                
                   <li class="sidebar-main-title">
                   <a href="{{url('payment')}}">
                     <div>
@@ -209,18 +207,7 @@ function googleTranslateElementInit() {
                     </div>
                     </a>
                   </li>
-                  @else
-                  <li class="sidebar-main-title">
-                  <a href="{{url('payment-new')}}">
-                    <div>
-
-                      Accept Payment
-
-                    </div>
-                    </a>
-                  </li>
-
-                  @endif
+                 
 
 
 
@@ -265,7 +252,7 @@ function googleTranslateElementInit() {
           <div class="container-fluid">
             <div class="row">
               <div class="col-md-12 footer-copyright text-center">
-                <p class="mb-0">Copyright 2024 © GoCab  </p>
+                <p class="mb-0">Copyright 2025 © CarSafe  </p>
               </div>
             </div>
           </div>

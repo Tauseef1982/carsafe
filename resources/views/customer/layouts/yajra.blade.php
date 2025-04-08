@@ -14,9 +14,9 @@
     <meta name="keywords"
           content="admin template, Cuba admin template, dashboard template, flat admin template, responsive admin template, web app">
     <meta name="author" content="pixelstrap">
-    <link rel="icon" href="{{asset('assets/images/logo/gocab-logo.png')}}" type="image/x-icon">
-    <link rel="shortcut icon" href="{{asset('assets/images/logo/gocab-logo.png')}}" type="image/x-icon">
-    <title>GoCab - Portal </title>
+    <link rel="icon" href="{{asset('assets/images/logo/carsafe-icon.png')}}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{asset('assets/images/logo/carsafe-icon.png')}}" type="image/x-icon">
+    <title>CarSafe - Portal </title>
     <!-- Google font-->
     <link href="https://fonts.googleapis.com/css?family=Rubik:400,400i,500,500i,700,700i&amp;display=swap"
           rel="stylesheet">
@@ -119,7 +119,7 @@
             <div class="header-logo-wrapper col-auto p-0">
                 <div class="logo-wrapper">
                     <a href="{{url('dashboard')}}">
-                        <img class="img-fluid" src="{{asset('assets/images/logo/gocab-logo.png')}}" alt="">
+                        <img class="img-fluid" src="{{asset('assets/images/logo/carsafe-logo.webp')}}" alt="">
                     </a>
                 </div>
                 <div class="toggle-sidebar"><i class="status_toggle middle sidebar-toggle"
@@ -145,7 +145,7 @@
                         </div>
                         <ul class="profile-dropdown onhover-show-div">
 
-                            <li><a href="{{url('customer.logout')}}"><i data-feather="log-in"> </i><span>LogOut</span></a></li>
+                            <li><a href="{{url('customer/logout')}}"><i data-feather="log-in"> </i><span>LogOut</span></a></li>
                         </ul>
                     </li>
                 </ul>
@@ -161,22 +161,22 @@
         <div class="sidebar-wrapper">
             <div>
                 <div class="logo-wrapper"><a href="{{url('dashboard')}}"><img class="img-fluid for-light"
-                                                                              src="{{asset('assets/images/logo/gocab-logo.png')}}"
-                                                                              width="80px" alt=""></a>
+                                                                              src="{{asset('assets/images/logo/carsafe-logo.webp')}}"
+                                                                              width="50px" alt=""></a>
                     <div class="back-btn"><i class="fa fa-angle-left"></i></div>
                     <div class="toggle-sidebar"><i class="status_toggle middle sidebar-toggle" data-feather="grid"> </i>
                     </div>
                 </div>
                 <div class="logo-icon-wrapper"><a href="{{url('dashboard')}}"><img class="img-fluid"
-                                                                                   src="{{asset('assets/images/logo/gocab-logo.png')}}"
-                                                                                   width="80px" alt=""></a></div>
+                                                                                   src="{{asset('assets/images/logo/carsafe-logo.webp')}}"
+                                                                                   width="50px" alt=""></a></div>
                 <nav class="sidebar-main">
                     <div class="left-arrow" id="left-arrow"><i data-feather="arrow-left"></i></div>
                     <div id="sidebar-menu">
                         <ul class="sidebar-links" id="simple-bar">
                             <li class="back-btn"><a href="{{url('dashboard')}}"><img class="img-fluid"
-                                                                                     src="{{asset('assets/images/logo/gocab-logo.png')}}"
-                                                                                     width="80px" alt=""></a>
+                                                                                     src="{{asset('assets/images/logo/carsafe-logo.webp')}}"
+                                                                                     width="50px" alt=""></a>
                                 <div class="mobile-back text-end"><span>Back</span><i class="fa fa-angle-right ps-2"
                                                                                       aria-hidden="true"></i></div>
                             </li>
@@ -271,7 +271,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12 footer-copyright text-center">
-                        <p class="mb-0">Copyright {{ $currentYear }} © GoCab</p>
+                        <p class="mb-0">Copyright {{ $currentYear }} © CarSafe</p>
                     </div>
                 </div>
             </div>

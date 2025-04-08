@@ -50,9 +50,9 @@
 
                             </div>
                             <div class="text-end mt-3">
-                                <button class="btn btn-primary btn-block w-100" id="show-method-div" type="button">
+                                <!-- <button class="btn btn-primary btn-block w-100" id="show-method-div" type="button">
                                     Skip
-                                </button>
+                                </button> -->
                             </div>
 
                             {{-- @foreach ($trips as $trip)
@@ -270,7 +270,7 @@
                         </div>
                     </form>
                     <div class="px-3">
-                        <button type="button" class="btn btn-outline-primary text-dark btn-block w-100" id="start-over">
+                        <button type="button" class="btn btn-outline-primary  btn-block w-100" id="start-over">
                             Start Over
                         </button>
                     </div>

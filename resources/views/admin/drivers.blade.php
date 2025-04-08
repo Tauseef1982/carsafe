@@ -28,13 +28,13 @@
                                 <h6> {{$active_drivers}}</h6>
                                 </div>
                             </div>
-                            <div class="col fill-flex card me-3 bg-success text-dark p-3 text-center">
+                            <div class="col fill-flex card me-3 bg-secondary  p-3 text-center">
                             <div class="">
                                 <h5>Registered This week</h5>
                                 <h6> {{$this_week_drivers}}</h6>
                                 </div>
                             </div>
-                            <div class="col fill-flex card bg-danger text-dark p-3 text-center">
+                            <div class="col fill-flex card bg-primary text-dark p-3 text-center">
                             <div class="">
                                 <h5>Drivers without trips this week</h5>
                                 <h6>{{$driversWithoutTrips}}</h6>

@@ -36,9 +36,9 @@
 
             </div>
             <div class="col-md-3">
-              <div class="bg-info card p-10">
-                <h5 class="font-dark text-center">Total Drivers Earnings</h5>
-                <h6 class="font-dark text-center">${{$data['last_earning']}}</h6>
+              <div class="bg-secondary card p-10">
+                <h5 class="font-white text-center">Total Drivers Earnings</h5>
+                <h6 class="font-white text-center">${{$data['last_earning']}}</h6>
 
               </div>
             </div>
@@ -96,9 +96,9 @@
 
             </div>
             <div class="col-md-3">
-              <div class="bg-info card p-10">
-                <h5 class="font-dark text-center">Total Drivers Earnings</h5>
-                <h6 class="font-dark text-center">${{$data['current_earning']}}</h6>
+              <div class="bg-secondary card p-10">
+                <h5 class="font-white text-center">Total Drivers Earnings</h5>
+                <h6 class="font-white text-center">${{$data['current_earning']}}</h6>
 
               </div>
             </div>
