@@ -17,13 +17,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('drivers:sync')->everyFiveMinutes();
         $schedule->command('pays:sync')->everyTwoMinutes();
         $schedule->command('refill:accounts')->dailyAt('01:00');
-        $schedule->command('contacts:sync')->everyFiveMinutes();
+ //       $schedule->command('contacts:sync')->everyFiveMinutes();
 //        $schedule->command('postPaidDeduction:accounts')->everyThreeMinutes();
  //     $schedule->command('postPaidDeduction:accounts')->sundays()->timezone('America/New_York')->between('09:00', '23:55')->everyFiveMinutes();
 
 
-
-         $schedule->command('trips:updateholdtoneutral')->everyMinute();
+//   $schedule->command('trips:updateholdtoneutral')->everyMinute();
 
  //      $schedule->command('accounts:sync')->everyTenMinutes();
 //      $schedule->command('weeklyfees:sync')->sundays();
