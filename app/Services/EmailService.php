@@ -113,10 +113,10 @@ class EmailService
 
       //     Mail::to($send_to)->send(new AccountInvoice($data3));
             if($account->account_type == 'prepaid'){
-                Mail::to('farhanbashir06@gmail.com')->send(new PrepaidAccountInvoice($data3));
+                Mail::to('rehman.tuseef757@gmail.com')->send(new PrepaidAccountInvoice($data3));
 
             }else{
-                Mail::to('farhanbashir06@gmail.com')->send(new AccountInvoice($data3));
+                Mail::to('rehman.tuseef757@gmail.com')->send(new AccountInvoice($data3));
 
             }
             $data->email_sends = $data->email_sends + 1;

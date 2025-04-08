@@ -380,9 +380,9 @@
                                     </form>
                                 </div>
                             </div>
-                            <div class="col-md-3 mt-3">
+                            <!-- <div class="col-md-3 mt-3">
                                 <button class="btn btn-primary w-100 mt-4" data-bs-toggle="modal"  data-bs-target="#settelModal">Settlement</button>
-                            </div>
+                            </div> -->
                         </div>
                         </div>
 

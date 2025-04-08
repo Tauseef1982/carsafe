@@ -66,7 +66,7 @@ class SyncTrips extends Command
                     "output_format": "json",
                     "template_id": 14122,
                     "search_query": {"period":{"@type":"relative","unit":"day","offset":0,"count":1},
-                    "results":{"offset":0,"limit":10000}}
+                    "results":{"offset":0,"limit":100}}
                     }',
             CURLOPT_HTTPHEADER => array(
                 'Authorization: Bearer ' . TokenService::token(),

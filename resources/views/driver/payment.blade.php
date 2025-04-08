@@ -29,6 +29,11 @@
     </div>
     <!-- Container-fluid starts-->
     <div class="container-fluid">
+    @if ($errors->has('pin'))
+    <div class="alert alert-danger mt-3" role="alert">
+        {{ $errors->first('pin') }}
+    </div>
+@endif
         <div class="row size-column">
             <div class="col-xl-3 risk-col xl-100 box-col-12">
                 <div class="card total-users">
@@ -50,9 +55,9 @@
 
                             </div>
                             <div class="text-end mt-3">
-                                <!-- <button class="btn btn-primary btn-block w-100" id="show-method-div" type="button">
+                                <button class="btn btn-primary btn-block w-100" id="show-method-div" hidden type="button">
                                     Skip
-                                </button> -->
+                                </button>
                             </div>
 
                             {{-- @foreach ($trips as $trip)
@@ -197,8 +202,9 @@
                                     <div class="">
                                         <input class="form-control mb-3" type="tel" name="account" value="" id="acc-field"
                                                placeholder="Enter account number" />
-                                        <label for="" style="cursor: pointer; text-decoration:underline "
-                                               id="show-extra-field">Add Extra Charges</label><br>
+                                               <input type="tel" name="account_pin" class="form-control mb-3" id="account_pin">
+                                        <!-- <label for="" style="cursor: pointer; text-decoration:underline "
+                                               id="show-extra-field">Add Extra Charges</label><br> -->
 
                                     </div>
 

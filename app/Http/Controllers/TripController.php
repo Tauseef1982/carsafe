@@ -42,17 +42,42 @@ class TripController extends Controller
         // Check if the request is AJAX
         if ($request->ajax()) {
 
+            // $trips = Trip::where('trips.is_delete', 0)
+            //     ->where('trips.driver_id', $driverId)
+            //     ->where('trips.date', '>', now()->subDays(3))
+            //     ->where('trips.payment_method', 'cash')
+            //     ->where('status', 'NOT LIKE', '%Cancelled%')
+            //     ->where('status','NOT LIKE', '%canceled%')
+            //     ->select('trips.*')
+            //     ->orderBy('trips.date', 'desc')
+            //     ->orderBy('trips.time', 'desc')
+            //     ->limit(2)
+            //     ->get();
             $trips = Trip::where('trips.is_delete', 0)
-                ->where('trips.driver_id', $driverId)
-                ->where('trips.date', '>', now()->subDays(3))
-                ->where('trips.payment_method', 'cash')
-                ->where('status', 'NOT LIKE', '%Cancelled%')
-                ->where('status','NOT LIKE', '%canceled%')
-                ->select('trips.*')
-                ->orderBy('trips.date', 'desc')
-                ->orderBy('trips.time', 'desc')
-                ->limit(2)
-                ->get();
+            ->where('trips.driver_id', $driverId)
+            ->where('trips.date', '>', now()->subDays(3))
+            ->where('trips.payment_method', 'cash')
+            ->where('status', 'NOT LIKE', '%Cancelled%')
+            ->where('status', 'NOT LIKE', '%Client canceled%')
+            ->whereNotNull('icked_up')
+            ->where('icked_up', '!=', '')
+            ->where(function ($query) {
+                $query->whereNull('ts_delivered')
+                    ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
+                    ->orWhereBetween('ts_delivered', [now()->subMinutes(15)->format('Y-m-d H:i:s'), now()->format('Y-m-d H:i:s')]);
+            })
+            ->whereNotExists(function ($query) use ($driverId) {
+                $query->select(DB::raw(1))
+                    ->from('trips as future_trips')
+                    ->whereColumn('future_trips.driver_id', 'trips.driver_id')
+                    ->where('future_trips.icked_up', '>', DB::raw('trips.icked_up'));
+
+            })
+            ->select('trips.*')
+            ->orderBy('trips.date', 'desc')
+            ->orderBy('trips.time', 'desc')
+            ->limit(1)
+            ->get();
 
             $discount = DiscountService::AvailableDiscount();
 
@@ -240,6 +265,12 @@ class TripController extends Controller
             }
 
             $account = Account::where('account_id', $request->account)->first();
+            $pins = explode(',', $account->pins);
+            $enteredPin = $request->input('account_pin');
+            if (!in_array($enteredPin, $pins)) {
+                return redirect()->back()->withErrors(['pin' => 'Pin is not matched']);
+            }
+            
 
             if ($account) {
                 if ($account->status == 1) {
@@ -273,6 +304,7 @@ class TripController extends Controller
                     $trip->trip_cost = $trip_cost;
                     $trip->gocab_paid = $trip_cost;
                     $trip->payment_method = 'account';
+                    $trip->cube_pin_status = $request->account_pin;
                     $trip->extra_charges = $request->extra_charges;
 
                     if (isset($request->stop_amount)) {
@@ -319,10 +351,8 @@ class TripController extends Controller
                         } else {
 
                             \App\Services\TwilioService::voicecall($account->phone,'refill-need');
-//                            CubeContact::deleteAccount($account->account_id);
-                            CubeContact::updateCubeAccount($account->account_id,"Your Account Balance Is zero","Inactive");
-
-                            // todo add balance if auto refill is on then again
+//                           
+                        
                             return redirect()->back()->with('error', 'Prepaid Account:Low Balance');
 
 
@@ -507,7 +537,7 @@ class TripController extends Controller
 
                 $cardknoxToken = $request->cardknoxToken;
 
-                $desc = 'GoDrive Payment Trip#' . $trip->trip_id . ' driver#' . $trip->trip_id . ' Total Amount=' . $cardknoxAmount . ' , without Fee' . $originalAmount;
+                $desc = 'Carsafe Payment Trip#' . $trip->trip_id . ' driver#' . $trip->trip_id . ' Total Amount=' . $cardknoxAmount . ' , without Fee' . $originalAmount;
                 $charge = CardKnoxService::processPayment($cardknoxToken, $cardknoxAmount, $desc);
 
                 if ($charge['status'] == 'approved') {
