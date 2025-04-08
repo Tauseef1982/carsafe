@@ -89,7 +89,7 @@ $driverIds = $trips->pluck('driver_id')->unique();
 //            cost /fx.grand_total
 //            date  / start
 //            time / start
-//            gocab_paid / 0.0
+
 //            payment_method / cash
 //            driver_id /i
 //            account_number / account.name

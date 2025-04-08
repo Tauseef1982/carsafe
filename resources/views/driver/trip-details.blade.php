@@ -110,7 +110,7 @@
                     
                     <div class="row ">
                         <div class="col-6 b-primary">
-                            <h5>GoCab Payment ID</h5>
+                            <h5>CarSafe Payment ID</h5>
                       </div>
                         <div class="col-6 pt-2 b-primary"> 
                             <h6>{{$trip->gocab_payment_id}}</h6>
@@ -126,7 +126,7 @@
                     </div>
                     <div class="row ">
                         <div class="col-6 b-primary">
-                            <h5>Amount paid to GoCab</h5>
+                            <h5>Amount paid to CarSafe</h5>
                       </div>
                         <div class="col-6 pt-2 b-primary"> 
                             <h6>${{$trip->gocab_paid}}</h6>

@@ -153,7 +153,7 @@
                                 <div class="bg-secondary card p-10">
                                     <h5 class=" text-center " id="balance_headin">
                                         @if($account->account_type != 'prepaid')
-                                            Owed to Gocab
+                                            Owed to CarSafe
                                         @else
                                             Prepaid Balance
                                         @endif
@@ -324,7 +324,7 @@
                                        data-bs-toggle="pill" href="#pills-tripsbatch" role="tab"
                                        aria-controls="pills-tripsbatch" aria-selected="false" data-bs-original-title=""
                                        title="">
-                                        Payments To Gocab
+                                        Payments To CarSafe
                                     </a>
                                 </li>
 
@@ -542,7 +542,7 @@
                     if (response.gocab_paid >= 0) {
                         $('#balance_heading').html('Amount owed to driver');
                     } else {
-                        $('#balance_heading').html('Amount owed to Gocab');
+                        $('#balance_heading').html('Amount owed to CarSafe');
                     }
 
 

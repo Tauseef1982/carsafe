@@ -6,7 +6,7 @@
             <div>
             <div>
                 <a class="logo" href="">
-                <img class="img-fluid" src="{{asset('assets/images/logo/gocab-logo.png')}}" width="200px" alt="looginpage">
+                <img class="img-fluid" src="{{asset('assets/images/logo/carsafe-logo.webp')}}" width="200px" alt="looginpage">
               </a>
             </div>
               <div class="login-main">
@@ -17,7 +17,7 @@
         @endif 
                 <form class="theme-form" action="{{url('verify-otp')}}" method="post">
                   @csrf
-                  <h4>GoCab Login Code</h4>
+                  <h4>CarSafe Login Code</h4>
                    @php
                  
 $masked_phone = substr($user_phone, -4); 

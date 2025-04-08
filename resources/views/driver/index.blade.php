@@ -97,7 +97,7 @@
                             </div>
                             <div class="col-md-12 d-none">
                                 <div class="bg-dark card p-10">
-                                    <h5 class=" text-center ">Total GoCab Balance</h5>
+                                    <h5 class=" text-center ">Total CarSafe Balance</h5>
                                     <h6 class=" text-center" id="total_balance">Loading....</h6>
 
                                 </div>

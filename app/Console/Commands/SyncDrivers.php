@@ -60,7 +60,7 @@ class SyncDrivers extends Command
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => '{"template_id":12531,"company_id":57068,"output_format":"json","report_type":"USER","report_id":null,"search_query":{"filters":{},"results":{}}}',
+        CURLOPT_POSTFIELDS => '{"template_id":14121,"company_id":48647,"output_format":"json","report_type":"USER","report_id":null,"search_query":{"filters":{},"results":{}}}',
         CURLOPT_HTTPHEADER => array(
             'Authorization: Bearer ' . $token,
             'Content-Type: application/json'

@@ -61,10 +61,10 @@ class SyncTrips extends Command
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => '{
-                    "company_id": 57068,
+                    "company_id": 48647,
                     "report_type": "jobs",
                     "output_format": "json",
-                    "template_id": 12528,
+                    "template_id": 14122,
                     "search_query": {"period":{"@type":"relative","unit":"day","offset":0,"count":1},
                     "results":{"offset":0,"limit":10000}}
                     }',

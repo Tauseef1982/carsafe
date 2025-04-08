@@ -27,7 +27,7 @@ class TripEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'GoCab',
+            subject: 'CarSafe',
         );
     }
 

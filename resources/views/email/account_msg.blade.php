@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Gocab</title>
+    <title>CarSafe</title>
 </head>
 <body>
     <p>Hi,</p>

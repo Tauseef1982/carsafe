@@ -9,9 +9,9 @@
     <meta name="keywords"
           content="admin template, Cuba admin template, dashboard template, flat admin template, responsive admin template, web app">
     <meta name="author" content="pixelstrap">
-    <link rel="icon" href="{{asset('assets/images/logo/gocab-logo.png')}}" type="image/x-icon">
-    <link rel="shortcut icon" href="{{asset('assets/images/logo/gocab-logo.png')}}" type="image/x-icon">
-    <title>GoCab</title>
+    <link rel="icon" href="{{asset('assets/images/logo/carsafe-logo.webp')}}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{asset('assets/images/logo/carsafe-logo.webp')}}" type="image/x-icon">
+    <title>CarSafe</title>
     <!-- Google font-->
     <link href="https://fonts.googleapis.com/css?family=Rubik:400,400i,500,500i,700,700i&amp;display=swap"
           rel="stylesheet">
@@ -104,7 +104,7 @@
 
                                 <div class="row">
                                 <div class="col-sm-3" style="display:inline-block;width:25%;">
-                                <img style="width:150px" src="https://gocab.wiedco.app/assets/images/logo/gocab-logo.png" alt="">
+                                <img style="width:150px" src="https://carsafe.wiedco.app/assets/images/logo/carsafe-logo.webp" alt="">
                                 @php
                                             $due_date = $utils->format_date(now()->addDays(3)->toDateString());
                                             $payment_status = 'Unpaid';
@@ -158,7 +158,7 @@
                                 <div class="col-md-8" style="width:60%; display:inline-block; float:right;" id="project">
                                     <div class="text-md-end" id="project">
                                         <h6>Description</h6>
-                                        <p>Here is your invoice for the trips you enjoyed with Gocab, covering the period from {{ \Carbon\Carbon::parse($from_date)->format('F d, Y') }}, to {{ \Carbon\Carbon::parse($to_date)->format('F d, Y') }}.</p>
+                                        <p>Here is your invoice for the trips you enjoyed with CarSafe, covering the period from {{ \Carbon\Carbon::parse($from_date)->format('F d, Y') }}, to {{ \Carbon\Carbon::parse($to_date)->format('F d, Y') }}.</p>
                                     </div>
                                 </div>
                             </div>

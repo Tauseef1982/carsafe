@@ -28,7 +28,7 @@ class PrepaidAccountInvoice extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'GoCab Prepaid Account Invoice',
+            subject: 'CarSafe Prepaid Account Invoice',
         );
     }
 

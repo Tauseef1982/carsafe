@@ -58,7 +58,7 @@
                                   
                                     <label for="">Custome Message</label>
                                     <textarea id="summernote" name="custom_msg" class="form-control" rows="5"></textarea>
-                                    <p>Thank You For Choosing GoCab.</p> 
+                                    <p>Thank You For Choosing CarSafe.</p> 
                                      <p>If you notice a 'flagdown' charge on your last invoice for a trip you didn’t take in this period , feel free to submit a complaint and we will review it and respond via email.</p>
                                     
                                 </div>

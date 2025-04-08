@@ -28,7 +28,7 @@ class AccountInvoice extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'GoCab PostPaid Account Invoice',
+            subject: 'CarSafe PostPaid Account Invoice',
         );
     }
 

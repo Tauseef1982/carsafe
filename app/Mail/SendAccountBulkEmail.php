@@ -29,7 +29,7 @@ class SendAccountBulkEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Gocab Invoice',
+            subject: 'CarSafe Invoice',
         );
     }
 

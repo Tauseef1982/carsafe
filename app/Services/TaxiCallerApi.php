@@ -16,7 +16,7 @@ class TaxiCallerApi
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://api.taxicaller.net/api/v1/company/57068/user/ids/'.$id,
+            CURLOPT_URL => 'https://api.taxicaller.net/api/v1/company/48647/user/ids/'.$id,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -75,7 +75,7 @@ class TaxiCallerApi
 
         $curl2 = curl_init();
         curl_setopt_array($curl2, array(
-            CURLOPT_URL => 'https://api.taxicaller.net/api/v1/company/57068/user/ids/'.$id,
+            CURLOPT_URL => 'https://api.taxicaller.net/api/v1/company/48647/user/ids/'.$id,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,

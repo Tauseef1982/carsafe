@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="{{asset('assets/images/logo/gocab-logo.png')}}" type="image/x-icon">
-    <link rel="shortcut icon" href="{{asset('assets/images/logo/gocab-logo.png')}}" type="image/x-icon">
+    <link rel="icon" href="{{asset('assets/images/logo/carsafe-logo.webp')}}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{asset('assets/images/logo/carsafe-logo.webp')}}" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="{{asset('assets/css/vendors/bootstrap.css')}}">
-    <title>GoCab</title>
+    <title>CarSafe</title>
     <style>
         .btn-primary {
-    background-color: #ffd400 !important;
-    border-color: #ffd400 !important;
+    background-color: #f05829 !important;
+    border-color: #f05829 !important;
 }
     </style>
 </head>
@@ -18,7 +18,7 @@
     <div class="container">
         <div class="row">
             <div class="col text-center pt-4">
-                <img src="{{asset('assets/images/logo/gocab-logo.png')}}" width="200px" alt="">
+                <img src="{{asset('assets/images/logo/carsafe-logo.webp')}}" width="200px" alt="">
             </div>
         </div>
         <div class="row">

@@ -983,7 +983,7 @@
                     if (response.gocab_paid >= 0) {
                         $('#balance_heading').html('Amount owed to driver');
                     } else {
-                        $('#balance_heading').html('Amount owed to Gocab');
+                        $('#balance_heading').html('Amount owed to CarSafe');
                     }
 
                     $('.onloadmakeblur').removeClass('blurred');

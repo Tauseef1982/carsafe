@@ -31,7 +31,7 @@ class EmailService
         }
 
         $message .= "If you have any concerns about your fare or experience, feel free to contact us!\n" .
-            "Thank you for choosing GoCab!";
+            "Thank you for choosing CarSafe!";
         Mail::to($email)->send(new TripEmail($message));
 
 
@@ -75,7 +75,7 @@ class EmailService
                 $message .= "<p>Your recent payment has been processed.</p>
                 <br><p>Please <a href='" . route('unauth.invoice.view', $data->hash_id) . "'>click here</a> to view and download the invoice.</p>";
                 $message .= "<br>";
-                $message .= "<p>Thank You For Choosing GoCab.</p>";
+                $message .= "<p>Thank You For Choosing CarSafe.</p>";
 
             } else {
 
@@ -85,7 +85,7 @@ class EmailService
                 $message .= "<p>We will retry your card within 3 days.</p><br>
                 <p>You can use <a href='" . route('unauth.invoice.view', $data->hash_id) . "'>this link</a> to pay your current invoice or update your credit card details.</p>";
                 $message .= "<br>";
-                $message .= "<p>Thank You For Choosing GoCab.</p>";
+                $message .= "<p>Thank You For Choosing CarSafe.</p>";
 
             }
             $message .= "<br>";
@@ -176,7 +176,7 @@ class EmailService
             "name": "PDF REPORT OF JOBS"
             },
             "data": {
-            "html": "<p>Hi,</p><br><p>Your recent payment has been processed.</p><br><p>Please <a>click here</a> to view and download the invoice.</p><br><p>Thank You For Choosing GoCab.</p>"
+            "html": "<p>Hi,</p><br><p>Your recent payment has been processed.</p><br><p>Please <a>click here</a> to view and download the invoice.</p><br><p>Thank You For Choosing CarSafe.</p>"
             }
             }',
                 CURLOPT_HTTPHEADER => array(

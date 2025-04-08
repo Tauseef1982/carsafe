@@ -81,13 +81,4 @@ class SyncPays extends Command
 
 
 
-//            location_from / route.pick_up_text
-//            location_to / route.drop_off_text
-//            cost /fx.grand_total
-//            date  / start
-//            time / start
-//            gocab_paid / 0.0
-//            payment_method / cash
-//            driver_id /i
-//            account_number / account.name
-//            strip_id / mmmmm
+

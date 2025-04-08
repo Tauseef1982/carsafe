@@ -21,7 +21,7 @@
                 <form class="theme-form" action="{{url("send-otp")}}" method="post">
                   @csrf
                   <h4>Sign in to account</h4>
-                  <p>Enter your GoCab Username</p>
+                  <p>Enter your CarSafe Username</p>
                   <div class="form-group">
                     <label class="col-form-label">Enter Your Username</label>
                     <div class="input-group">

@@ -9,9 +9,9 @@
     <meta name="keywords"
           content="admin template, Cuba admin template, dashboard template, flat admin template, responsive admin template, web app">
     <meta name="author" content="pixelstrap">
-    <link rel="icon" href="{{asset('assets/images/logo/gocab-logo.png')}}" type="image/x-icon">
-    <link rel="shortcut icon" href="{{asset('assets/images/logo/gocab-logo.png')}}" type="image/x-icon">
-    <title>GoCab</title>
+    <link rel="icon" href="{{asset('assets/images/logo/carsafe-logo.webp')}}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{asset('assets/images/logo/carsafe-logo.webp')}}" type="image/x-icon">
+    <title>CarSafe</title>
     <!-- Google font-->
     <link href="https://fonts.googleapis.com/css?family=Rubik:400,400i,500,500i,700,700i&amp;display=swap"
           rel="stylesheet">
@@ -102,7 +102,7 @@
                                     <div class="col-sm-3">
                                         <div class="media">
                                             <div class="media-left"><img class="media-object" style="width:175px;"
-                                                                         src="{{asset('assets/images/logo/gocab-logo.png')}}"
+                                                                         src="{{asset('assets/images/logo/carsafe-logo.webp')}}"
                                                                          alt=""></div>
                                             <div class="media-body m-l-20 text-right">
 
@@ -169,7 +169,7 @@
                                 <div class="col-md-8">
                                     <div class="text-md-end" id="project">
                                         <h6>Description</h6>
-                                        <p>Here is your invoice for the trips you enjoyed with Gocab, covering the
+                                        <p>Here is your invoice for the trips you enjoyed with CarSafe, covering the
                                             period from {{ \Carbon\Carbon::parse($from_date)->format('F d, Y') }},
                                             to {{ \Carbon\Carbon::parse($to_date)->format('F d, Y') }}.</p>
                                     </div>

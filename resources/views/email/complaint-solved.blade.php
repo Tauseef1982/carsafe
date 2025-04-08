@@ -7,7 +7,7 @@
 <body>
     <p>Hi,</p>
     <br>
-    <p>Message from GoCab</p>
+    <p>Message from CarSafe</p>
     <p>Your issue with Trip Id {{ $complaintData['trip_id'] }} has been resolved.</p>
     <p>{{$complaintData['note']}}</p>
     <p>

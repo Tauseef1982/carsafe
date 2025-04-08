@@ -75,7 +75,7 @@ class TwilioService
         }
 
         $message .= "If you have any concerns about your fare or experience, feel free to contact us!\n" .
-            "Thank you for choosing GoCab!";
+            "Thank you for choosing CarSafe!";
 
         // Check if an SMS has already been sent for this trip and driver
         $existingSmsLog = SmsLog::where('trip_id', $tripId)

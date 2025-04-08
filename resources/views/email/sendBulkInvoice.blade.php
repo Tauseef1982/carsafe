@@ -7,9 +7,9 @@
     <meta name="description" content="Cuba admin is super flexible, powerful, clean &amp; modern responsive bootstrap 5 admin template with unlimited possibilities.">
     <meta name="keywords" content="admin template, Cuba admin template, dashboard template, flat admin template, responsive admin template, web app">
 
-    <link rel="icon" href="{{asset('assets/images/logo/gocab-logo.png')}}" type="image/x-icon">
-    <link rel="shortcut icon" href="{{asset('assets/images/logo/gocab-logo.png')}}" type="image/x-icon">
-    <title>GoCab</title>
+    <link rel="icon" href="{{asset('assets/images/logo/carsafe-logo.webp')}}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{asset('assets/images/logo/carsafe-logo.webp')}}" type="image/x-icon">
+    <title>CarSafe</title>
 
     <!-- Google fonts and Bootstrap CSS -->
     <link href="https://fonts.googleapis.com/css?family=Rubik|Roboto&display=swap" rel="stylesheet">
@@ -49,7 +49,7 @@
                             <div class="row">
                                 <!-- Invoice Header with Date and Payment Status -->
                                 <div class="col-sm-3" style="display:inline-block;width:33%;">
-                                    <img style="width:150px" src="https://gocab.wiedco.app/assets/images/logo/gocab-logo.png" alt="">
+                                    <img style="width:150px" src="https://carsafe.wiedco.app/assets/images/logo/carsafe-logo.webp" alt="">
                                     <p>
                                         Issued: {{ now()->format('M d, Y') }}<br>
                                         Payment Due: <span id="due_date_span">{{ $due_date }}</span><br>
