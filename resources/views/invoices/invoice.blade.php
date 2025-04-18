@@ -119,16 +119,25 @@
                                         <p>
                                             Issued: {{ now()->format('M') }}
                                             <span> {{ now()->format('d, Y') }}</span><br>
+                                            @if ($account->account_type == 'prepaid')
+                                                
+                                                Status: <span>Paid</span>
+                                            @else
                                             Payment Due: <span id="due_date_span">{{$due_date}}</span> <br>
-
-                                            Status: <span id="payment_status_span">{{ $payment_status}}</span>
+                                                
+                                                Status: <span id="payment_status_span">{{ $payment_status}}</span>
+                                            @endif
                                         </p>
 
                                         <!-- End Info-->
                                     </div>
                                     <div class="col-sm-3 text-md-end">
 
-                                        <img id="img_paid" style="width:100px; " alt="">
+                                    @if ($account->account_type == 'prepaid')
+                                            <img src="{{ asset('assets/images/paid.jpg') }}" style="width:100px; " alt="">
+                                            @else
+                                            <img id="img_paid" style="width:100px; " alt="">
+                                            @endif
 
 
                                     </div>
@@ -313,10 +322,18 @@
                                             @endif
 
                                             <td>
-                                                <p class="itemtext">${{$cost - $paidd}}</p>
+                                            @if ($account->account_type == 'prepaid')
+                                                    <p class="itemtext">$0</p>
+                                                    @else
+                                                    <p class="itemtext">${{$cost - $paidd}}</p>
+                                                    @endif
                                             </td>
                                             <td>
-                                                <p class="itemtext">${{$paidd}}</p>
+                                            @if ($account->account_type == 'prepaid')
+                                                     <p class="itemtext">${{$cost}}</p>
+                                                    @else
+                                                    <p class="itemtext">${{$paidd}}</p>
+                                                    @endif
                                             </td>
                                             <td>
                                                 <p class="itemtext">${{$cost}}</p>

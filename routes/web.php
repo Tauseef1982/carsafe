@@ -225,7 +225,10 @@ Route::group(['prefix' => 'customer','as' => 'customer.'], function () {
     Route::get('/login', [\App\Http\Controllers\UserPortalController::class, 'login'])->name('login');
     Route::post('/login', [\App\Http\Controllers\UserPortalController::class, 'loginAttemp']);
     Route::get('/logout', [\App\Http\Controllers\UserPortalController::class, 'logout']);
-
+    Route::get('/reset_password', [\App\Http\Controllers\UserPortalController::class, 'reset_password']);
+    Route::post('/reset_password', [\App\Http\Controllers\UserPortalController::class, 'reset_password_email']);
+    Route::get('/change_password', [\App\Http\Controllers\UserPortalController::class, 'change_password']);
+    Route::post('/change_password', [\App\Http\Controllers\UserPortalController::class, 'update_password']);
     Route::group(['middleware' => 'customer.auth'], function () {
 
 

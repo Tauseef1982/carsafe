@@ -1,5 +1,5 @@
 
- @extends('auth-layout')
+@extends('auth-layout')
  @section('content')
 
 
@@ -25,33 +25,29 @@
         @endif
                 <form class="theme-form" action="" method="post">
                   @csrf
-                  <h4>Sign in to Customer Portal</h4>
-                  <p>Enter your Username/password</p>
+                  <h4>Reset Your Password</h4>
+                  <p>Enter your Email</p>
                   <div class="form-group">
-                    <label class="col-form-label">Username</label>
+                    <label class="col-form-label">Email</label>
                     <div class="input-group">
-                      <input class="form-control" name="username" placeholder="Enter Your Username">
+                      <input class="form-control" name="email" placeholder="Enter Your Email">
                     </div>
                   </div>
 
-                    <div class="form-group">
-                        <label class="col-form-label">Password</label>
-                        <div class="input-group">
-                            <input class="form-control" name="password" type="password"  placeholder="Enter Your password">
-                        </div>
-                    </div>
+                    
 
                   <div class="form-group mb-0">
 
                     <div class="text-end mt-3">
-                      <button class="btn btn-primary btn-block w-100" type="submit">Login</button>
+                      <button class="btn btn-primary btn-block w-100" type="submit">Reset Password</button>
                     </div>
                   </div>
 
 
 
                 </form>
-                <a href="{{ url('customer/reset_password') }}">Reset you password</a>
+                
+                
               </div>
             </div>
           </div>

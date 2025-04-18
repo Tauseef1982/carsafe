@@ -28,15 +28,15 @@
     </style>
 
     @php
-        // Initialize variables for later use
-        $utils = new \App\Utils\dateUtil();
-        $from_date = $data['from_date'];
-        $to_date = $data['to_date'];
-        $account = $data['account'];
+// Initialize variables for later use
+$utils = new \App\Utils\dateUtil();
+$from_date = $data['from_date'];
+$to_date = $data['to_date'];
+$account = $data['account'];
 
-        $due_date = $utils->format_date(now()->addDays(3)->toDateString());
-        $payment_status = 'Unpaid';
-        $imagePath = "";
+$due_date = $utils->format_date(now()->addDays(3)->toDateString());
+$payment_status = 'Unpaid';
+$imagePath = "";
     @endphp
 </head>
 <body>
@@ -78,6 +78,12 @@
                                 <div class="col-md-8 text-md-end" style="width:50%; display:inline-block; float:right;" id="project">
                                     <h4>Description</h4>
                                     <p>Here is your invoice for trips from {{ \Carbon\Carbon::parse($from_date)->format('F d, Y') }} to {{ \Carbon\Carbon::parse($to_date)->format('F d, Y') }}.</p>
+                                    <p>
+                                        <a href={{ url('customer/login') }}>
+                                            New! Click here
+                                        </a>
+                                        to login to your online portal to see trip history, download invoices, and add more money your account
+                                    </p>
                                 </div>
                                 <div style="clear:both"></div>
                             </div>
@@ -96,17 +102,17 @@
                                         <td><h4>Paid</h4></td>
                                     </tr>
                                     @php
-                                        $paidd = 0;
-                                        $total_trips = 0;
-                                        $cost = 0;
-                                           $trips_to_be_paid = $account->trips->filter(function ($trip) use ($from_date, $to_date) {
-                                        return $trip->payment_method === 'account' &&
-                                            strpos($trip->status, 'Cancelled') === false &&
-                                            strpos($trip->status, 'canceled') === false &&
-                                            $trip->is_delete == 0 &&
-                                            $trip->date >= $from_date &&
-                                            $trip->date <= $to_date;
-                                    });
+$paidd = 0;
+$total_trips = 0;
+$cost = 0;
+$trips_to_be_paid = $account->trips->filter(function ($trip) use ($from_date, $to_date) {
+    return $trip->payment_method === 'account' &&
+        strpos($trip->status, 'Cancelled') === false &&
+        strpos($trip->status, 'canceled') === false &&
+        $trip->is_delete == 0 &&
+        $trip->date >= $from_date &&
+        $trip->date <= $to_date;
+});
                                     @endphp
 
                                     @foreach($trips_to_be_paid as $trip)
@@ -130,9 +136,9 @@
                                             <td>${{ $trip->totalPaidAmountByCustomerFromAccountCard()->sum('amount') }}</td>
                                         </tr>
                                         @php
-                                            $paidd += $trip->totalPaidAmountByCustomerFromAccountCard()->sum('amount');
-                                            $total_trips++;
-                                            $cost += $trip->TotalCostDiscounted;
+    $paidd += $trip->totalPaidAmountByCustomerFromAccountCard()->sum('amount');
+    $total_trips++;
+    $cost += $trip->TotalCostDiscounted;
                                         @endphp
                                     @endforeach
                                 </table>
@@ -157,11 +163,11 @@
                             </div>
 
                             @php
-                                if ($paidd == $cost) {
-                                    $due_date = $utils->format_date(now()->toDateString());
-                                    $payment_status = 'Paid';
-                                    $imagePath = asset('assets/images/paid.jpg');
-                                }
+if ($paidd == $cost) {
+    $due_date = $utils->format_date(now()->toDateString());
+    $payment_status = 'Paid';
+    $imagePath = asset('assets/images/paid.jpg');
+}
                             @endphp
                         </div>
                     </div>

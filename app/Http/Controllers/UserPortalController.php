@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Yajra\DataTables\DataTables;
 use function Yajra\DataTables\Html\Editor\ajax;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ResetPasswordMail;
 
 class UserPortalController extends Controller
 {
@@ -26,6 +28,47 @@ class UserPortalController extends Controller
 
         return view('customer.login');
 
+    }
+    public function reset_password(){
+        return view('customer.reset-password');
+    }
+
+    public function reset_password_email(Request $request){
+        $user = Account::where('email', $request->email)->first();
+        
+        if($user){
+            
+                $email_id = $request->email;
+                $data = [
+                    'title' => 'Welcome!',
+                    'body' => 'Please click the link below to change your password, Thank you!',
+                    'url' => url('/customer/change_password').'?email=' . urlencode($user->email)
+                ]; 
+                
+                Mail::to($email_id)->send(new ResetPasswordMail($data));
+               
+             return redirect()->back()->with('success', 'An Email with reset password link is sent, please check you inbox!');
+        }else{
+            return redirect()->back()->with('error', 'This email is not found in our system, please try with regesterd email !');
+        }
+       
+    }
+    public function change_password(Request $request){
+        $email = $request->query('email');
+        return view('customer.change_password', compact('email'));
+    }
+
+    public function update_password(Request $request){
+        $password = $request->password;
+        $con_password = $request->confirm_password;
+        if($password === $con_password){
+            $user = Account::where('email', $request->email)->first();
+            $user->password = Hash::make($request->password);
+            $user->save();
+          return redirect(url('customer/login'))->with('success', 'Password is reset, please login to your portal');
+        }else{
+            return redirect()->back()->with('error', 'Password is not match please try again');
+        }
     }
 
     public function loginAttemp(Request $request){

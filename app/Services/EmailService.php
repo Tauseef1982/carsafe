@@ -90,7 +90,7 @@ class EmailService
             }
             $message .= "<br>";
             $message .= "<p>If you notice a 'flagdown' charge on your last invoice for a trip you didn’t take in this period , feel free to <a href='" . route('add_complaint',$data->hash_id) . "'>submit a complaint </a> and we will review it and respond via email.</p>";
-
+            $message .= "<p> <a href='" . url('customer/login') . "'> New! Click here  </a>to login to your online portal to see trip history, download invoices, and add more money your account</p>";
             $complaint_url = route('add_complaint',$data->hash_id);
             $data2['from_date'] = $data->invoice_from_date;
             $data2['to_date'] = $data->invoice_to_date;
