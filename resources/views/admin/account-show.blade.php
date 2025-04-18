@@ -110,14 +110,14 @@
                                     </div>
                                 </div>
                             </form>
-                            @if($account->account_type != 'prepaid')
+                            
                                 <button class="btn-sm btn-dark mt-3"
                                         onclick="download_invoice_link(' {{$account->id }} ')"
                                         data-modalid="invoiceModal" data-original-title="test"
                                         data-modalcontent="' . htmlentities($modalinvoice) . '">
                                     Click Here for invoice
                                 </button>
-                            @endif
+                            
 
                         </div>
                     </div>
