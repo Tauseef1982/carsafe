@@ -26,7 +26,7 @@ $masked_phone = str_repeat('*', strlen($user_phone) - 4) . $masked_phone;
                   <div class="form-group">
                     <label class="col-form-label">An OTP Sent To Phone Number {{$user_phone}} </label>
 
-                      <input class="form-control" name="otp" type="tel" placeholder="Please Enter OTP here">
+                      <input class="form-control" name="otp" type="text" placeholder="Please Enter OTP here">
                     </div>
 
                   <div class="form-group mb-0">
