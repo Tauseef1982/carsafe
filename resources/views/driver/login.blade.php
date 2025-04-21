@@ -25,7 +25,7 @@
                   <div class="form-group">
                     <label class="col-form-label">Enter Your Username</label>
                     <div class="input-group">
-                      <input class="form-control" name="username" type="tel"  placeholder="Enter Your Username">
+                      <input class="form-control" name="username" type="text"  placeholder="Enter Your Username">
                     </div>
                   </div>
 
