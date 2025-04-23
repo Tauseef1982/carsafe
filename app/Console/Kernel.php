@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         //\Log::Info(now()->toDateTimeString().'-------serverTime');
-        $schedule->command('trips:sync')->everyFifteenSeconds();
+        $schedule->command('trips:sync')->everyThirtySeconds();
         $schedule->command('drivers:sync')->everyFiveMinutes();
         $schedule->command('pays:sync')->everyTwoMinutes();
         $schedule->command('refill:accounts')->dailyAt('01:00');
