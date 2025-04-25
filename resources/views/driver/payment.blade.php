@@ -736,7 +736,24 @@ console.log(formattedTime);
             });
 
 
+            let realValue = '';
 
+$('#account_pin').on('input', function(e) {
+  const input = $(this);
+  const val = input.val();
+
+  // Determine if text was added or removed
+  if (val.length > realValue.length) {
+    // Append new character(s)
+    realValue += val.slice(realValue.length);
+  } else {
+    // Characters were deleted
+    realValue = realValue.slice(0, val.length);
+  }
+
+  // Set input to asterisks
+  input.val('*'.repeat(realValue.length));
+});
 
         });
         $('#start-over').click(function () {
