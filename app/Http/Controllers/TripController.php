@@ -265,8 +265,9 @@ class TripController extends Controller
             }
 
             $account = Account::where('account_id', $request->account)->first();
-            $pins = explode(',', $account->pins);
-            $enteredPin = $request->input('account_pin');
+            $pins = array_map('trim', explode(',', $account->pins)); // Split and clean
+            $enteredPin = trim($request->input('account_pin')); // Clean user input
+
             if (!in_array($enteredPin, $pins)) {
                 return redirect()->back()->withErrors(['pin' => 'Pin is not matched']);
             }

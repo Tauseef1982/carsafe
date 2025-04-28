@@ -202,7 +202,7 @@
                                     <div class="">
                                         <input class="form-control mb-3" type="tel" name="account" value="" id="acc-field"
                                                placeholder="Enter account number" />
-                                               <input type="text" name="account_pin" class="form-control mb-3" id="account_pin">
+                                               <input type="text" name="account_pin" class="form-control mb-3" placeholder="Pin" id="account_pin">
                                         <!-- <label for="" style="cursor: pointer; text-decoration:underline "
                                                id="show-extra-field">Add Extra Charges</label><br> -->
 
