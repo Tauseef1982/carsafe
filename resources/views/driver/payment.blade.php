@@ -1,6 +1,6 @@
 @php
-    use Illuminate\Support\Carbon;
-    $util = new \App\Utils\dateUtil();
+use Illuminate\Support\Carbon;
+$util = new \App\Utils\dateUtil();
 @endphp
 @extends('layout')
 
@@ -10,282 +10,284 @@
 @endsection
 
 @section('content')
-   
-    <div class="page-title">
-        <div class="row">
-            <div class="col-6"></div>
-            <div class="col-6">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{{url('dashboard')}}"><i data-feather="home"></i></a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a href="">Accept Payment</a>
-                    </li>
-                </ol>
-            </div>
-        </div>
-    </div>
-    </div>
-    <!-- Container-fluid starts-->
-    <div class="container-fluid">
-    @if ($errors->has('pin'))
-    <div class="alert alert-danger mt-3" role="alert">
-        {{ $errors->first('pin') }}
-    </div>
-@endif
-        <div class="row size-column">
-            <div class="col-xl-3 risk-col xl-100 box-col-12">
-                <div class="card total-users">
-                    <div class="card-header card-no-border">
-                        <h5>Payment {{--@if(!empty($discount))(Today Discount {{$discount}}% ) @endif --}}</h5>
-                        @if (session('error'))
-                            <div class="alert alert-danger">
-                                {{ session('error') }}
-                            </div>
-                        @endif
-                    </div>
-                    <form action="{{url('add-payment')}}" method="post" id="payment_form" onsubmit="disableButton()">
-                        @csrf
-                        <input hidden name="is_driver" value="1" />
-                        <div class="card-body pt-0" id="trip-div">
-                            <h5>Select Trip</h5>
-                            <div id="trips-container">
 
-
-                            </div>
-                            <div class="text-end mt-3">
-                                <button class="btn btn-primary btn-block w-100" id="show-method-div" hidden type="button">
-                                    Skip
-                                </button>
-                            </div>
-
-                            {{-- @foreach ($trips as $trip)
-                            <div class="card">
-                                <div class="media p-20">
-                                    <div class="form-check radio radio-primary me-3">
-                                        <input class="form-check-input trip-radio" id="radio{{$trip->id}}" type="radio"
-                                            name="trip" value="{{$trip->id}}" data-trip-cost="{{$trip->trip_cost}}"
-                                            title="" />
-                                        <label class="form-check-label" for="radio{{$trip->id}}">
-                                            <div class="media-body">
-                                                <h6 class="mt-0 mega-title-badge">
-                                                    {{$trip->location_from}} to {{$trip->location_to}}
-                                                    <span
-                                                        class="badge badge-primary pull-right digits">${{$trip->trip_cost}}</span>
-                                                </h6>
-                                                <p class="notranslate">
-                                                    @php
-                                                    $formattedDate = $util->format_date($trip->date);
-                                                    $formattedTime = $util->time_format($trip->time);
-                                                    @endphp
-                                                    Date:{{$formattedDate}} <span
-                                                        class="notranslate">{{$formattedTime}}</span>
-                                                </p>
-
-
-                                            </div>
-                                        </label>
-                                    </div>
-
-                                </div>
-                            </div>
-                            @endforeach --}}
-
-
-
-                        </div>
-                        <div class="card-body pt-0 hide" id="method-div">
-                            <h5>
-                                Payment Method
-                                <span class="badge badge-primary pull-right digits btn" id="show-trip-div">Go Back</span>
-                            </h5>
-
-                            <div class="card" id="account-check">
-                                <div class="media p-20">
-                                    <div class="form-check radio radio-primary me-3">
-                                        <input class="form-check-input" id="radio19" type="radio" name="payment_method"
-                                               value="account" data-bs-original-title="" title="" />
-                                        <label class="form-check-label" for="radio19">
-                                            Account
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card" id="card-check">
-                                <div class="media p-20">
-                                    <div class="form-check radio radio-primary me-3">
-                                        <input class="form-check-input" id="radio20" type="radio" name="payment_method"
-                                               value="card" data-bs-original-title="" title="" />
-                                        <label class="form-check-label" for="radio20">Card</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="text-end mt-3">
-                                <button class="btn btn-primary btn-block w-100" type="button" id="show-amount-div">
-                                    Next
-                                </button>
-                            </div>
-                        </div>
-
-
-                        <div class="card-body pt-0 hide" id="amount-div">
-                            <h5>
-                                Total Amount
-                                <span class="badge badge-primary pull-right digits btn " id="show-method-div-btn-back">Go
-                                Back</span>
-                            </h5>
-                            <div class="card">
-                                <div class="media p-20">
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        <input class="form-control" type="tel" name="amount" autofocus value=""
-                                               id="amount-field" placeholder="00.00" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="text-end mt-3">
-                                <button class="btn btn-primary btn-block w-100 amount-btn  next-step-btn" type="button"
-                                        id="next-step-btn">
-                                    Next
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body pt-0 hide" id="extra-div">
-                            <h5>
-                                Extra Charges
-                                <span class="badge badge-primary pull-right digits btn show-method-div">Go Back</span>
-                            </h5>
-                            <div class="card">
-                                <div class="medi p-20 mb-3">
-                                    <label for="">Trip Price</label>
-                                    <div class="input-group mb-3">
-
-                                        <span class="input-group-text">$</span>
-                                        <input class="form-control price-span" type="tel" name="trip_price" value=""
-                                               id="trip_price" disabled />
-
-                                    </div>
-
-
-                                    <br>
-                                    {{-- <small>Stop, wait & any extra</small> --}}
-
-                                    <span class="span-exto">Total Payable: <span class="price-span"></span>+<span
-                                            id="extra-span"></span> =
-                                    $<span id="total-span"></span> </span>
-                                    <!-- <div class="form-group mt-3 " style="display: none;" id="complaint-field">
-
-                                                      <select class="form-control" id="complaint-select" name="complaint">
-                                                          <option value=""> Select Complaint </option>
-                                                          <option value="wrong_address">Wrong Address</option>
-                                                          <option value="incorrect_fare">Incorrect Fare</option>
-                                                      </select>
-                                                  </div> -->
-                                </div>
-                            </div>
-                            <div class="text-end mt-3">
-                                <button class="btn btn-primary btn-block w-100 next-step-btn set-this-amount-to-amount"
-                                        type="button">
-                                    Next
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body pt-0 hide" id="gocab-account-div">
-                            <h5>
-                                Account Number
-                                <span class="badge badge-primary pull-right digits btn  show-method-div">Go Back</span>
-                            </h5>
-                            <div class="card">
-                                <div class="media p-20">
-                                    <div class="">
-                                        <input class="form-control mb-3" type="tel" name="account" value="" id="acc-field"
-                                               placeholder="Enter account number" />
-                                               <input type="text" name="account_pin" class="form-control mb-3" placeholder="Pin" id="account_pin">
-                                        <!-- <label for="" style="cursor: pointer; text-decoration:underline "
-                                               id="show-extra-field">Add Extra Charges</label><br> -->
-
-                                    </div>
-
-                                </div>
-                                <div class=" d-none p-3" id="extracharges-field-div">
-
-                                    <span class="input-group-text hide">$</span>
-                                    <input class="form-control hide" type="tel" name="extra_charges" autofocus value=""
-                                           id="extra_charges" placeholder="00.00 " />
-
-                                    <label for="stop_amount" class="me-2">Stop:</label>
-                                    <div class="input-group mb-3">
-
-                                        <span class="input-group-text">$</span>
-                                        <input class="form-control me-2" type="tel" name="stop_amount" id="stop_amount"
-                                               placeholder="00.00" />
-
-                                    </div>
-                                    <label for="stop_amount" class="me-2">Stop Location: <small class="text-danger">Reqierd
-                                            Field</small><sup class="text-danger">*</sup> </label>
-                                    <input type="text" class="form-control" id="stop_location" name="stop_location"
-                                           placeholder="Please Enter Stop Location Here">
-                                    <label for="wait_amount" class="me-2 ">Wait:</label>
-                                    <div class="input-group mb-3">
-
-                                        <span class="input-group-text">$</span>
-                                        <input class="form-control me-2" type="tel" name="wait_amount" id="wait_amount"
-                                               placeholder="00.00" />
-                                    </div>
-                                    <label for="round_trip" class="me-2 ">Round Trip:</label>
-                                    <div class="input-group mb-3">
-
-                                        <span class="input-group-text">$</span>
-                                        <input class="form-control me-2" type="tel" name="round_trip" id="round_trip"
-                                               placeholder="00.00" />
-                                    </div>
-
-                                </div>
-                            </div>
-                            <div class="text-end mt-3">
-                                <button class="btn btn-primary btn-block w-100" type="submit" id="sb-btn-acc">
-                                    Submit
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="card-body pt-0 hide" id="card-div">
-                            <div id="card-errors" class="text-danger" role="alert"></div>
-                            <h5>
-                                Card Details
-                                <span class="badge badge-primary pull-right digits btn show-amount-div">Go Back</span>
-                            </h5>
-                            <div class="card">
-
-                                {{-- <div id="card-element" class="p-5">--}}
-                                {{-- <!-- A Stripe Element will be inserted here. -->--}}
-                                {{-- </div>--}}
-                                <div id="card-element-cardnox" style="margin-top: 50px">
-                                    <div class="card-js" id="cardnox_inputs" data-capture-name="true"
-                                         data-icon-colour="#158CBA"></div>
-                                </div>
-
-                            </div>
-                            <div class="text-end mt-3">
-                                <button class="btn btn-primary btn-block w-100" type="button" id="card-submit-btn">
-                                    Submit
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                    <div class="px-3">
-                        <button type="button" class="btn btn-outline-primary  btn-block w-100" id="start-over">
-                            Start Over
-                        </button>
-                    </div>
-
+        <div class="page-title">
+            <div class="row">
+                <div class="col-6"></div>
+                <div class="col-6">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{url('dashboard')}}"><i data-feather="home"></i></a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="">Accept Payment</a>
+                        </li>
+                    </ol>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Container-fluid Ends-->
+        </div>
+        <!-- Container-fluid starts-->
+        <div class="container-fluid">
+        @if ($errors->has('pin'))
+        <div class="alert alert-danger mt-3" role="alert">
+            {{ $errors->first('pin') }}
+        </div>
+    @endif
+            <div class="row size-column">
+                <div class="col-xl-3 risk-col xl-100 box-col-12">
+                    <div class="card total-users">
+                        <div class="card-header card-no-border">
+                            <h5>Payment {{--@if(!empty($discount))(Today Discount {{$discount}}% ) @endif --}}</h5>
+                            @if (session('error'))
+                                <div class="alert alert-danger">
+                                    {{ session('error') }}
+                                </div>
+                            @endif
+                        </div>
+                        <form action="{{url('add-payment')}}" method="post" id="payment_form" onsubmit="disableButton()">
+                            @csrf
+                            <input hidden name="is_driver" value="1" />
+                            <div class="card-body pt-0" id="trip-div">
+                                <h5>Select Trip</h5>
+                                <div id="trips-container">
+
+
+                                </div>
+                                <div class="text-end mt-3">
+                                    <button class="btn btn-primary btn-block w-100" id="show-method-div" hidden type="button">
+                                        Skip
+                                    </button>
+                                </div>
+
+                                {{-- @foreach ($trips as $trip)
+                                <div class="card">
+                                    <div class="media p-20">
+                                        <div class="form-check radio radio-primary me-3">
+                                            <input class="form-check-input trip-radio" id="radio{{$trip->id}}" type="radio"
+                                                name="trip" value="{{$trip->id}}" data-trip-cost="{{$trip->trip_cost}}"
+                                                title="" />
+                                            <label class="form-check-label" for="radio{{$trip->id}}">
+                                                <div class="media-body">
+                                                    <h6 class="mt-0 mega-title-badge">
+                                                        {{$trip->location_from}} to {{$trip->location_to}}
+                                                        <span
+                                                            class="badge badge-primary pull-right digits">${{$trip->trip_cost}}</span>
+                                                    </h6>
+                                                    <p class="notranslate">
+                                                        @php
+                                                        $formattedDate = $util->format_date($trip->date);
+                                                        $formattedTime = $util->time_format($trip->time);
+                                                        @endphp
+                                                        Date:{{$formattedDate}} <span
+                                                            class="notranslate">{{$formattedTime}}</span>
+                                                    </p>
+
+
+                                                </div>
+                                            </label>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                @endforeach --}}
+
+
+
+                            </div>
+                            <div class="card-body pt-0 hide" id="method-div">
+                                <h5>
+                                    Payment Method
+                                    <span class="badge badge-primary pull-right digits btn" id="show-trip-div">Go Back</span>
+                                </h5>
+
+                                <div class="card" id="account-check">
+                                    <div class="media p-20">
+                                        <div class="form-check radio radio-primary me-3">
+                                            <input class="form-check-input" id="radio19" type="radio" name="payment_method"
+                                                   value="account" data-bs-original-title="" title="" />
+                                            <label class="form-check-label" for="radio19">
+                                                Account
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card" id="card-check">
+                                    <div class="media p-20">
+                                        <div class="form-check radio radio-primary me-3">
+                                            <input class="form-check-input" id="radio20" type="radio" name="payment_method"
+                                                   value="card" data-bs-original-title="" title="" />
+                                            <label class="form-check-label" for="radio20">Card</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-end mt-3">
+                                    <button class="btn btn-primary btn-block w-100" type="button" id="show-amount-div">
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+
+
+                            <div class="card-body pt-0 hide" id="amount-div">
+                                <h5>
+                                    Total Amount
+                                    <span class="badge badge-primary pull-right digits btn " id="show-method-div-btn-back">Go
+                                    Back</span>
+                                </h5>
+                                <div class="card">
+                                    <div class="media p-20">
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control" type="tel" name="amount" autofocus value=""
+                                                   id="amount-field" placeholder="00.00" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-end mt-3">
+                                    <button class="btn btn-primary btn-block w-100 amount-btn  next-step-btn" type="button"
+                                            id="next-step-btn">
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body pt-0 hide" id="extra-div">
+                                <h5>
+                                    Extra Charges
+                                    <span class="badge badge-primary pull-right digits btn show-method-div">Go Back</span>
+                                </h5>
+                                <div class="card">
+                                    <div class="medi p-20 mb-3">
+                                        <label for="">Trip Price</label>
+                                        <div class="input-group mb-3">
+
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control price-span" type="tel" name="trip_price" value=""
+                                                   id="trip_price" disabled />
+
+                                        </div>
+
+
+                                        <br>
+                                        {{-- <small>Stop, wait & any extra</small> --}}
+
+                                        <span class="span-exto">Total Payable: <span class="price-span"></span>+<span
+                                                id="extra-span"></span> =
+                                        $<span id="total-span"></span> </span>
+                                        <!-- <div class="form-group mt-3 " style="display: none;" id="complaint-field">
+
+                                                          <select class="form-control" id="complaint-select" name="complaint">
+                                                              <option value=""> Select Complaint </option>
+                                                              <option value="wrong_address">Wrong Address</option>
+                                                              <option value="incorrect_fare">Incorrect Fare</option>
+                                                          </select>
+                                                      </div> -->
+                                    </div>
+                                </div>
+                                <div class="text-end mt-3">
+                                    <button class="btn btn-primary btn-block w-100 next-step-btn set-this-amount-to-amount"
+                                            type="button">
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body pt-0 hide" id="gocab-account-div">
+                                <h5>
+                                    Account Number
+                                    <span class="badge badge-primary pull-right digits btn  show-method-div">Go Back</span>
+                                </h5>
+                                <div class="card">
+                                    <div class="media p-20">
+                                        <div class="">
+                                            <input class="form-control mb-3" type="tel" name="account" value="" id="acc-field"
+                                                   placeholder="Enter account number" />
+                                                   <input type="text" id="account_pin_masked" autocomplete="new-password" inputmode="numeric" placeholder="Pin">
+
+                                                <input type="hidden" id="account_pin" name="account_pin">
+                                            <!-- <label for="" style="cursor: pointer; text-decoration:underline "
+                                                   id="show-extra-field">Add Extra Charges</label><br> -->
+
+                                        </div>
+
+                                    </div>
+                                    <div class=" d-none p-3" id="extracharges-field-div">
+
+                                        <span class="input-group-text hide">$</span>
+                                        <input class="form-control hide" type="tel" name="extra_charges" autofocus value=""
+                                               id="extra_charges" placeholder="00.00 " />
+
+                                        <label for="stop_amount" class="me-2">Stop:</label>
+                                        <div class="input-group mb-3">
+
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control me-2" type="tel" name="stop_amount" id="stop_amount"
+                                                   placeholder="00.00" />
+
+                                        </div>
+                                        <label for="stop_amount" class="me-2">Stop Location: <small class="text-danger">Reqierd
+                                                Field</small><sup class="text-danger">*</sup> </label>
+                                        <input type="text" class="form-control" id="stop_location" name="stop_location"
+                                               placeholder="Please Enter Stop Location Here">
+                                        <label for="wait_amount" class="me-2 ">Wait:</label>
+                                        <div class="input-group mb-3">
+
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control me-2" type="tel" name="wait_amount" id="wait_amount"
+                                                   placeholder="00.00" />
+                                        </div>
+                                        <label for="round_trip" class="me-2 ">Round Trip:</label>
+                                        <div class="input-group mb-3">
+
+                                            <span class="input-group-text">$</span>
+                                            <input class="form-control me-2" type="tel" name="round_trip" id="round_trip"
+                                                   placeholder="00.00" />
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="text-end mt-3">
+                                    <button class="btn btn-primary btn-block w-100" type="submit" id="sb-btn-acc">
+                                        Submit
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="card-body pt-0 hide" id="card-div">
+                                <div id="card-errors" class="text-danger" role="alert"></div>
+                                <h5>
+                                    Card Details
+                                    <span class="badge badge-primary pull-right digits btn show-amount-div">Go Back</span>
+                                </h5>
+                                <div class="card">
+
+                                    {{-- <div id="card-element" class="p-5">--}}
+                                    {{-- <!-- A Stripe Element will be inserted here. -->--}}
+                                    {{-- </div>--}}
+                                    <div id="card-element-cardnox" style="margin-top: 50px">
+                                        <div class="card-js" id="cardnox_inputs" data-capture-name="true"
+                                             data-icon-colour="#158CBA"></div>
+                                    </div>
+
+                                </div>
+                                <div class="text-end mt-3">
+                                    <button class="btn btn-primary btn-block w-100" type="button" id="card-submit-btn">
+                                        Submit
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="px-3">
+                            <button type="button" class="btn btn-outline-primary  btn-block w-100" id="start-over">
+                                Start Over
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Container-fluid Ends-->
 
 @endsection
 @section('js')
@@ -734,28 +736,30 @@ console.log(formattedTime);
                 }
 
             });
-
-
             let realValue = '';
 
-$('#account_pin').on('input', function(e) {
-  const input = $(this);
-  const val = input.val();
+$('#account_pin_masked').on('input', function(e) {
+    const input = $(this);
+    const entered = input.val();
 
-  // Determine if text was added or removed
-  if (val.length > realValue.length) {
-    // Append new character(s)
-    realValue += val.slice(realValue.length);
-  } else {
-    // Characters were deleted
-    realValue = realValue.slice(0, val.length);
-  }
+    if (entered.length > realValue.length) {
+        const newChar = entered.charAt(entered.length - 1);
+        if (/^[0-9]$/.test(newChar)) {
+            realValue += newChar;
+        }
+    } else {
+        realValue = realValue.slice(0, entered.length);
+    }
 
-  // Set input to asterisks
-  input.val('*'.repeat(realValue.length));
+    input.val('*'.repeat(realValue.length));
+
+    // **Important:** Update hidden field immediately
+    $('#account_pin').val(realValue);
 });
 
-        });
+// No need to do anything extra on form submit now
+
+
         $('#start-over').click(function () {
             window.location.reload();
             $('#payment_form')[0].reset();
@@ -766,7 +770,7 @@ $('#account_pin').on('input', function(e) {
             $("#amount-div").hide();
             $("#extra-div").hide();
         });
-
+    });
     </script>
     <script>
         function disableButton() {
