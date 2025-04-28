@@ -202,7 +202,7 @@ $util = new \App\Utils\dateUtil();
                                         <div class="">
                                             <input class="form-control mb-3" type="tel" name="account" value="" id="acc-field"
                                                    placeholder="Enter account number" />
-                                                   <input type="text" id="account_pin_masked" autocomplete="new-password" inputmode="numeric" placeholder="Pin">
+                                                   <input type="text" class="form-control" id="account_pin_masked" autocomplete="new-password" inputmode="numeric" placeholder="Pin">
 
                                                 <input type="hidden" id="account_pin" name="account_pin">
                                             <!-- <label for="" style="cursor: pointer; text-decoration:underline "
