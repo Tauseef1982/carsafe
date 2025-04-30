@@ -286,6 +286,112 @@ Route::get('/cube-contacts', function () {
 
 });
 
+Route::get("customers", function(){
+
+    $data = [
+        "SoftwareName" => "ACME Inc.",
+        "SoftwareVersion" => "1.0",
+        "NextToken" => "",
+        "PageSize" => 500,
+//        "Filters" => [
+//            "BillFirstName" => "John",
+//            "BillState" => "NY"
+//        ]
+    ];
+
+    $token = 'carsafecorp21d90b1cbc7b43ab91a0159f73892c39';
+
+    $curl = curl_init();
+
+    curl_setopt_array($curl, [
+        CURLOPT_URL => 'https://api.cardknox.com/v2/ListCustomers',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode($data),
+        CURLOPT_HTTPHEADER => [
+            "Authorization:$token",
+            "xKey: $token",
+            "Content-Type: application/json",
+            "X-Recurring-Api-Version: 2.1"
+        ],
+    ]);
+
+    $response = curl_exec($curl);
+    curl_close($curl);
+
+    $customers = json_decode($response)->Customers;
+
+    foreach ($customers as $cust){
+
+
+        if(isset($cust->DefaultPaymentMethodId)) {
+
+
+            $data = [
+                "SoftwareName" => "ACME Inc.",
+                "SoftwareVersion" => "1.0",
+                "PaymentMethodId" => $cust->DefaultPaymentMethodId,
+                "ShowDeleted" => false,
+
+            ];
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, [
+                CURLOPT_URL => 'https://api.cardknox.com/v2/GetPaymentMethod',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_HTTPHEADER => [
+                    "Authorization:$token",
+                    "xKey: $token",
+                    "Content-Type: application/json",
+                    "X-Recurring-Api-Version: 2.1"
+                ],
+            ]);
+
+            $response2 = curl_exec($curl);
+            curl_close($curl);
+            $card_data = json_decode($response2);
+
+            if(isset($cust->BillFirstName)) {
+
+                $card = new \App\Models\CreditCard();
+                $card->account_id = $cust->DefaultPaymentMethodId;
+                $card->account_number = $cust->BillFirstName;
+                $card->account_name = $cust->BillLastName;
+
+
+                $card->card_number = $card_data->MaskedCardNumber;
+                $card->expiry = $card_data->Exp;
+                $card->card_zip = $card_data->Zip;
+                $card->cardnox_token = $card_data->Token;
+                $card->save();
+            }
+        }
+    }
+die();
+
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://api.taxicaller.net/api/v1/company/48647/customer/account/list?limit=400&offset=1',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+        CURLOPT_HTTPHEADER => array(
+            'Authorization: Bearer ' . TokenService::token()
+        ),
+    ));
+    $originalObject = curl_exec($curl);
+    curl_close($curl);
+
+    dd($originalObject);
+
+});
 Route::get("trips_tc/{from}", function($from){
 
     if($from == 1) {
