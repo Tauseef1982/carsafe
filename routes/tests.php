@@ -576,7 +576,7 @@ Route::get('account_balance', function(){
         // Extract the cube_id from the 'name' field
         if (preg_match('/customer-(\d+)/', $record['name'], $matches)) {
             $cubeId = $matches[1];
-            $balance = $record['balance'] / 100;
+            $balance = $record['balance'] / 1000;
 
             // Find and update the account
             $account = Account::where('cube_id', $cubeId)->first();
