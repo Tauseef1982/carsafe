@@ -15,6 +15,7 @@ use App\Imports\UsersImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use App\Services\TokenService;
+use Illuminate\Support\Facades\DB;
 
 
 Route::get('/mg', function () {
@@ -31,7 +32,7 @@ Route::get('/mg', function () {
 
 Route::get('/mg2', function () {
 
-    \Illuminate\Support\Facades\Artisan::call('prePaidInvoices:accounts');
+    \Illuminate\Support\Facades\Artisan::call('accounts:sync');
     return 'Command executed successfully!';
 
 
@@ -358,8 +359,8 @@ Route::get("customers", function(){
 
                 $card = new \App\Models\CreditCard();
                 $card->account_id = $cust->DefaultPaymentMethodId;
-                $card->account_number = $cust->BillFirstName;
-                $card->account_name = $cust->BillLastName;
+                $card->account_number = $cust->BillFirstName ?? '';
+                $card->account_name = $cust->BillLastName ?? '';
 
 
                 $card->card_number = $card_data->MaskedCardNumber;
@@ -522,4 +523,74 @@ Route::get("trips_tc/{from}", function($from){
     }
     dd('almost updated wait a while'.count($trips));
 
+});
+
+Route::get('update_cards', function () {
+    DB::statement("
+        UPDATE credit_cards
+        JOIN accounts 
+            ON accounts.f_name = credit_cards.account_number 
+            AND accounts.lname = credit_cards.account_name
+        SET credit_cards.account_id = accounts.account_id
+    ");
+});
+Route::get('account_balance', function(){
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://api.taxicaller.net/api/v1/company/48647/bank/account/list',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'GET',
+        CURLOPT_POSTFIELDS => '{"method":"search-customer-account","data":{"query":{"filtered":{"filter":{"@type":"bool","must":[{"@type":"term","field":"meta_.retention.active","term":"true"}]}},"sort":[{"field":"name.raw","order":"asc"}],"page":{"offset":0,"limit":5000}}}}',
+        CURLOPT_HTTPHEADER => array(
+            'Accept: */*',
+            'Accept-Language: en-US,en;q=0.9',
+            'Authorization: Bearer '. TokenService::token(),
+            'Cache-Control: no-cache',
+            'Connection: keep-alive',
+            'Content-Type: text/plain;charset=UTF-8',
+            'Origin: https://app.taxicaller.net',
+            'Pragma: no-cache',
+            'Sec-Fetch-Dest: empty',
+            'Sec-Fetch-Mode: cors',
+            'Sec-Fetch-Site: same-site',
+            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+            'sec-ch-ua: "Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
+            'sec-ch-ua-mobile: ?0',
+            'sec-ch-ua-platform: "Windows"'
+        ),
+    ));
+
+    $response = curl_exec($curl);
+    curl_close($curl);
+ 
+    $data = json_decode($response, true);
+    $accounts = $data['accounts'] ?? [];
+
+    // Loop over each balance record
+    foreach ($accounts as $record) {
+        // Extract the cube_id from the 'name' field
+        if (preg_match('/customer-(\d+)/', $record['name'], $matches)) {
+            $cubeId = $matches[1];
+            $balance = $record['balance'] / 100;
+
+            // Find and update the account
+            $account = Account::where('cube_id', $cubeId)->first();
+            if ($account) {
+                $account->balance = $balance;
+                if ($balance <= 0) {
+                    $account->status = 0;
+                }
+                $account->save();
+            }
+        }
+    }
+
+    return 'Account balances updated successfully.';
+   
+   
 });

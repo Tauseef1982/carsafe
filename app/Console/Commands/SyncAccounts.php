@@ -89,16 +89,20 @@ class SyncAccounts extends Command
         DB::beginTransaction();
        // Log::info(count( $accounts));
         foreach ($accounts as $account) {
+         
             if (!Account::where('account_id', $account->{'name'})->exists()) {
                 $newAccount = new Account();
                 $newAccount->account_id = $account->{'name'};
-                $newAccount->f_name = $account->{'lname'};
+                $newAccount->f_name = $account->{'fname'};
+                $newAccount->lname = $account->{'lname'};
                 $newAccount->status = $account->{'active'};
                 $newAccount->phone = $account->tags->{'info'};
                 $newAccount->company_name = $account->{'cname'};
                 $newAccount->address = $account->tags->{'address'};
                 $newAccount->billing_email = $account->tags->{'billing_email'};
                 $newAccount->email = $account->tags->{'contact_email'};
+                $newAccount->account_type = 'prepaid';
+                $newAccount->cube_id = $account->{'id'};
                
                 
                 $newAccount->save();
