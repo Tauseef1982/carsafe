@@ -78,7 +78,7 @@
 
                                 <label for="">Name</label>
                                 <input type="text" class="form-control mb-3" placeholder="Please enter name"
-                                       value="{{$account->f_name}}" name="f_name"/>
+                                       value="{{$account->f_name}} {{ $account->lname }}" name="f_name"/>
                                 <label for="">Account PINS</label>
 
                                 <input type="text" class="form-control mb-3"  placeholder="Please enter by separator (,)"
