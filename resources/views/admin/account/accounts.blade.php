@@ -303,17 +303,34 @@
             ajax: {
                 url: "{{ url('admin/accounts') }}",
                 method: "Get",
+                
                 data: function (data) {
                     data.status = $('#status').val();
                     data.unpaid_postpaid = $('#open_invoices').is(':checked') ? 1 : 0;
                     data.have_card = $('#have_card').val();
                 }
             },
+         
             columns: [
-                {data: 'f_name', name: 'f_name', render: function(data, type, row) {
-                return data.charAt(0).toUpperCase() + data.slice(1).toLowerCase();
-            }
-        },
+                {
+    data: 'full_name',
+    name: 'full_name'
+},
+        
+                        // {data: 'f_name', name: 'f_name', render: function(data, type, row) {
+                        //      return data.charAt(0).toUpperCase() + data.slice(1).toLowerCase();
+                        //  }
+                        // },
+//         { 
+//     data: null, // use null when combining multiple fields
+//     name: 'f_name', // or a custom name
+//     render: function(data, type, row) {
+//         let firstName = row.f_name.charAt(0).toUpperCase() + row.f_name.slice(1).toLowerCase();
+//         let lastName = row.l_name.charAt(0).toUpperCase() + row.l_name.slice(1).toLowerCase();
+//         return firstName + ' ' + lastName;
+//     }
+// },
+
                 {data: 'account_id', name: 'account_id',},
                 {data: 'email', name: 'email'},
                 {data: 'phone', name: 'phone'},

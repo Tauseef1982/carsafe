@@ -80,6 +80,11 @@ class AccountController extends Controller
 
                 }
             return Datatables::of($accounts)
+            ->addColumn('full_name', function ($row) {
+                $fName = ucfirst(strtolower($row->f_name));
+                $lName = ucfirst(strtolower($row->lname));
+                return $fName . ' ' . $lName;
+            })
                 ->addColumn('totalPaidAmount', function ($row) {
 //                    $totalPaid = $row->totalPaidAmountByCustomerFromAccount();
 

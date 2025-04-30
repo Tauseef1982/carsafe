@@ -92,7 +92,7 @@
                         </div>
                     @endif
                     <div class="card-header card-no-border">
-                        <h5>{{$account->f_name}}</h5>
+                        <h5>{{$account->f_name}} {{$account->lname}}</h5>
                         <div class="card-header-right">
 
                             <form id="filterForm">
