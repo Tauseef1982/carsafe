@@ -265,6 +265,9 @@ class TripController extends Controller
             }
 
             $account = Account::where('account_id', $request->account)->first();
+            if($account->status == 0){
+                return redirect()->back()->with('error', 'Account is Inactive');
+            }
             $pins = array_map('trim', explode(',', $account->pins)); // Split and clean
             $enteredPin = trim($request->input('account_pin')); // Clean user input
        

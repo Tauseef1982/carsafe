@@ -442,23 +442,15 @@ class AccountController extends Controller
             if($request->status == 0){
 
     //            CubeContact::deleteAccount($account->account_id);
-                $cube_resp =  CubeContact::updateCubeAccount($account->account_id,"Your Account Is Closed","Inactive",true);
+               // $cube_resp =  CubeContact::updateCubeAccount($account->account_id,"Your Account Is Closed","Inactive",true);
 
             }else{
-                $cube_resp  = CubeContact::updateCubeAccount($account->account_id,null,"active",true);
+              //  $cube_resp  = CubeContact::updateCubeAccount($account->account_id,null,"active",true);
 
             }
 
-                if($cube_resp != 1){
+               
 
-                    DB::rollBack();
-                    Session::flash('error',$cube_resp);
-                    return redirect()->back();
-                }
-
-            if($account->cube_id == null || $account->cube_id == '') {
-                CubeContact::createAccount($account->account_id);
-            }
 
         DB::commit();
 
@@ -493,9 +485,9 @@ class AccountController extends Controller
                     if ($uaccount->balance > 0) {
                         $uaccount->status = 1;
                         if ($uaccount->cube_id == null || $uaccount->cube_id == '') {
-                            CubeContact::createAccount($uaccount->account_id);
+                           // CubeContact::createAccount($uaccount->account_id);
                         }
-                        CubeContact::updateCubeAccount($uaccount->account_id,null,'active');
+                      //  CubeContact::updateCubeAccount($uaccount->account_id,null,'active');
 
                         $uaccount->save();
                     }
@@ -552,7 +544,7 @@ class AccountController extends Controller
                             if ($uaccount->cube_id == null || $uaccount->cube_id == '') {
                                 CubeContact::createAccount($uaccount->account_id);
                             }
-                           $cube_resp = CubeContact::updateCubeAccount($uaccount->account_id,null,'active');
+                         //  $cube_resp = CubeContact::updateCubeAccount($uaccount->account_id,null,'active');
 
                             $uaccount->save();
                         }
@@ -1103,7 +1095,7 @@ class AccountController extends Controller
         $account->is_deleted = 1;
         $account->cube_id = null;
 //        CubeContact::deleteAccount($account->account_id);
-        CubeContact::updateCubeAccount($account->account_id,"Your Account Is Closed","Inactive");
+     //   CubeContact::updateCubeAccount($account->account_id,"Your Account Is Closed","Inactive");
 
         $account->save();
         return redirect()->back()->with('success', 'Account is deleted successfully');
@@ -1412,7 +1404,7 @@ class AccountController extends Controller
             PaymentSaveService::save($paymeny_data_send);
             $message ='Account:Payment deducted by Cron using Cardknox BatchPayment-ID#' . $batch_p->id . ' Amount: ' . $batch_p->amount;
 
-            CubeContact::updateCubeAccount($account->account_id,null,"active");
+         //   CubeContact::updateCubeAccount($account->account_id,null,"active");
 
 
         }else{
@@ -1420,7 +1412,7 @@ class AccountController extends Controller
             Log::info('no'.$total_payments);
             $message = 'Account:Payment Failed by Cron using Cardknox';
             if($try > 3){
-                CubeContact::updateCubeAccount($account->account_id,"Account is inactive due to unpaid invoices","Inactive");
+            //    CubeContact::updateCubeAccount($account->account_id,"Account is inactive due to unpaid invoices","Inactive");
                 EmailService::AccountInActive($account);
 
             }
@@ -1673,13 +1665,13 @@ class AccountController extends Controller
 
 
                     $emailData[] = $accountPayment;
-                    CubeContact::updateCubeAccount($account->account_id,null,"active");
+                   // CubeContact::updateCubeAccount($account->account_id,null,"active");
 
                 }else{
 
                    $msg = json_encode($fillAndDeduct);
                     if($try > 3){
-                        CubeContact::updateCubeAccount($account->account_id,"Account is inactive due to unpaid invoices","Inactive");
+                     //   CubeContact::updateCubeAccount($account->account_id,"Account is inactive due to unpaid invoices","Inactive");
                         EmailService::AccountInActive($account);
 
                     }

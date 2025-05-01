@@ -127,39 +127,20 @@ Route::get('/correct/balanceprepaid', function () {
 // });
 
 Route::get('/script/account_defaultPin', function () {
-    $page = request()->get('page', 1); // Get current page from query string, default to 1
-    $perPage = 25; // Process 25 accounts per request
+    
 
-    $accounts = Account::where('account_type', 'postpaid')
-        ->skip(($page - 1) * $perPage) // Skip previous batches
-        ->take($perPage) // Take the next 25
-        ->get();
 
-    if ($accounts->isEmpty()) {
-        return response()->json([
-            'message' => 'No more accounts to process',
-        ]);
-    }
-
-    sleep(2);
+    $accounts = Account::all();
 
     foreach ($accounts as $account) {
-        if (!empty($account->cube_id)) {
-            if ($account->status == 0) {
-                CubeContact::updateCubeAccount($account->account_id, "Your Account Is Closed", "Inactive");
-            } elseif ($account->status == 1) {
-
-                CubeContact::updateCubeAccount($account->account_id, null, "active");
-                Log::info("Account ID: {$account->account_id} updated to active.");
-            }
-        }
-        sleep(1);
+        $account_id = $account->account_id;
+        $account->pins = $account_id;
+        $account->save();
     }
 
     return response()->json([
-        'message' => "Processed batch $page successfully",
-        'processed_accounts' => $accounts->pluck('account_id'),
-        'next_page' => url('/script/account_defaultPin?page=' . ($page + 1)), // Provide next batch link
+        'message' => "Account id set as Pin for all accounts  successfully",
+
     ]);
 });
 

@@ -89,7 +89,9 @@ class SyncAccounts extends Command
         DB::beginTransaction();
        // Log::info(count( $accounts));
         foreach ($accounts as $account) {
-         
+        //  if($account->{'name'} == '0085'){
+        //     dd($account->tags->{'billing_email'});
+        //  }
             if (!Account::where('account_id', $account->{'name'})->exists()) {
                 $newAccount = new Account();
                 $newAccount->account_id = $account->{'name'};
