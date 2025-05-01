@@ -90,29 +90,50 @@ class SyncAccounts extends Command
        // Log::info(count( $accounts));
         foreach ($accounts as $account) {
         //  if($account->{'name'} == '0085'){
-        //     dd($account->tags->{'billing_email'});
+        //     dd($account);
         //  }
-            if (!Account::where('account_id', $account->{'name'})->exists()) {
-                $newAccount = new Account();
-                $newAccount->account_id = $account->{'name'};
+        $existingAccount = Account::where('account_id', $account->{'name'})->first();
+
+        if (!$existingAccount) {
+            // Create new account
+            $newAccount = new Account();
+            $newAccount->account_id = $account->{'name'};
+        } else {
+            // Update existing account
+            $newAccount = $existingAccount;
+        }
+
                 $newAccount->f_name = $account->{'fname'};
                 $newAccount->lname = $account->{'lname'};
                 $newAccount->status = $account->{'active'};
-                $newAccount->phone = $account->tags->{'info'};
+                $newAccount->phone = !empty($account->tags->{'info'}) ? $account->tags->{'info'} : $account->{'phone'};
+
                 $newAccount->company_name = $account->{'cname'};
                 $newAccount->address = $account->tags->{'address'};
-                $newAccount->billing_email = $account->tags->{'billing_email'};
-                $newAccount->email = $account->tags->{'contact_email'};
+                $contactEmail = $account->tags->{'contact_email'} ?? null;
+                $billingEmail = $account->tags->{'billing_email'} ?? null;
+
+                if (!empty($contactEmail) && !empty($billingEmail) && $contactEmail !== $billingEmail) {
+                    // Both emails are present and different
+                    $newAccount->email = $contactEmail;
+                    $newAccount->billing_email = $billingEmail;
+                } else {
+                    // Use whichever is available (or same) for both
+                    $emailToUse = !empty($contactEmail) ? $contactEmail : $billingEmail;
+                    $newAccount->email = $emailToUse;
+                    $newAccount->billing_email = $emailToUse;
+                }
+
                 $newAccount->account_type = 'prepaid';
                 $newAccount->cube_id = $account->{'id'};
-               
+                $newAccount->notification_setting = 'account_phone';
                 
                 $newAccount->save();
                 
             }
 
          
-        }
+        
 
          DB::commit();
         Log::info('sync-accounts');
