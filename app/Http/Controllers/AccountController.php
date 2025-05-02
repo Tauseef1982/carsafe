@@ -104,8 +104,8 @@ class AccountController extends Controller
                     <a href="' . url('admin/show/account/' . $row->id) . '" class="btn-sm btn-primary">
                         <i class="fa fa-eye"></i>
                     </a>
-                    <a class="btn-sm btn-danger" data-bs-toggle="modal"
-                            data-original-title="test" data-bs-target="#exampleModal' . $row->id . '">
+                    <a class="btn-sm btn-danger open-delete-modal" style="cursor:pointer;" data-bs-toggle="modal"
+                            data-original-title="test" data-id="'. $row->id .'" data-bs-target="#exampleModal">
                         <i class="fa fa-trash"></i>
                     </a>';
 

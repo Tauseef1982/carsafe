@@ -133,7 +133,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">New Account</h5>
+                    <h5 class="modal-title" id="invoiceModalLabel">New Account</h5>
                     <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form method="post" action="{{url('admin/add_account')}}">
@@ -247,12 +247,54 @@
         </div>
     </div>
 
+    <!-- delete account Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1"
+        role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+       <div class="modal-dialog" role="document">
+           <div class="modal-content">
+               <div class="modal-header">
+                   <h5 class="modal-title"
+                       id="exampleModalLabel">Delete
+                       Account</h5>
+                   <button class="btn-close" type="button"
+                           data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+               <form method="post" action="{{url('admin/delete/account')}}">
+
+                   <div class="modal-body">
+                       @csrf
+
+                       <input hidden class="form-control mb-3"
+                              value="" name="id" id="delete-id"/>
+                       <h3 class="text-center">Are you sure to delete this
+                           account</h3>
+
+                   </div>
+                   <div class="modal-footer">
+                       <button class="btn btn-dark" type="button"
+                               data-bs-dismiss="modal">Close
+                       </button>
+                       <button class="btn btn-primary" type="submit">Delete
+                       </button>
+                   </div>
+               </form>
+
+           </div>
+       </div>
+   </div>
+
 @endsection
 
 @section('js')
 
 <script>
     $(document).ready(function(){
+
+        $(document).on('click', '.open-delete-modal', function () {
+        const id = $(this).data('id');
+        $('#delete-id').val(id);
+    });
         $('.masked').inputmask("(999) 999-9999");
          $('#recharge').css('display', 'none');
          $('#account_id').on('input', function () {
