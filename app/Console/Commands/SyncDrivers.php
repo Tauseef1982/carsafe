@@ -78,13 +78,16 @@ class SyncDrivers extends Command
 
         try {
             foreach ($drivers as $driver) {
+                // if($driver->username == 'Daniel2'){
+                //     dd($driver);
+                // }
                 $existingDriver = Driver::where('driver_id', $driver->ID)->first();
 
                 if ($existingDriver) {
                     if($existingDriver->username == ""){
 
 //                        $username = TaxiCallerApi::ActiveDeactiveDriver($existingDriver,false);
-                        CubeContact::deleteDriver($existingDriver->driver_id);
+                     //   CubeContact::deleteDriver($existingDriver->driver_id);
 //                        $existingDriver->username = $username;
                         $existingDriver->status = 0;
                         $existingDriver->phone = "";
