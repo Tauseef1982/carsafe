@@ -143,7 +143,10 @@ class UserPortalController extends Controller
                         return '';
                     }
                     return $row->cube_pin_status;
+                }) ->addColumn('action', function ($row) {
+                    return '<button class="btn btn-sm btn-primary openTripModal" data-trip="' . $row->trip_id . '">Add Complaint</button>';
                 })
+                ->rawColumns(['action'])
                 ->make(true);
 
         }

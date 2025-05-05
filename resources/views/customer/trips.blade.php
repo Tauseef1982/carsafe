@@ -54,10 +54,10 @@
                             <!-- <th>Payment Method</th> -->
                             <th>Date</th>
                             <th>Time</th>
-                            <th>Status</th>
+                            <!-- <th>Status</th> -->
                             <!-- <th>Complaint</th>
-                            <th>Update Reason</th>
-                            <th>Accepted By</th> -->
+                            <th>Update Reason</th> -->
+                            <th>Action</th> 
                           </tr>
                         </thead>
                         <tbody>
@@ -93,6 +93,27 @@
         </div>
        </div>
       </div>
+<!-- complaint modal -->
+<div class="modal fade" id="tripModal" tabindex="-1" aria-labelledby="tripModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="tripModalLabel">Register Your Complaint </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="tripModalBody">
+        <form action="{{ url('add_account_complaint') }}" method="post">
+          @csrf
+         <input type="hidden" name="trip_id" id="trip_id">
+         <input type="hidden" name="account_id" value="{{ Auth::guard('customer')->user()->account_id }}">
+         <label for="">Please add Details</label>
+         <textarea name="complaint" class="form-control mb-3" id="" placeholder="Please Enter Here.."></textarea>
+         <input type="submit" class="btn btn-primary" value="Submit">
+        </form>
+        </div>
+    </div>
+  </div>
+</div>
 
 @endsection
 
@@ -129,10 +150,10 @@
               //  {data: 'payment_method', name: 'payment_method'},
                 {data: 'date', name: 'date'},
                 {data: 'time', name: 'time'},
-                {data: 'status', name: 'status'},
+               // {data: 'status', name: 'status'},
                // {data: 'complaint', name: 'complaint'},
                // {data: 'reason', name: 'reason'},
-               // {data: 'accepted_by', name: 'accepted_by'},
+                {data: 'action', name: 'action'},
 
 
             ], // Dynamically assigned columns
@@ -154,6 +175,19 @@
         let to = $('#to_date').val();
         loadTrips(from, to);
     });
+    </script>
+
+    <script>
+      $(document).ready(function() {
+        $(document).on('click', '.openTripModal', function () {
+    const trip_id = $(this).data('trip');
+     $('#trip_id').val(trip_id);
+     console.log(trip_id);
+  
+    $('#tripModal').modal('show');
+});
+
+      });
     </script>
 
 @endsection
