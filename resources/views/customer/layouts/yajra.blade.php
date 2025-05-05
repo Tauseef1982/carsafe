@@ -1,6 +1,6 @@
 @php
-    use Carbon\Carbon;
-    $currentYear = Carbon::now()->year;
+use Carbon\Carbon;
+$currentYear = Carbon::now()->year;
 @endphp
 
     <!DOCTYPE html>
@@ -219,6 +219,17 @@
                                 </a>
 
                             </li>
+
+                            <li class="sidebar-main-title">
+                            
+                                <a href="{{url('customer/pins')}}">
+                                    <div>
+                                        Account Pins
+                                    </div>
+                                </a>
+                            
+                            </li>
+
 
                             <li class="sidebar-main-title">
 

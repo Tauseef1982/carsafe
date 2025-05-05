@@ -20,6 +20,17 @@
 <div class="card total-users">
 
        <div class="container-fluid">
+       <div class="row mb-3 p-3">
+    <div class="col-md-3">
+        <input type="date" id="from_date" class="form-control">
+    </div>
+    <div class="col-md-3">
+        <input type="date" id="to_date" class="form-control">
+    </div>
+    <div class="col-md-2">
+        <button id="filter_btn" class="btn btn-primary">Filter</button>
+    </div>
+</div>
         <div class="row">
              <!-- Zero Configuration  Starts-->
              <div class="col-sm-12">
@@ -89,16 +100,21 @@
 @section('js')
 
     <script>
-
-        var table = $('#history').DataTable({
+          function loadTrips(from_date = '', to_date = '') {
+            if ($.fn.DataTable.isDataTable('#history')) {
+        $('#history').DataTable().destroy();
+    }
+         $('#history').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{url('customer/trips')}}",
                 type: 'GET',
                 data: function (d) {
-                    d.account_id = "{{$account_id}}";
-                }
+        d.account_id = "{{$account_id}}";
+        d.from_date = from_date;
+        d.to_date = to_date;
+    }
             },
             columns: [
                 {data: 'trip_id', name: 'trip_id'},
@@ -121,7 +137,23 @@
 
             ], // Dynamically assigned columns
             order: [[1, 'desc']]
-        });
+        }
+          );
+        };
+        let today = new Date().toISOString().split('T')[0];
+    let lastWeek = new Date();
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    let lastWeekStr = lastWeek.toISOString().split('T')[0];
+
+    $('#from_date').val(lastWeekStr);
+    $('#to_date').val(today);
+   loadTrips(lastWeekStr, today);
+
+        $('#filter_btn').click(function () {
+        let from = $('#from_date').val();
+        let to = $('#to_date').val();
+        loadTrips(from, to);
+    });
     </script>
 
 @endsection

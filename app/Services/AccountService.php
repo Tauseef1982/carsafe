@@ -7,7 +7,7 @@ use App\Models\BatchPayment;
 use App\Models\Trip;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
-
+use Carbon\Carbon;
 
 class AccountService
 {
@@ -111,17 +111,16 @@ class AccountService
         );
 
 
+        $today = Carbon::today();
+        $oneWeekAgo = $today->copy()->subDays(7);
+        
         if (!isset($request->from_date) || empty($request->from_date)) {
-
-            $trips = $trips->whereDate('trips.date', '>', '2024-09-05');
+            $trips = $trips->whereDate('trips.date', '>=', $oneWeekAgo);
+        } elseif (!empty($request->from_date) && !empty($request->to_date)) {
+            $trips = $trips->whereDate('trips.date', '>=', $request->from_date)
+                           ->whereDate('trips.date', '<=', $request->to_date);
         }
-        if (isset($request->from_date) && isset($request->to_date) && !empty($request->from_date) && !empty($request->to_date)) {
-            if ($request->from_date != '' && $request->to_date != '') {
-
-                $trips = $trips->whereDate('trips.date', '>=', $request->from_date)->whereDate('trips.date', '<=', $request->to_date);
-
-            }
-        }
+        
 
 
         if (isset($request->driver)) {

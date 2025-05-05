@@ -151,7 +151,7 @@ class UserPortalController extends Controller
         return view('customer.trips',compact('account_id'));
     }
 
-    public function creditCards()
+    public function creditCards(Request $request)
     {
         $account_id = Auth::guard('customer')->user()->account_id;
         $creditcards = CreditCard::where('account_id',$account_id)->where('is_deleted' , 0);
@@ -345,6 +345,21 @@ class UserPortalController extends Controller
         DB::commit();
 
         return redirect()->back();
+    }
+
+    public function pins(){
+        $account_id = Auth::guard('customer')->user()->account_id;
+        $account = Account::where('account_id',$account_id)->first();
+        $pins = $account->pins;
+       return  view('customer.pins', compact('pins'));
+    }
+
+    public function update_pins(Request $request){
+        $account_id = Auth::guard('customer')->user()->account_id;
+        $account = Account::where('account_id',$account_id)->first();
+        $account->pins = $request->pins;
+        $account->save();
+        return redirect()->back()->with('success', 'Your Account Pins Updated');
     }
 
 }
