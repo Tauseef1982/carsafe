@@ -247,7 +247,7 @@ Route::group(['prefix' => 'customer','as' => 'customer.'], function () {
     Route::post('/pay-to-refill', [AccountController::class, 'paymentToRefill']);
     Route::get('/pins', [\App\Http\Controllers\UserPortalController::class, 'pins']);
     Route::post('/pins/update', [\App\Http\Controllers\UserPortalController::class, 'update_pins'] );
-
+    Route::get('/complaints', [\App\Http\Controllers\UserPortalController::class, 'complaints']);
     });
 
 });

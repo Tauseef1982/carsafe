@@ -229,7 +229,15 @@ $currentYear = Carbon::now()->year;
                                 </a>
                             
                             </li>
-
+                            <li class="sidebar-main-title">
+                            
+                            <a href="{{url('customer/complaints')}}">
+                                <div>
+                                    Complaints
+                                </div>
+                            </a>
+                        
+                        </li>
 
                             <li class="sidebar-main-title">
 

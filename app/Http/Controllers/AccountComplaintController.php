@@ -6,6 +6,7 @@ use App\Models\Account;
 use App\Models\Account_Complaint;
 use App\Models\Trip;
 use App\Mail\ComplaintSolved;
+use App\Mail\ComplaintSubmitted;
 use App\Services\PaymentSaveService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -89,7 +90,7 @@ class AccountComplaintController extends Controller
         $complaint->complaint = $request->complaint;
         $complaint->hash_id = $request->hash_id;
         $complaint->save();
-
+        Mail::to('rehman.tuseef757@gmail.com')->send(new ComplaintSubmitted($complaint, $trip));
         return redirect()->back()->with('success', 'Your Complaint is submitted, our team will contact you soon, now you can submit another claim!');
     }
 

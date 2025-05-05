@@ -7,6 +7,7 @@ use App\Models\AccountPayment;
 use App\Models\BatchPayment;
 use App\Models\CreditCard;
 use App\Models\Driver;
+use App\Models\Account_Complaint;
 use App\Services\AccountService;
 use App\Services\CardKnoxService;
 use App\Services\CubeContact;
@@ -364,5 +365,13 @@ class UserPortalController extends Controller
         $account->save();
         return redirect()->back()->with('success', 'Your Account Pins Updated');
     }
+
+    public function complaints(){
+        $account_id = Auth::guard('customer')->user()->account_id;
+        $account = Account::where('account_id',$account_id)->first();
+         $complaints = Account_Complaint::where('account_id', $account_id)->get();
+         return view('customer.complaints', compact('complaints'));
+    }
+
 
 }
