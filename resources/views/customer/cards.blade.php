@@ -47,6 +47,7 @@
                                         <th>Card No</th>
                                         <th>Expiry</th>
                                         <th>Type</th>
+                                        <th>Priority</th>
                                         <th>Action</th>
 
                                     </tr>
@@ -59,6 +60,12 @@
                                             <td>{{$creditcard->card_number}}</td>
                                             <td>{{$creditcard->expiry}}</td>
                                             <td>{{$creditcard->type}}</td>
+                                            <td>@if ($creditcard->charge_priority == 1)
+                                             Primary
+                                             @else
+                                             Secondary
+                                            @endif
+                                            </td>
                                             <td>
                                                 <a href="{{ url('customer/editcard') }}/{{$creditcard->id}}" class="btn btn-xs btn-primary btn-air-primary">
                                                     <i class="fa fa-edit me-2"></i>Edit</a>
@@ -178,11 +185,11 @@
                                             <input class="cvc form-control mt-3" name="cvc" placeholder="CVC" value="">
                                         </div>
                                     </div>
-                                    <label for="" class="mt-3">Please Select Priority</label>
+                                    <!-- <label for="" class="mt-3">Please Select Priority</label>
                                     <select name="charge_priority" class="form-select" id="">
                                         <option value="1">Primary</option>
                                         <option value="0">Secondary</option>
-                                    </select>
+                                    </select> -->
 
                             </div>
 
