@@ -263,18 +263,20 @@ class TripController extends Controller
             if (!empty($trip->account_number) && $request->account !== $trip->account_number) {
                 return redirect()->back()->with('error', 'Trip Account Not Match');
             }
-
+          
             $account = Account::where('account_id', $request->account)->first();
             if($account->status == 0){
                 return redirect()->back()->with('error', 'Account is Inactive');
             }
             $pins = array_map('trim', explode(',', $account->pins)); // Split and clean
             $enteredPin = trim($request->input('account_pin')); // Clean user input
-       
+           if(isset($request->is_driver)){
             if (!in_array($enteredPin, $pins)) {
                 return redirect()->back()->withErrors(['pin' => 'Pin is not matched']);
             }
-            
+           }
+           
+         
 
             if ($account) {
                 if ($account->status == 1) {
@@ -283,7 +285,7 @@ class TripController extends Controller
                     } else {
                         $cost = (float)$trip->trip_cost;
                     }
-
+                    
 
                     $extraCharges = $request->extra_charges;
                     $cost = $cost + (float)$extraCharges;

@@ -9,7 +9,7 @@
                 </div>
                 <div class="col-6">
                   <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url('customer-portal') }}">                                       <i data-feather="home"></i></a></li>
+                    <li class="breadcrumb-item"><a href="{{ url('customer/index') }}">                                       <i data-feather="home"></i></a></li>
                     <li class="breadcrumb-item text-primary">Trips History</li>
 
                   </ol>
@@ -35,18 +35,18 @@
                             <th>Driver ID</th>
                             <th>From</th>
                             <th>To</th>
-                            <th>Cost</th>
+                            <!-- <th>Cost</th>
                             <th>Extra</th>
-                            <th>Extra Description</th>
+                            <th>Extra Description</th> -->
                             <th>Total Cost</th>
 {{----}}
-                            <th>Payment Method</th>
+                            <!-- <th>Payment Method</th> -->
                             <th>Date</th>
                             <th>Time</th>
                             <th>Status</th>
-                            <th>Complaint</th>
+                            <!-- <th>Complaint</th>
                             <th>Update Reason</th>
-                            <th>Accepted By</th>
+                            <th>Accepted By</th> -->
                           </tr>
                         </thead>
                         <tbody>
@@ -106,17 +106,17 @@
                 {data: 'driver_id', name: 'driver_id'},
                 {data: 'location_from', name: 'location_from'},
                 {data: 'location_to', name: 'location_to'},
+              //  {data: 'trip_cost', name: 'trip_cost'},
+              //  {data: 'extra_charges', name: 'extra_charges'},
+              //  {data: 'ExtraDescription', name: 'ExtraDescription'},
                 {data: 'trip_cost', name: 'trip_cost'},
-                {data: 'extra_charges', name: 'extra_charges'},
-                {data: 'ExtraDescription', name: 'ExtraDescription'},
-                {data: 'trip_cost', name: 'trip_cost'},
-                {data: 'payment_method', name: 'payment_method'},
+              //  {data: 'payment_method', name: 'payment_method'},
                 {data: 'date', name: 'date'},
                 {data: 'time', name: 'time'},
                 {data: 'status', name: 'status'},
-                {data: 'complaint', name: 'complaint'},
-                {data: 'reason', name: 'reason'},
-                {data: 'accepted_by', name: 'accepted_by'},
+               // {data: 'complaint', name: 'complaint'},
+               // {data: 'reason', name: 'reason'},
+               // {data: 'accepted_by', name: 'accepted_by'},
 
 
             ], // Dynamically assigned columns

@@ -69,7 +69,7 @@
                                 <label for="">Phone</label>
                                 <input type="phone" class="form-control mb-3" name="phone"
                                        placeholder="Please Enter phone here" value="{{$account->phone}}">
-                                <label for="">Notification Setting</label> <br>
+                                <label for="">Where should you get account updates</label> <br>
                                 <input type="radio" @if($account->notification_setting == 'account_email') checked
                                        @endif value="account_email" name="notification_setting" id="account_email_n">
                                 <label for="account_email_n">Account Email </label>

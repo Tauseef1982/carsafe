@@ -26,11 +26,11 @@
                 <form class="theme-form" action="" method="post">
                   @csrf
                   <h4>Sign in to Customer Portal</h4>
-                  <p>Enter your Username/password</p>
+                  <p>Enter your Account Number/password</p>
                   <div class="form-group">
-                    <label class="col-form-label">Username</label>
+                    <label class="col-form-label">Account Number</label>
                     <div class="input-group">
-                      <input class="form-control" name="username" placeholder="Enter Your Username">
+                      <input class="form-control" name="username" placeholder="Enter Your Account Number">
                     </div>
                   </div>
 

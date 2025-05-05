@@ -62,7 +62,8 @@ class PrePaidAccountsInvoices extends Command
             $to_date = $today->copy()->subMonth()->endOfMonth()->format('Y-m-d');
         }
 
-        $from_date = '2024-12-10';
+        // $from_date = '2025-05-01';
+        // $to_date = '2025-05-06';
         $accounts = Account::with(['trips' => function ($query) use ($from_date, $to_date) {
             $query->where('payment_method', 'account')
                 ->where('is_delete', 0)

@@ -139,7 +139,10 @@ class UserPortalController extends Controller
             return DataTables::of($data['trips'])
                 ->addIndexColumn()
                 ->addColumn('cube_status', function ($row) {
-                    return $row->cube_pin.' '.$row->cube_pin_status;
+                    if (stripos($row->cube_pin_status, 'worng') !== false || stripos($row->cube_pin_status, 'wrong') !== false) {
+                        return '';
+                    }
+                    return $row->cube_pin_status;
                 })
                 ->make(true);
 

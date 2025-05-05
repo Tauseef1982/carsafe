@@ -118,7 +118,7 @@
             </div>
             <div class="header-logo-wrapper col-auto p-0">
                 <div class="logo-wrapper">
-                    <a href="{{url('dashboard')}}">
+                    <a href="{{url('customer/index')}}">
                         <img class="img-fluid" src="{{asset('assets/images/logo/carsafe-logo.webp')}}" alt="">
                     </a>
                 </div>
@@ -160,14 +160,14 @@
         <!-- Page Sidebar Start-->
         <div class="sidebar-wrapper">
             <div>
-                <div class="logo-wrapper"><a href="{{url('dashboard')}}"><img class="img-fluid for-light"
+                <div class="logo-wrapper"><a href="{{url('customer/index')}}"><img class="img-fluid for-light"
                                                                               src="{{asset('assets/images/logo/carsafe-logo.webp')}}"
                                                                               width="50px" alt=""></a>
                     <div class="back-btn"><i class="fa fa-angle-left"></i></div>
                     <div class="toggle-sidebar"><i class="status_toggle middle sidebar-toggle" data-feather="grid"> </i>
                     </div>
                 </div>
-                <div class="logo-icon-wrapper"><a href="{{url('dashboard')}}"><img class="img-fluid"
+                <div class="logo-icon-wrapper"><a href="{{url('customer/index')}}"><img class="img-fluid"
                                                                                    src="{{asset('assets/images/logo/carsafe-logo.webp')}}"
                                                                                    width="50px" alt=""></a></div>
                 <nav class="sidebar-main">
@@ -205,7 +205,7 @@
 
                                 <a href="{{url('customer/cards')}}">
                                     <div>
-                                        Credit Cards
+                                        Payment Methods
                                     </div>
                                 </a>
 
