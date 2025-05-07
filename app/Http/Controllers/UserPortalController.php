@@ -381,12 +381,13 @@ class UserPortalController extends Controller
 
         $account_id = $request->account_id;
         $to_refill = $request->to_refill;
-        $uaccount = Account::where('account_id', $account_id)->first(); // Retrieve the account
+        $uaccount = Account::where('account_id', $account_id)->first();
+         // Retrieve the account
         if($request->refill_method == 'card'){
 
-
+          
             $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',1)->where('is_deleted', 0)->first();
-
+         
             if (empty($cardDetails)) {
                 // if no primary then secondary
                 $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',0)->where('is_deleted', 0)->first();
@@ -396,6 +397,7 @@ class UserPortalController extends Controller
             }
             $msg = '';
             $cardknoxToken = $cardDetails->cardnox_token;
+           
             //trying to pay invoice if there is any before
             if($uaccount->account_type == 'postpaid') {
 
@@ -408,7 +410,7 @@ class UserPortalController extends Controller
             //if not then moving to pay trip
 
             $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $to_refill, $account_id);
-
+        
             if ($cardknoxResponse['status'] == 'approved') {
 
                 $account_payment = new AccountPayment();
@@ -419,7 +421,7 @@ class UserPortalController extends Controller
                 $account_payment->payment_date = Carbon::today();
                 $account_payment->payment_type = 'card';
                 $account_payment->save();
-
+                
                 if($uaccount->account_type == 'postpaid'){
 
                     $from_date = 2024-10-15;
@@ -464,7 +466,7 @@ class UserPortalController extends Controller
 
 
                 }
-
+           
                 //$to_refill = $to_refill - $total_payments;
                 if ($uaccount) {
                     $uaccount->balance += $to_refill;
@@ -474,10 +476,10 @@ class UserPortalController extends Controller
                     if($uaccount->account_type == 'prepaid') {
                         if ($uaccount->balance > 0) {
                             $uaccount->status = 1;
-                            if ($uaccount->cube_id == null || $uaccount->cube_id == '') {
-                                CubeContact::createAccount($uaccount->account_id);
-                            }
-                            $cube_resp = CubeContact::updateCubeAccount($uaccount->account_id,null,'active');
+                            // if ($uaccount->cube_id == null || $uaccount->cube_id == '') {
+                            //     CubeContact::createAccount($uaccount->account_id);
+                            // }
+                            // $cube_resp = CubeContact::updateCubeAccount($uaccount->account_id,null,'active');
 
                             $uaccount->save();
                         }

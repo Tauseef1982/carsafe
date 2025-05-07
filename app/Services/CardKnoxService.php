@@ -121,15 +121,13 @@ class CardKnoxService
                 'error_code' => 404,
             ];
         }
+        $xAllowDuplicate =  false;
         if(config('app.CARDKNOX_ENV_LIVE') == false){
-
-
-            $amount = 10;
-            $cardknoxToken = '94352hph47hm7p855m8107q6310h215m';
-
-
+               $amount = 10;
+               $cardknoxToken = '94352hph47hm7p855m8107q6310h215m';
+               $xAllowDuplicate = true;
         }
-
+       
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => env('CARDKNOX_ENDPOINT'),
@@ -147,7 +145,7 @@ class CardKnoxService
                               "xSoftwareName": "' . env('APP_NAME') . '",
                               "xSoftwareVersion": "1.0.0",
                               "xCommand": "cc:sale",
-                              "xAllowDuplicate": "false",
+                              "xAllowDuplicate": "'.$xAllowDuplicate.'",
                               "xIP": "108.61.94.102",
                               "xAmount": "' .$amount. '",
                               "xCustom01": "Account-' . $accountId . '",
