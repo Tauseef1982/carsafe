@@ -106,6 +106,7 @@ class SyncAccounts extends Command
                 $newAccount->f_name = $account->{'fname'};
                 $newAccount->lname = $account->{'lname'};
                 $newAccount->status = $account->{'active'};
+                $newAccount->account_id = !empty($account->tags->{'info'}) ? $account->tags->{'info'} : $account->{'phone'};
                 $newAccount->phone = !empty($account->tags->{'info'}) ? $account->tags->{'info'} : $account->{'phone'};
 
                 $newAccount->company_name = $account->{'cname'};
