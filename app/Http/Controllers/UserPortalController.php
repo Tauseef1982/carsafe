@@ -8,9 +8,12 @@ use App\Models\BatchPayment;
 use App\Models\CreditCard;
 use App\Models\Driver;
 use App\Models\Account_Complaint;
+use App\Models\Payment;
 use App\Services\AccountService;
 use App\Services\CardKnoxService;
 use App\Services\CubeContact;
+use App\Services\LogService;
+use App\Services\PaymentSaveService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,23 +39,23 @@ class UserPortalController extends Controller
 
     public function reset_password_email(Request $request){
         $user = Account::where('email', $request->email)->first();
-        
+
         if($user){
-            
+
                 $email_id = $request->email;
                 $data = [
                     'title' => 'Welcome!',
                     'body' => 'Please click the link below to change your password, Thank you!',
                     'url' => url('/customer/change_password').'?email=' . urlencode($user->email)
-                ]; 
-                
+                ];
+
                 Mail::to($email_id)->send(new ResetPasswordMail($data));
-               
+
              return redirect()->back()->with('success', 'An Email with reset password link is sent, please check you inbox!');
         }else{
             return redirect()->back()->with('error', 'This email is not found in our system, please try with regesterd email !');
         }
-       
+
     }
     public function change_password(Request $request){
         $email = $request->query('email');
@@ -372,6 +375,300 @@ class UserPortalController extends Controller
          $complaints = Account_Complaint::where('account_id', $account_id)->get();
          return view('customer.complaints', compact('complaints'));
     }
+
+    public function paymentToRefill(Request $request)
+    {
+
+        $account_id = $request->account_id;
+        $to_refill = $request->to_refill;
+        $uaccount = Account::where('account_id', $account_id)->first(); // Retrieve the account
+        if($request->refill_method == 'card'){
+
+
+            $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',1)->where('is_deleted', 0)->first();
+
+            if (empty($cardDetails)) {
+                // if no primary then secondary
+                $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',0)->where('is_deleted', 0)->first();
+                if (empty($cardDetails)) {
+                    return redirect()->back()->with('error', 'No credit card details found for Account: ' . $account_id);
+                }
+            }
+            $msg = '';
+            $cardknoxToken = $cardDetails->cardnox_token;
+            //trying to pay invoice if there is any before
+            if($uaccount->account_type == 'postpaid') {
+
+                $pending_inv_charged =  $this->invoiceIfAny($account_id,$to_refill,$cardknoxToken);
+                $to_refill = $to_refill - $pending_inv_charged;
+                $msg .= 'Pending Invoice Paid '.$pending_inv_charged;
+
+            }
+
+            //if not then moving to pay trip
+
+            $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $to_refill, $account_id);
+
+            if ($cardknoxResponse['status'] == 'approved') {
+
+                $account_payment = new AccountPayment();
+                $account_payment->account_id = $uaccount->account_id;
+                $account_payment->account_type = $uaccount->account_type;
+                $account_payment->amount = $to_refill;
+                $account_payment->transaction_id = $cardknoxResponse['transaction_id'];
+                $account_payment->payment_date = Carbon::today();
+                $account_payment->payment_type = 'card';
+                $account_payment->save();
+
+                if($uaccount->account_type == 'postpaid'){
+
+                    $from_date = 2024-10-15;
+                    $to_date = Carbon::now();
+
+                    $trips_to_be_paid = $uaccount->trips->filter(function ($trip) use ($from_date, $to_date) {
+                        return $trip->payment_method === 'account' &&
+                            strpos($trip->status, 'Cancelled') === false &&
+                            strpos($trip->status, 'canceled') === false &&
+                            $trip->is_delete == 0 &&
+                            $trip->date >= $from_date &&
+                            $trip->date <= $to_date;
+                    });
+                    $total_payments = 0;
+                    $batch_p = new BatchPayment();
+                    $batch_p->account_id = $uaccount->account_id;
+                    $batch_p->from = 'trips_paid_with_upfront_credit';
+                    $batch_p->amount = $total_payments;
+                    $batch_p->save();
+
+                    foreach ($trips_to_be_paid as $paytrip) {
+
+                        $already_paid = $paytrip->totalPaidAmountByCustomerFromAccountCard()->sum('amount');
+                        $unpaid_amount = $paytrip->trip_cost - $already_paid;
+
+                        // Only pay if unpaid amount is <= available to_refill
+                        if ($unpaid_amount > 0 && $unpaid_amount <= $to_refill) {
+
+
+                            $pay_data = $this->addpay_customer($paytrip, $request,  $batch_p->id);
+
+                            $total_payments += $unpaid_amount;
+                            $to_refill -= $unpaid_amount; // update to_refill after payment
+                        }
+
+                    }
+
+                    $batch_p->amount = $total_payments;
+                    $batch_p->save();
+                    $account_payment->batch_id = $batch_p->id;
+                    $account_payment->save();
+
+
+                }
+
+                //$to_refill = $to_refill - $total_payments;
+                if ($uaccount) {
+                    $uaccount->balance += $to_refill;
+                    $uaccount->save();
+
+
+                    if($uaccount->account_type == 'prepaid') {
+                        if ($uaccount->balance > 0) {
+                            $uaccount->status = 1;
+                            if ($uaccount->cube_id == null || $uaccount->cube_id == '') {
+                                CubeContact::createAccount($uaccount->account_id);
+                            }
+                            $cube_resp = CubeContact::updateCubeAccount($uaccount->account_id,null,'active');
+
+                            $uaccount->save();
+                        }
+                    }
+
+                } else {
+                    return redirect()->back()->with(['status' => 'error', 'message' => 'Account not found.']);
+
+                }
+
+
+                $logdata = [
+                    'from' => 'customer',
+                    'payment' => $to_refill,
+                    'cardknox_response' => $cardknoxResponse,
+                    'message' => 'Refill Payment added using Cardknox for Account#' . $account_id . ' Amount: ' . $to_refill
+                ];
+                LogService::saveLog($logdata);
+
+
+                DB::commit();
+            } elseif ($cardknoxResponse['status'] == 'declined') {
+                return redirect()->back()->with(['status' => 'error', 'message' => 'Cardknox Payment declined: ' . $cardknoxResponse['message']]);
+
+            } else {
+
+                return redirect()->back()->with(['status' => 'error', 'message' => 'Cardknox Payment failed: ' . $cardknoxResponse['message']]);
+
+            }
+
+        }
+        //check first primary
+
+        Session::flash('success',''.$to_refill.' Refill added successfully.'.$msg.'');
+        return redirect()->back();
+
+
+    }
+
+    public function invoiceIfAny($account_id,$to_refill,$cardknoxToken){
+
+        $unpaid_postpaid_accounts = AccountPayment::where('account_type', 'postpaid')
+            ->where('status','!=','paid')->whereNotNull('hash_id')->where('account_id',$account_id)->first();
+
+        if($unpaid_postpaid_accounts){
+
+            $from_datee = $unpaid_postpaid_accounts->invoice_from_date;
+            $to_datee = $unpaid_postpaid_accounts->invoice_to_date;
+
+            if($unpaid_postpaid_accounts->trip_ids == null){
+
+                $trips_to_be_paid = Account::where('account_id',$account_id)->first()->trips->filter(function ($trip) use ($from_datee,$to_datee) {
+                    return $trip->payment_method === 'account' &&
+                        strpos($trip->status, 'Cancelled') === false &&
+                        strpos($trip->status, 'canceled') === false &&
+                        $trip->is_delete == 0 &&
+                        $trip->date >= $from_datee &&
+                        $trip->date <= $to_datee;
+                });
+
+            }else{
+
+                $trip_ids = json_decode($unpaid_postpaid_accounts->trip_ids);
+                $trips_to_be_paid = Account::where('account_id',$account_id)->first()->trips->filter(function ($trip) use ($from_datee,$to_datee,$trip_ids) {
+
+                    return $trip->payment_method === 'account' &&
+                        strpos($trip->status, 'Cancelled') === false &&
+                        strpos($trip->status, 'canceled') === false &&
+                        $trip->is_delete == 0 &&
+                        $trip->date >= $from_datee &&
+                        $trip->date <= $to_datee && in_array($trip->trip_id,$trip_ids);
+
+                });
+
+            }
+
+
+            $paymentDataBulk = [];
+            $Trip_ids = [];
+            $total_payments = 0;
+
+            if (count($trips_to_be_paid) > 0) {
+                foreach ($trips_to_be_paid as $trip) {
+
+
+                    $alreadyPaid = $trip->totalPaidAmountByCustomerFromAccountCard()->sum('amount');
+                    if ($alreadyPaid < $trip->TotalCostDiscounted) {
+
+                        $paying = (float)$trip->TotalCostDiscounted - $alreadyPaid;
+
+                        if ($paying > 0 && $paying <= $to_refill) {
+
+                            $paymentDataBulk[] = [
+                                'driver_id' => $trip->driver_id,
+                                'trip_id' => $trip->trip_id,
+                                'payment_date' => now()->toDateString(),
+                                'amount' => $paying,
+                                'user_id' => 0,
+                                'user_type' => 'customer',
+                                'type' => 'debit',
+                                'description' => 'Customer_portal:customer_pay_to_account' . $account_id,
+                                'account_id' => $trip->account_number,
+                            ];
+
+                            $total_payments += $paying;
+                            $to_refill -= $paying;
+
+                            $Trip_ids[] = $trip->trip_id;
+                        }
+                    }
+                }
+            }
+
+            if($total_payments > 0) {
+
+                $fee = number_format($total_payments * 0.0375, 2, '.', '');
+                $amuntWithfee = $total_payments + $fee;
+                $fillAndDeduct = CardKnoxService::processCardknoxPaymentRefill(
+                    $cardknoxToken,
+                    $amuntWithfee,
+                    $account_id . '-amountActual' . $total_payments
+                );
+
+                $deduct_status = $fillAndDeduct['status'] === 'approved';
+                $transaction_id = $deduct_status ? $fillAndDeduct['transaction_id'] : null;
+
+                if ($deduct_status) {
+
+                    $unpaid_postpaid_accounts->payment_date = now()->toDateString();
+                    $unpaid_postpaid_accounts->payment_type = 'card';
+                    $unpaid_postpaid_accounts->transaction_id = $transaction_id;
+                    $unpaid_postpaid_accounts->note = 'When Customer Paying Balance Amount from portal,paying amount = '.$total_payments;
+
+                    // Save batch payment
+                    $batchPayment = BatchPayment::create([
+                        'account_id' => $account_id,
+                        'from' => 'customer_by_customer_portal',
+                        'amount' => $total_payments,
+                        'invoice_id' => $unpaid_postpaid_accounts->id,
+                    ]);
+
+                    $paymentDataSend = [
+                        'batch_id' => $batchPayment->id,
+                        'payments' => $paymentDataBulk,
+                    ];
+                    PaymentSaveService::save($paymentDataSend);
+
+                    if($unpaid_postpaid_accounts->status == 'unpaid' && $unpaid_postpaid_accounts->amount < $total_payments){
+                        $unpaid_postpaid_accounts->status = 'partial';
+                    }else{
+                        $unpaid_postpaid_accounts->status = 'paid';
+                    }
+
+                    $unpaid_postpaid_accounts->batch_id = $unpaid_postpaid_accounts->batch_id == null ? $batchPayment->id : $unpaid_postpaid_accounts->batch_id;
+                    $unpaid_postpaid_accounts->save();
+
+
+//                                        LogService::saveLog([
+//                                            'from' => 'customer',
+//                                            'payment' => $accountPayment,
+//                                            'cardknox_response' => $fillAndDeduct,
+//                                            'message' => 'Account: Payment deducted by Cron using Cardknox BatchPayment-ID#' . $batchPayment->id,
+//                                        ]);
+
+                    return $total_payments;
+                }
+
+            }
+
+        }
+        return 0;
+
+    }
+    public function addpay_customer($trip, $old_account, $batch_id = null)
+    {
+        $new = new Payment();
+        $new->driver_id = $trip->driver_id;
+        $new->trip_id = $trip->trip_id;
+        $new->payment_date = now()->toDateString();
+        $new->amount = (float)$trip->trip_cost;
+        $new->user_id = 1;
+        $new->user_type = 'customer';
+        $new->type = 'debit';
+        $new->batch_id = $batch_id;
+        $new->description = 'trip account id is  changed and this is to maintain balnce ' ;
+        $new->account_id = $old_account;
+        $new->save();
+
+        return $new;
+    }
+
 
 
 }
