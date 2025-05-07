@@ -106,8 +106,18 @@ class SyncAccounts extends Command
                 $newAccount->f_name = $account->{'fname'};
                 $newAccount->lname = $account->{'lname'};
                 $newAccount->status = $account->{'active'};
-                $newAccount->account_id = !empty($account->tags->{'info'}) ? $account->tags->{'info'} : $account->{'phone'};
-                $newAccount->phone = !empty($account->tags->{'info'}) ? $account->tags->{'info'} : $account->{'phone'};
+                if (!empty($account->tags->{'info'}) && ctype_digit($account->tags->{'info'})) {
+                    $newAccount->account_id = $account->tags->{'info'};
+                } elseif (!empty($account->{'phone'}) && ctype_digit($account->{'phone'})) {
+                    $newAccount->account_id = $account->{'phone'};
+                }
+                
+                if (!empty($account->tags->{'info'}) && ctype_digit($account->tags->{'info'})) {
+                    $newAccount->phone = $account->tags->{'info'};
+                } elseif (!empty($account->{'phone'}) && ctype_digit($account->{'phone'})) {
+                    $newAccount->phone = $account->{'phone'};
+                }
+                
 
                 $newAccount->company_name = $account->{'cname'};
                 $newAccount->address = $account->tags->{'address'};
