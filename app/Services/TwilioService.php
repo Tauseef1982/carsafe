@@ -202,17 +202,17 @@ class TwilioService
             $twilio = new Client($sid, $token);
 
             if($type == 'refill-need'){
-                $voice = '<Response><Say voice="man">Hello, this is Go Cab.,,,,,Your account balance has reached (amount).,,,,, Please call customer service to add more money to your account.</Say></Response>';
+                $voice = '<Response><Say voice="man">Hello, this is Car Safe.,,,,,Your account balance has reached (amount).,,,,, Please call customer service to add more money to your account.</Say></Response>';
 
             }elseif($type == 'refilled-approved'){
-                $voice = '<Response><Say voice="man">Hello, this is Go Cab.,,,,We have refilled your prepaid account.,,, Thank you.</Say></Response>';
+                $voice = '<Response><Say voice="man">Hello, this is Car Safe.,,,,We have refilled your prepaid account.,,, Thank you.</Say></Response>';
 
             }elseif($type == 'refilled-declined'){
-                $voice = '<Response><Say voice="man">Hello, this is Go Cab.,,,Your credit card was declined and we were unable to refill your prepaid account.,,,,,Please call customer service to add money to your account. Thank you.</Say></Response>';
+                $voice = '<Response><Say voice="man">Hello, this is Car Safe.,,,Your credit card was declined and we were unable to refill your prepaid account.,,,,,Please call customer service to add money to your account. Thank you.</Say></Response>';
 
             }else{
 
-                $voice = '<Response><Say voice="man">Hello, this is Go Cab.,,,,,Please call customer service to add money to your account.,,,,, Thank you.</Say></Response>';
+                $voice = '<Response><Say voice="man">Hello, this is Car Safe.,,,,,Please call customer service to add money to your account.,,,,, Thank you.</Say></Response>';
 
             }
              $twilio->calls->create(
