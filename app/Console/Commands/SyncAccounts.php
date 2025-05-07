@@ -88,60 +88,82 @@ class SyncAccounts extends Command
 
         DB::beginTransaction();
        // Log::info(count( $accounts));
-        foreach ($accounts as $account) {
-        //  if($account->{'name'} == '0085'){
-        //     dd($account);
-        //  }
-        $existingAccount = Account::where('account_id', $account->{'name'})->first();
-
+     
+       function extractPhoneNumber($value) {
+        if (!is_string($value)) {
+            return null;
+        }
+    
+        $value = trim($value);
+    
+        // Try to extract a valid phone number from anywhere in the string
+        if (preg_match('/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/', $value, $matches)) {
+            // Clean the matched part and ensure it's 10 digits
+            $digits = preg_replace('/\D/', '', $matches[0]);
+            if (strlen($digits) <= 10) {
+                return $digits;
+            }
+        }
+    
+        return null;
+    }
+    
+    
+    
+    
+    foreach ($accounts as $account) {
+        // Match existing account using pins
+        $existingAccount = Account::where('pins', $account->{'name'})->first();
+    
         if (!$existingAccount) {
-            // Create new account
             $newAccount = new Account();
-            $newAccount->account_id = $account->{'name'};
         } else {
-            // Update existing account
             $newAccount = $existingAccount;
         }
-
-                $newAccount->f_name = $account->{'fname'};
-                $newAccount->lname = $account->{'lname'};
-                $newAccount->status = $account->{'active'};
-                if (!empty($account->tags->{'info'}) && ctype_digit($account->tags->{'info'})) {
-                    $newAccount->account_id = $account->tags->{'info'};
-                } elseif (!empty($account->{'phone'}) && ctype_digit($account->{'phone'})) {
-                    $newAccount->account_id = $account->{'phone'};
-                }
-                
-                if (!empty($account->tags->{'info'}) && ctype_digit($account->tags->{'info'})) {
-                    $newAccount->phone = $account->tags->{'info'};
-                } elseif (!empty($account->{'phone'}) && ctype_digit($account->{'phone'})) {
-                    $newAccount->phone = $account->{'phone'};
-                }
-                
-
-                $newAccount->company_name = $account->{'cname'};
-                $newAccount->address = $account->tags->{'address'};
-                $contactEmail = $account->tags->{'contact_email'} ?? null;
-                $billingEmail = $account->tags->{'billing_email'} ?? null;
-
-                if (!empty($contactEmail) && !empty($billingEmail) && $contactEmail !== $billingEmail) {
-                    // Both emails are present and different
-                    $newAccount->email = $contactEmail;
-                    $newAccount->billing_email = $billingEmail;
-                } else {
-                    // Use whichever is available (or same) for both
-                    $emailToUse = !empty($contactEmail) ? $contactEmail : $billingEmail;
-                    $newAccount->email = $emailToUse;
-                    $newAccount->billing_email = $emailToUse;
-                }
-
-                $newAccount->account_type = 'prepaid';
-                $newAccount->cube_id = $account->{'id'};
-                $newAccount->notification_setting = 'account_phone';
-                
-                $newAccount->save();
-                
-            }
+    
+        // Extract and clean phone/account_id from info or phone
+        $infoSource = $account->tags->{'info'} ?? null;
+        $phoneSource = $account->{'phone'} ?? null;
+        
+        $cleanPhone = extractPhoneNumber($infoSource);
+        
+        if (!$cleanPhone) {
+            $cleanPhone = extractPhoneNumber($phoneSource);
+        }
+        
+    
+        $newAccount->account_id = $cleanPhone;
+        $newAccount->phone = $cleanPhone;
+    
+        // Other fields
+        $newAccount->f_name = $account->{'fname'};
+        $newAccount->lname = $account->{'lname'};
+        $newAccount->status = $account->{'active'};
+        $newAccount->company_name = $account->{'cname'};
+        $newAccount->address = $account->tags->{'address'} ?? null;
+    
+        // Email handling
+        $contactEmail = $account->tags->{'contact_email'} ?? null;
+        $billingEmail = $account->tags->{'billing_email'} ?? null;
+        if (!empty($contactEmail) && !empty($billingEmail) && $contactEmail !== $billingEmail) {
+            $newAccount->email = $contactEmail;
+            $newAccount->billing_email = $billingEmail;
+        } else {
+            $emailToUse = $contactEmail ?: $billingEmail;
+            $newAccount->email = $emailToUse;
+            $newAccount->billing_email = $emailToUse;
+        }
+    
+        // Remaining fields
+        $newAccount->account_type = 'prepaid';
+        $newAccount->cube_id = $account->{'id'};
+        $newAccount->notification_setting = 'account_phone';
+        $newAccount->autofill = 'on';
+        $newAccount->pins = $account->{'name'};
+    
+        $newAccount->save();
+    }
+    
 
          
         
