@@ -194,7 +194,7 @@
                                     <td>{{$account->account_id}}</td>
                                     <td>{{$account->phone}}</td>
                                     <td>{{$account->email}}</td>
-                                    <td>{{$account->status == 1 || $account->status == null ? 'Active' : 'Inactive'}}</td>
+                                    <td>{{$account->status == 1  ? 'Active' : 'Inactive'}}</td>
                                     <td>{{$account->pins}}</td>
                                 </tr>
                             </table>
