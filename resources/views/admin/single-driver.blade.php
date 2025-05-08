@@ -270,7 +270,7 @@
                                     @endif
 
                                     <td>{{$data->created_at->format('m-d-Y')}}</td>
-                                    <td>{{$data->status == 1 || $data->status === null ? 'Active' : 'Inactive'}}
+                                    <td>{{$data->status == 1 || $data->status == 0 ? 'Active' : 'Inactive'}}
                                     </td>
                                       <td>
                                       @if(strpos($data->username, 'inactive') !== false)
