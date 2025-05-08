@@ -179,7 +179,7 @@ Route::get('/send-logins', function () {
 
 
     $successCount = 0;
-    $accounts = Account::where('is_deleted',0)->get();
+    $accounts = Account::where('is_deleted', 0)->get();
    foreach ($accounts as $account){
     if (empty($account->email)) {
         continue;
