@@ -132,7 +132,7 @@ class SyncAccounts extends Command
         }
         
     
-        $newAccount->account_id = $cleanPhone;
+        $newAccount->account_id = $account->{'name'};
         $newAccount->phone = $cleanPhone;
     
         // Other fields
@@ -159,6 +159,7 @@ class SyncAccounts extends Command
         $newAccount->cube_id = $account->{'id'};
         $newAccount->notification_setting = 'account_phone';
         $newAccount->autofill = 'on';
+        $newAccount->first_refill = 0;
         $newAccount->pins = $account->{'name'};
     
         $newAccount->save();

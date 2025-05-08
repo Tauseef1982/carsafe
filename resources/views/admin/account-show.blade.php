@@ -232,7 +232,9 @@
                     <div class="card-header card-no-border">
                         <h5>Card Information</h5>
                         <div class="card-header-right">
-
+                        @if ($account->account_type == "prepaid")
+                         <button class="btn btn-primary open-card-modal" data-bs-toggle="modal" data-id="{{ $account->account_id }}" data-bs-target="#addCreditCardModal">Add New Card</button>
+                         @endif
 
                         </div>
                     </div>
@@ -240,10 +242,10 @@
                         <div class="row">
                             <table>
                                 <tr>
-                                    <th>Card Number</th>
+                                <th>Card Number</th>
                                     <th>cvc</th>
+                                    <th>Pirority</th>
                                     <th>Expiry</th>
-                                    <th>Edit</th>
 
                                 </tr>
                                 @foreach($account->cards->where('is_deleted',0) as $card)
@@ -514,6 +516,56 @@
             </div>
         </div>
     </div>
+     <!-- card modal -->
+     <div class="modal fade" id="addCreditCardModal" tabindex="-1" role="dialog" aria-labelledby="addCreditCardModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addCreditCardModalLabel">Add Credit Card</h5>
+              <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              
+              <form method="post" action="{{ url('admin/add/credit-card') }}">
+                @csrf
+
+                <div class="row">
+                  <div class="col-12">
+                    
+                    <input type="hidden" class="form-control mb-3" name="account_id" id="account_id_card" required>
+                  </div> 
+               
+
+
+                 
+                  <div class="col-12">
+                    <label for="card_number">Card Number</label>
+                    <input type="text" class="form-control" name="card_number" id="card_number" required>
+                  </div>
+                  <div class="col-6">
+                    <label for="cvc">CVC</label>
+                    <input type="number" class="form-control" name="cvc" id="cvc" required>
+                  </div>
+                  <div class="col-6">
+                    <label for="expiry">Expiry (MM/YY)</label>
+                    <input type="text" class="form-control" name="expiry" id="expiry" required placeholder="MM/YY">
+                  </div>
+                  <div class="col-12">
+                    <label for="card_zip">Card Zip</label>
+                    <input type="text" class="form-control" name="card_zip" id="card_zip" required>
+                  </div>
+                  <div class="col-12">
+                    <label for="type">Card Type</label>
+                    <input type="text" class="form-control" name="type" id="type" value="credit" readonly>
+                  </div>
+                </div>
+
+                <button class="btn btn-primary mt-3" type="submit">Save</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
 @endsection
 
 @section('js')
@@ -579,6 +631,10 @@
         }
 
         $(document).ready(function () {
+            $(document).on('click', '.open-card-modal', function () {
+    var accountId = $(this).data('id'); // get data-id value
+    $('#account_id_card').val(accountId); // set it as value of input
+});
 
 
             $(document).ajaxStart(function () {
