@@ -73,7 +73,7 @@ class PaymentSaveService
 
                 if ($cardknoxResponse['status'] !== 'approved') {
                     Log::warning("Payment declined for Account ID: {$account->account_id}. Response: " . json_encode($cardknoxResponse));
-                    CubeContact::updateCubeAccount($account->account_id,"Your balance is low","Inactive");
+                    //CubeContact::updateCubeAccount($account->account_id,"Your balance is low","Inactive");
 
                     if($type == 'single') {
                         \App\Services\TwilioService::voicecall($account->phone,'refilled-declined');
@@ -101,10 +101,10 @@ class PaymentSaveService
                 $account->save();
 
                 if($account->cube_id == null || $account->cube_id == '') {
-                    CubeContact::createAccount($account->account_id);
+                   // CubeContact::createAccount($account->account_id);
                 }
 
-                CubeContact::updateCubeAccount($account->account_id, null, "active");
+               // CubeContact::updateCubeAccount($account->account_id, null, "active");
 
                 // Log the successful operation
                 $logData = [
