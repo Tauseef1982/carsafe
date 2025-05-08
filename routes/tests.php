@@ -178,18 +178,27 @@ Route::post('/excel/upload', function (Request $request) {
 Route::get('/send-logins', function () {
 
 
-
+    $successCount = 0;
     $accounts = Account::where('is_deleted',0)->get();
    foreach ($accounts as $account){
+    if (empty($account->email)) {
+        continue;
+    }
 
-       $account = Account::where('account_id',$account->account_id)->first();
+      // $account = Account::where('account_id',$account->account_id)->first();
        $account->password = Hash::make($account->account_id.'@gocab');
        $account->save();
        $data['username'] = $account->account_id;
        $data['password'] = $account->account_id.'@gocab';
-       Mail::to($account->email)->send(new CustomerLogins($data));
+       try {
+        Mail::to($account->email)->send(new CustomerLogins($data));
+        $successCount++;
+    } catch (\Exception $e) {
+        Log::error('Failed to send email to ' . $account->email . ': ' . $e->getMessage());
+        continue;
+    }
    }
-
+   Log::info("Total emails successfully sent: {$successCount}");
 
 });
 
