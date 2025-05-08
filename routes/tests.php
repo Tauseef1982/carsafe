@@ -184,12 +184,14 @@ Route::get('/send-logins', function () {
     if (empty($account->email)) {
         continue;
     }
+    $randomNumber = mt_rand(10000000, 99999999);
 
       // $account = Account::where('account_id',$account->account_id)->first();
-       $account->password = Hash::make($account->account_id.'@gocab');
+       $account->password = Hash::make($randomNumber);
        $account->save();
        $data['username'] = $account->account_id;
-       $data['password'] = $account->account_id.'@gocab';
+        // generates an 8-digit random number
+         $data['password'] = $randomNumber;
        try {
         Mail::to($account->email)->send(new CustomerLogins($data));
         $successCount++;

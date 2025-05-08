@@ -7,13 +7,13 @@
 <body>
     <p>Hi,</p>
     <br>
-    <p>Your CarSafe UserName and Password is given Below.Please Don't Share this email to anyone.</p>
-    <p>If You receive this email by mistaken please delete this email</p>
+    <p>We are excited to unveil to brand new CarSafe Account Portal where you'll be able to see you trip history, manage payment and download invoices.</p>
+   <p>Here are your login details:</p>
     <p>UserName :{{$data['username']}}</p>
     <p>Password :{{$data['password']}}</p>
     <p>
         <a href="{{ url('customer/login')}}">
-            Click here to Login
+        Click here to Login
         </a>
     </p>
 

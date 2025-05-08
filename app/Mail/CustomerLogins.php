@@ -27,7 +27,7 @@ class CustomerLogins extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your CarSafe Login Detail',
+            subject: 'Your CarSafe Portal Login Details',
         );
     }
 
