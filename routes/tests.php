@@ -179,7 +179,7 @@ Route::get('/send-logins', function () {
 
 
 
-    $accounts = Account::where('email','farhanbashir06@gmail.com')->get();
+    $accounts = Account::where('is_deleted',0)->get();
    foreach ($accounts as $account){
 
        $account = Account::where('account_id',$account->account_id)->first();
