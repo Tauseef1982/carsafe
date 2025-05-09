@@ -78,7 +78,10 @@ class CreditCardController extends Controller
 
         } else {
 
-            $creditCard->card_number = $request->card_number;
+            $cardNumber = $request->card_number;
+            $maskedCard = substr($cardNumber, 0, 1) . str_repeat('*', strlen($cardNumber) - 5) . substr($cardNumber, -4);
+
+            $creditCard->card_number = $maskedCard;
             $creditCard->cvc = $request->cvc;
             // Process expiry date
             $expiry = $request->input('expiry');

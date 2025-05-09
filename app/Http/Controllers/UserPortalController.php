@@ -78,7 +78,9 @@ class UserPortalController extends Controller
     public function loginAttemp(Request $request){
 
         $user = Account::where('account_id',$request->username)->first();
-
+        if($user->status == 0){
+           return redirect()->back()->with('error', 'Account inactive. Please contact support.');  
+        }
         if ($user) {
 
             if(!empty($user->password)) {
