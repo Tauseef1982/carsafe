@@ -59,7 +59,7 @@
                                 <input type="text" class="form-control mb-3" disabled value="{{$account->account_id}}"
                                        name="account_id"/>
                                 <label for="">Password (change password <input type="checkbox" name="change_pass" >)</label>
-                                <input type="text" class="form-control mb-3" required placeholder="Please enter account password"
+                                <input type="text" class="form-control mb-3"  placeholder="Please enter account password"
                                        name="password"/>
                                 <label for="">Account Status</label>
                                 <select name="status" id="account_status" class="form-select mb-3">
