@@ -74,8 +74,8 @@
                                                 {{--                                                            data-original-title="test"--}}
                                                 {{--                                                            data-bs-target="#exampleModal{{$creditcard->id}}">Delete</button>--}}
 
-                                                <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal{{$creditcard->id}}" class="btn btn-danger btn-xs btn-air-danger">
-                                                    <i class="fa fa-trash me-2"  ></i>Delete</a>
+                                                <!-- <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal{{$creditcard->id}}" class="btn btn-danger btn-xs btn-air-danger">
+                                                    <i class="fa fa-trash me-2"  ></i>Delete</a> -->
 
                                                 <div class="modal fade" id="exampleModal{{$creditcard->id}}"
                                                      tabindex="-1"

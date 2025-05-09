@@ -35,7 +35,7 @@
               <div class="bg-dark card p-10">
                 <h5 class="font-dark text-center txt-primary">Balance</h5>
                 <h6 class="font-dark text-center txt-primary" id="account_balance">...loading</h6>
-                <!-- <button class="btn text-primary" type="button" data-bs-toggle="modal" data-bs-target="#myModal">Add More Balance</button> -->
+                <button class="btn text-primary" type="button" data-bs-toggle="modal" data-bs-target="#myModal">Add More Balance</button>
 
               </div>
               </div>
