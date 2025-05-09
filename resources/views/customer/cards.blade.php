@@ -57,7 +57,11 @@
 
                                         <tr>
 
-                                            <td>{{$creditcard->card_number}}</td>
+                                              @php
+                                                $cardNumber = $creditcard->card_number;
+                                                $masked = substr($cardNumber, 0, 2) . str_repeat('*', strlen($cardNumber) - 6) . substr($cardNumber, -4);
+                                            @endphp
+                                            <td>{{$masked}}</td>
                                             <td>{{$creditcard->expiry}}</td>
                                             <td>{{$creditcard->type}}</td>
                                             <td>@if ($creditcard->charge_priority == 1)
