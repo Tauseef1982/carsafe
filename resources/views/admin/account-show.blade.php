@@ -186,6 +186,7 @@
                                     <th>Email</th>
                                     <th>Status</th>
                                     <th>Pins</th>
+                                    <th>Action</th>
 
                                 </tr>
                                 <tr>
@@ -196,6 +197,41 @@
                                     <td>{{$account->email}}</td>
                                     <td>{{$account->status == 1  ? 'Active' : 'Inactive'}}</td>
                                     <td>{{$account->pins}}</td>
+                                     <td>
+                                            <button class="btn btn-xs btn-primary" data-bs-toggle="modal" data-bs-target="#changeStatusModal">
+                                            Change Status 
+                                        </button>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="changeStatusModal" tabindex="-1" aria-labelledby="changeStatusModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="changeStatusModalLabel">Change Status</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form action="{{ url('admin/account/status') }}/ {{  $account->id}} " method="post">
+                                                            @csrf
+                                                            <input type="hidden" name="account_id" value="{{  $account->account_id}}">
+                                                            @if ($account->status == 0)
+                                                            <input type="hidden" name="status" value="1">
+                                                            @elseif($account->status == 1)
+                                                            <input type="hidden" name="status" value="0">
+                                                            @endif
+                                                            <label for="">Username</label>
+                                                            <input type="text" class="form-control mb-3" name="username_change_status" placeholder="Please Enter Your Username" >
+                                                            <label for="">Reason</label>
+                                                            <input type="text" class="form-control mb-3" name="reason_change_status" placeholder="Please Enter Reason" >
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        <button type="submit" class="btn btn-primary">Save changes</button>
+                                                    </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                      </td>
                                 </tr>
                             </table>
                             <hr>

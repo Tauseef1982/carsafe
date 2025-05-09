@@ -352,14 +352,33 @@ class AccountController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function status(Request $request, $id)
-    {
-        $account = Account::find($id);
+      public function status(Request $request, $id)
+{
+    $account = Account::find($id);
 
-        $account->status = $request->status;
-        $account->save();
-        return redirect()->route('admin.show_account')->with('success', 'Account status is changed successfully');
+    if (!$account) {
+        return redirect()->back()->with('error', 'Account not found.');
     }
+
+   
+    if ($request->status == 1) {
+        $account->last_activated_at = now();
+       
+    } else {
+        $account->last_inactive_at = now();
+        
+    }
+
+    $account->status = $request->status;
+    $account->username = $request->username_change_status;
+    $account->reason = $request->reason_change_status;
+
+    $account->save();
+
+    
+
+    return redirect()->back()->with('success', 'Account status is changed successfully.');
+}
 
     /**
      * Display the specified resource.
