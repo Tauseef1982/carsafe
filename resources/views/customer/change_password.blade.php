@@ -23,7 +23,7 @@
                 {{ session('error') }}
             </div>
         @endif
-                <form class="theme-form" action="" method="post">
+                <form class="theme-form" action="{{ url('customer/change_password') }}" method="post">
                   @csrf
                   <h4>Please choose Your Password</h4>
                   
@@ -36,7 +36,7 @@
                     <div class="input-group">
                       <input class="form-control" name="confirm_password" type="password" placeholder="Enter Password">
                     </div>
-                    <input type="text" hidden name="email" value="{{ $email }}">
+                    <input type="hidden" name="token" value="{{ $token }}">
                   </div>
 
                     

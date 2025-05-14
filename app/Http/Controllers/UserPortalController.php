@@ -24,6 +24,7 @@ use Yajra\DataTables\DataTables;
 use function Yajra\DataTables\Html\Editor\ajax;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ResetPasswordMail;
+use Illuminate\Support\Str;
 
 class UserPortalController extends Controller
 {
@@ -39,14 +40,22 @@ class UserPortalController extends Controller
 
     public function reset_password_email(Request $request){
         $user = Account::where('email', $request->email)->first();
-
         if($user){
+            $token = Str::random(64);
 
+            // Store the token
+            DB::table('password_reset_tokens')->updateOrInsert(
+                ['email' => $user->email],
+                [
+                    'token' => hash('sha256', $token),
+                    'created_at' => Carbon::now()
+                ]
+            );
                 $email_id = $request->email;
                 $data = [
                     'title' => 'Welcome!',
                     'body' => 'Please click the link below to change your password, Thank you!',
-                    'url' => url('/customer/change_password').'?email=' . urlencode($user->email)
+                    'url' => url('/customer/change_password/'. $token)  ,
                 ];
 
                 Mail::to($email_id)->send(new ResetPasswordMail($data));
@@ -57,16 +66,24 @@ class UserPortalController extends Controller
         }
 
     }
-    public function change_password(Request $request){
-        $email = $request->query('email');
-        return view('customer.change_password', compact('email'));
+    public function change_password($token){
+       
+        return view('customer.change_password', compact('token'));
     }
 
     public function update_password(Request $request){
+        $record = DB::table('password_reset_tokens')
+    ->where('token', hash('sha256', $request->token))
+    ->where('created_at', '>=', now()->subMinutes(60))
+    ->first();
+
+if (!$record) {
+    return redirect()->back()->withErrors(['token' => 'Invalid or expired token.']);
+}
         $password = $request->password;
         $con_password = $request->confirm_password;
         if($password === $con_password){
-            $user = Account::where('email', $request->email)->first();
+            $user = Account::where('email', $record->email)->first();
             $user->password = Hash::make($request->password);
             $user->save();
           return redirect(url('customer/login'))->with('success', 'Password is reset, please login to your portal');
