@@ -95,6 +95,9 @@ if (!$record) {
     public function loginAttemp(Request $request){
 
         $user = Account::where('account_id',$request->username)->first();
+            if (!$user) {
+        return redirect()->back()->with('error', 'Invalid account number. Contact support for help.');
+    }
         if($user->status == 0){
            return redirect()->back()->with('error', 'Account inactive. Please contact support.');  
         }
