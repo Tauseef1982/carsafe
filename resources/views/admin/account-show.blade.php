@@ -93,6 +93,7 @@
                     @endif
                     <div class="card-header card-no-border">
                         <h5>{{$account->f_name}} {{$account->lname}}</h5>
+                         <a href="{{ url('admin/edit/account/') }}/{{$account->id  }}" target="_blank" class="btn btn-primary">Edit Account</a>
                         <div class="card-header-right">
 
                             <form id="filterForm">
