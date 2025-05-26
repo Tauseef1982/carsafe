@@ -49,8 +49,8 @@ class TripController extends Controller
             ->where('trips.payment_method', 'cash')
             ->where('status', 'NOT LIKE', '%Cancelled%')
             ->where('status', 'NOT LIKE', '%Client canceled%')
-            // ->whereNotNull('icked_up')
-            // ->where('icked_up', '!=', '')
+            ->whereNotNull('icked_up')
+            ->where('icked_up', '!=', '')
             ->where(function ($query) {
                 $query->whereNull('ts_delivered')
                     ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
