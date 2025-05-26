@@ -251,11 +251,11 @@ class AccountController extends Controller
     $expiry = $request->input('expiry');
 
     if (count(explode('/', $expiry)) != 2) {
-        return response()->json(['status' => false, 'message' => 'Incorrect Expiry Format'], 422);
+        return response()->json(['status' => false, 'message' => 'Incorrect Expiry Format']);
     }
 
     if (Account::where('account_id', $request->account_id)->exists()) {
-        return response()->json(['status' => false, 'message' => 'Already exists with same account number'], 409);
+        return response()->json(['status' => false, 'message' => 'Already exists with same account number']);
     }
 
     list($month, $year) = explode('/', $expiry);
@@ -272,7 +272,7 @@ class AccountController extends Controller
     );
 
     if (!$cardResponse['status']) {
-        return response()->json(['status' => false, 'message' => $cardResponse['msg']], 422);
+        return response()->json(['status' => false, 'message' => $cardResponse['msg']]);
     }
 
     $creditCard = new CreditCard;
@@ -316,7 +316,7 @@ class AccountController extends Controller
     $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $amount, $account->account_id);
 
     if ($cardknoxResponse['status'] !== 'approved') {
-        return response()->json(['status' => false, 'message' => 'Payment declined.'], 422);
+        return response()->json(['status' => false, 'message' => 'Payment declined.']);
     }
 
     // Save payment
