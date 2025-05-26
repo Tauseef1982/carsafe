@@ -406,7 +406,8 @@ if (!$record) {
         $uaccount = Account::where('account_id', $account_id)->first();
          // Retrieve the account
         if($request->refill_method == 'card'){
-
+                  
+                    $total_amonunt = $to_refill + 3.75;
           
             $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',1)->where('is_deleted', 0)->first();
          
@@ -423,7 +424,7 @@ if (!$record) {
             //trying to pay invoice if there is any before
             if($uaccount->account_type == 'postpaid') {
 
-                $pending_inv_charged =  $this->invoiceIfAny($account_id,$to_refill,$cardknoxToken);
+                $pending_inv_charged =  $this->invoiceIfAny($account_id,$total_amonunt,$cardknoxToken);
                 $to_refill = $to_refill - $pending_inv_charged;
                 $msg .= 'Pending Invoice Paid '.$pending_inv_charged;
 
@@ -431,7 +432,7 @@ if (!$record) {
 
             //if not then moving to pay trip
 
-            $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $to_refill, $account_id);
+            $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $total_amonunt, $account_id);
         
             if ($cardknoxResponse['status'] == 'approved') {
 
@@ -541,7 +542,7 @@ if (!$record) {
 
     }
 
-    public function invoiceIfAny($account_id,$to_refill,$cardknoxToken){
+    public function invoiceIfAny($account_id,$total_amonunt,$cardknoxToken){
 
         $unpaid_postpaid_accounts = AccountPayment::where('account_type', 'postpaid')
             ->where('status','!=','paid')->whereNotNull('hash_id')->where('account_id',$account_id)->first();
