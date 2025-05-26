@@ -22,6 +22,16 @@
                         <li><a class="lan-" href="{{url('admin/trips_extra')}}">Trips With Extra</a></li>
                     </ul>
                   </li>
+                    <li class="sidebar-list" style="  padding:15px 20px; ">
+                    <a class="sidebar-link sidebar-title " style="background-color:rgba(115, 102, 255, 0.06);padding-top:15px; padding-bottom:13px;padding-left:20px;" href="#"><span class="lan-">Accounts</span></a>
+                    <ul class="sidebar-submenu">
+                        <li><a class="lan-" href="{{url('admin/accounts')}}">All Accounts</a></li>
+                        <li><a class="lan-" href="{{url('admin/accounts/cards')}}">Accounts Cards</a></li>
+                        <li><a class="lan-" href="{{url('admin/accounts/invoices')}}">Invoices</a></li>
+                        <li><a class="lan-" href="{{url('admin/accounts/complaints')}}">Complaints</a></li>
+                        <li><a class="lan-" href="{{url('admin/accounts/cron-postpaid')}}">Generate Invoices</a></li>
+                    </ul>
+                </li>
                 <li class="sidebar-main-title">
                     <a href="{{route('admin.logout')}}">
                         <div>

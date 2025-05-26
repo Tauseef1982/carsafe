@@ -42,25 +42,15 @@ class TripController extends Controller
         // Check if the request is AJAX
         if ($request->ajax()) {
 
-            // $trips = Trip::where('trips.is_delete', 0)
-            //     ->where('trips.driver_id', $driverId)
-            //     ->where('trips.date', '>', now()->subDays(3))
-            //     ->where('trips.payment_method', 'cash')
-            //     ->where('status', 'NOT LIKE', '%Cancelled%')
-            //     ->where('status','NOT LIKE', '%canceled%')
-            //     ->select('trips.*')
-            //     ->orderBy('trips.date', 'desc')
-            //     ->orderBy('trips.time', 'desc')
-            //     ->limit(2)
-            //     ->get();
+           
             $trips = Trip::where('trips.is_delete', 0)
             ->where('trips.driver_id', $driverId)
             ->where('trips.date', '>', now()->subDays(3))
             ->where('trips.payment_method', 'cash')
             ->where('status', 'NOT LIKE', '%Cancelled%')
             ->where('status', 'NOT LIKE', '%Client canceled%')
-            ->whereNotNull('icked_up')
-            ->where('icked_up', '!=', '')
+            // ->whereNotNull('icked_up')
+            // ->where('icked_up', '!=', '')
             ->where(function ($query) {
                 $query->whereNull('ts_delivered')
                     ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
@@ -232,7 +222,7 @@ class TripController extends Controller
     public function update(Request $request)
     {
 
-        // $discount = DiscountService::AvailableDiscount();
+       
 
         DB::beginTransaction();
         if ($request->has('trip')) {
@@ -253,12 +243,7 @@ class TripController extends Controller
 
         if ($request->has('trip') && $request->payment_method == 'account') {
 
-            // if cron has empty account says not found
-            // if ($trip->account_number == null || $trip->account_number == '') {
-
-            //     return redirect()->back()->with('error', 'Trip Account Not Match');
-
-            // }
+            
 
             if (!empty($trip->account_number) && $request->account !== $trip->account_number) {
                 return redirect()->back()->with('error', 'Trip Account Not Match');
@@ -279,6 +264,86 @@ class TripController extends Controller
          
 
             if ($account) {
+               if ($account->paypertrip === 'on') {
+    $cost = $trip->trip_cost > 0 ? (float) $trip->trip_cost : (float) $request->amount;
+
+    $extraCharges = (float) $request->extra_charges;
+    $cost += $extraCharges;
+
+    $fee = ($cost * 0.03333333333) + 0.30;
+    $cardknoxAmount = $cost + $fee;
+
+    $cardknoxTokens = $account->cards()
+        ->where('is_deleted', 0)
+        ->orderBy('charge_priority')
+        ->pluck('cardnox_token');
+
+    $desc = 'Carsafe Payment Trip#' . $trip->trip_id .
+            ' driver#' . $trip->trip_id .
+            ' Total Amount=' . $cardknoxAmount .
+            ' , without Fee=' . $cost;
+
+    $charge = null;
+    foreach ($cardknoxTokens as $token) {
+        $charge = CardKnoxService::processPayment($token, $cardknoxAmount, $desc);
+        if ($charge['status'] === 'approved') {
+            break;
+        }
+    }
+
+    if ($charge && $charge['status'] === 'approved') {
+        $data = [
+            'trip_cost'     => $cost,
+            'gocab_paid'    => $cost,
+            'payment_method'=> 'card',
+            'account_number'=> $account->account_id,
+            'stripe_id'     => $charge['transaction_id'],
+        ];
+
+        if (!empty($request->complaint)) {
+            $data['complaint']   = $request->complaint;
+            $data['is_complaint'] = '1';
+        }
+
+        $trip->update($data);
+        $pay_data = $this->addpay($trip, $request);
+
+        $logMessage = 'Trip Payment Added By Driver Using Method Card#' .
+                      $charge['transaction_id'] .
+                      ' Trip#' . $trip->trip_id .
+                      ' Amount ' . $pay_data->amount;
+
+        $logdata = [
+            'from'    => 'driver',
+            'payment' => $pay_data,
+            'trip'    => $trip,
+            'strip'   => $charge,
+            'message' => isset($request->is_admin)
+                            ? 'Admin: ' . $logMessage
+                            : $logMessage
+        ];
+
+        LogService::saveLog($logdata);
+
+        $this->ifBalanceMinusAutoPaidAsAdmin($trip);
+        $trip->temp_data = null;
+        $trip->save();
+
+        DB::commit();
+
+        $trip_id = $trip->trip_id;
+        $paid_cost = $trip->trip_cost;
+
+        if (isset($request->is_admin)) {
+            $id = $trip->driver->id;
+            return view('admin.success', compact('id', 'trip_id', 'paid_cost'));
+        } else {
+            return view('driver.success', compact('trip_id', 'paid_cost'));
+        }
+    }
+}
+
+                else{
                 if ($account->status == 1) {
                     if ($trip->trip_cost == 0) {
                         $cost = (float)$request->amount;
@@ -504,6 +569,7 @@ class TripController extends Controller
                     LogService::saveLog($logdata);
                     return redirect()->back()->with('error', 'This account is inactive. Please try a different one');
                 }
+            }
             } else {
                 return redirect()->back()->with('error', 'Account Not Found');
             }
@@ -689,7 +755,7 @@ class TripController extends Controller
 
     public function addpay($trip, $request)
     {
-
+        
         $new = new Payment();
         $new->driver_id = $trip->driver_id;
         $new->trip_id = $trip->trip_id;

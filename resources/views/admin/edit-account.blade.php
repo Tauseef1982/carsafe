@@ -55,6 +55,9 @@
                                          <input type="text" class="form-control mb-3" id="recharge_amount" name="recharge"
                                            value="{{$account->recharge}}" placeholder="$ 00.00">
                                     </div>
+                              <label for="">Do you want to on pay per trip</label><br>
+                              <input type="radio" id="on-paypertrip" name="paypertrip" @if($account->paypertrip == 'on') checked @endif value="on"><label for="on-paypertrip ">Pay Per Trip On</label><br>
+                              <input type="radio" id="off-paypertrip"  name="paypertrip" @if($account->paypertrip == 'off') checked @endif value="off"><label for="off-paypertrip ">Pay Per Trip Off</label><br>
                                 <label for="">Account Number</label>
                                 <input type="text" class="form-control mb-3" disabled value="{{$account->account_id}}"
                                        name="account_id"/>

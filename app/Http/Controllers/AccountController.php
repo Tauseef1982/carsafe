@@ -246,108 +246,137 @@ class AccountController extends Controller
     }
 
 
-    public function create(Request $request)
-    {
+   public function create(Request $request)
+{
+    $expiry = $request->input('expiry');
 
-
-        $expiry = $request->input('expiry');
-        if(count(explode('/', $expiry)) != 2){
-            return redirect()->back()->with('error','Incorrect Expiry Format');
-        }
-
-        if(Account::where('account_id',$request->account_id)->exists()){
-            return redirect()->back()->with("error",'Already Exists With Same Account Number');
-
-        }
-
-        list($month, $year) = explode('/', $expiry);
-        $fullYear = '20' . $year;
-        $expiryDate = \Carbon\Carbon::createFromDate($fullYear, $month, 1)->toDateString();
-        $expiryWithoutSlash = str_replace('/', '', $expiry);
-
-        // Call CardKnoxService to save the card
-        $cardResponse = CardKnoxService::saveCard(
-            $request->account_id,
-            'credit',
-            $request->card_number,
-            $expiryWithoutSlash,
-            $request->card_zip
-        );
-
-
-        if ($cardResponse['status']) {
-
-            $creditCard = new CreditCard;
-            $creditCard->card_number = $request->card_number;
-            $creditCard->cvc = $request->cvc;
-            $creditCard->expiry = $expiryDate;
-            $creditCard->cardnox_token = $cardResponse['data']['xToken'];
-
-        } else {
-
-            return redirect()->back()->with("error", $cardResponse['msg']);
-
-        }
-
-
-        $account = new Account();
-        $account->account_type = $request->account_type;
-        $account->recharge = $request->recharge;
-        $account->autofill = $request->autofill;
-        $account->account_id = $request->account_id;
-        $account->f_name = $request->f_name;
-        $account->phone = $request->phone;
-        $account->email = $request->email;
-        $account->address = $request->address;
-        $account->company_name = $request->company_name;
-        $account->billing_email = $request->billing_email;
-        $account->notes = $request->notes;
-        $account->status = 1;
-        $account->first_refill = $request->first_refill;
-        $account->notification_setting = $request->notification_setting;
-        $account->pins = $request->pins ? $request->pins : null;
-        $account->password = Hash::make($request->password);
-        $account->save();
-        $data['username'] = $request->account_id;
-        $data['password'] = $request->password;
-        Mail::to($request->email)->send(new CustomerLogins($data));
-
-        $cardknoxToken = $creditCard->cardnox_token;
-           $fee = $account->first_refill * 0.03;
-           $amount = $fee + $account->first_refill;
-
-        $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken,  $amount, $account->account_id);
-        if ($cardknoxResponse['status'] == 'approved') {
-
-            $account_payment = new AccountPayment();
-            $account_payment->account_id = $account->account_id;
-            $account_payment->account_type = $account->account_type;
-            $account_payment->amount = $account->first_refill;
-            $account_payment->transaction_id = $cardknoxResponse['transaction_id'];
-            $account_payment->payment_date = Carbon::today();
-            $account_payment->payment_type = 'card';
-            $account_payment->save();
-
-                $account->balance += $account->first_refill;
-                $account->save();
-
-
-            } else {
-                return redirect()->back()->with(['status' => 'error', 'message' => 'Account not found.']);
-
-            }
-        $discount = new Discount;
-        $discount->percentage = 10;
-        $discount->start_date = Carbon::now();
-        $discount->end_date = Carbon::now()->addDays(30);
-        $discount->save();
-
-        $discount->accounts()->attach($account->id);
-
-        $creditCard->account_id = $account->account_id;
-        $creditCard->save();
-        return redirect()->back()->with('success', 'Account is addedd successfully');
+    if (count(explode('/', $expiry)) != 2) {
+        return response()->json(['status' => false, 'message' => 'Incorrect Expiry Format'], 422);
     }
+
+    if (Account::where('account_id', $request->account_id)->exists()) {
+        return response()->json(['status' => false, 'message' => 'Already exists with same account number'], 409);
+    }
+
+    list($month, $year) = explode('/', $expiry);
+    $fullYear = '20' . $year;
+    $expiryDate = \Carbon\Carbon::createFromDate($fullYear, $month, 1)->toDateString();
+    $expiryWithoutSlash = str_replace('/', '', $expiry);
+
+    $cardResponse = CardKnoxService::saveCard(
+        $request->account_id,
+        'credit',
+        $request->card_number,
+        $expiryWithoutSlash,
+        $request->card_zip
+    );
+
+    if (!$cardResponse['status']) {
+        return response()->json(['status' => false, 'message' => $cardResponse['msg']], 422);
+    }
+
+    $creditCard = new CreditCard;
+    $creditCard->card_number = $request->card_number;
+    $creditCard->cvc = $request->cvc;
+    $creditCard->expiry = $expiryDate;
+    $creditCard->cardnox_token = $cardResponse['data']['xToken'];
+
+    $account = new Account();
+    $account->account_type = $request->account_type;
+    $account->recharge = $request->recharge;
+    $account->autofill = $request->autofill;
+    $account->account_id = $request->account_id;
+    $account->f_name = $request->f_name;
+    $account->phone = $request->phone;
+    $account->email = $request->email;
+    $account->address = $request->address;
+    $account->company_name = $request->company_name;
+    $account->billing_email = $request->billing_email;
+    $account->notes = $request->notes;
+    $account->status = 1;
+   // $account->cash_type = $request->cash_type;
+    $account->first_refill = $request->first_refill;
+    $account->paypertrip = $request->paypertrip;
+    $account->notification_setting = $request->notification_setting;
+    $account->pins = $request->pins ?: null;
+    $account->password = Hash::make($request->password);
+   // $account->secondary_contact = $request->secondary_contact;
+    $account->save();
+
+    // Send login info via email
+    $data['username'] = $request->account_id;
+    $data['password'] = $request->password;
+    Mail::to($request->email)->send(new CustomerLogins($data));
+
+    // Process card payment
+    $cardknoxToken = $creditCard->cardnox_token;
+    $fee = $account->first_refill * 0.03;
+    $amount = $fee + $account->first_refill;
+
+    $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $amount, $account->account_id);
+
+    if ($cardknoxResponse['status'] !== 'approved') {
+        return response()->json(['status' => false, 'message' => 'Payment declined.'], 422);
+    }
+
+    // Save payment
+    $account_payment = new AccountPayment();
+    $account_payment->account_id = $account->account_id;
+    $account_payment->account_type = $account->account_type;
+    $account_payment->amount = $account->first_refill;
+    $account_payment->transaction_id = $cardknoxResponse['transaction_id'];
+    $account_payment->payment_date = Carbon::today();
+    $account_payment->payment_type = 'card';
+    $account_payment->save();
+
+    $account->balance += $account->first_refill;
+    $account->save();
+
+    // Add discount
+    $discount = new Discount;
+    $discount->percentage = 10;
+    $discount->start_date = Carbon::now();
+    $discount->end_date = Carbon::now()->addDays(30);
+    $discount->save();
+    $discount->accounts()->attach($account->id);
+
+    // Save primary card
+    $creditCard->account_id = $account->account_id;
+    $creditCard->save();
+
+    // Save secondary card
+    if ($request->secondary_card_number && $request->secondary_expiry) {
+        $secExpiryParts = explode('/', $request->secondary_expiry);
+        if (count($secExpiryParts) == 2) {
+            list($secMonth, $secYear) = $secExpiryParts;
+            $secFullYear = '20' . $secYear;
+            $secExpiryDate = \Carbon\Carbon::createFromDate($secFullYear, $secMonth, 1)->toDateString();
+            $secExpiryNoSlash = str_replace('/', '', $request->secondary_expiry);
+
+            $secondaryResponse = CardKnoxService::saveCard(
+                $request->account_id,
+                'credit',
+                $request->secondary_card_number,
+                $secExpiryNoSlash,
+                $request->secondary_card_zip
+            );
+
+            if ($secondaryResponse['status']) {
+                $secondaryCard = new CreditCard();
+                $secondaryCard->card_number = $request->secondary_card_number;
+                $secondaryCard->cvc = $request->secondary_cvc;
+                $secondaryCard->expiry = $secExpiryDate;
+                $secondaryCard->cardnox_token = $secondaryResponse['data']['xToken'];
+                $secondaryCard->charge_priority = 0;
+                $secondaryCard->account_id = $account->account_id;
+                $secondaryCard->save();
+            }
+        }
+    }
+
+    return response()->json(['status' => true, 'message' => 'Account is added successfully with cards.']);
+}
+
 
     /**
      * Store a newly created resource in storage.
@@ -440,6 +469,7 @@ class AccountController extends Controller
         $account->recharge = $request->recharge;
         $account->autofill = $request->autofill;
         $account->first_refill = $request->first_refill;
+        $account->paypertrip = $request->paypertrip;
         $account->f_name = $request->f_name;
         $account->phone = $request->phone;
         $account->email = $request->email;

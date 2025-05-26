@@ -136,7 +136,7 @@
                     <h5 class="modal-title" id="invoiceModalLabel">New Account</h5>
                     <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="post" action="{{url('admin/add_account')}}">
+                <form method="post" id="addAccountForm" action="{{url('admin/add_account')}}">
 
                     <div class="modal-body">
                         @csrf
@@ -157,7 +157,9 @@
                               <label for="">Please Enter Rechrage Amount</label>
                               <input type="text"  class="form-control mb-3" name="recharge" id="recharge_amount" placeholder="$ 00.00">
                          </div>
-
+                                                 <label for="">Do you want to on pay per trip</label><br>
+                              <input type="radio" id="on-paypertrip" name="paypertrip" value="on"><label for="on-paypertrip ">Pay Per Trip On</label><br>
+                              <input type="radio" id="off-paypertrip"  name="paypertrip" checked value="off"><label for="off-paypertrip ">Pay Per Trip Off</label><br>
                         <label for="">Account Number</label>
                         <input type="number" class="form-control mb-3" required placeholder="Please enter account number"
                                name="account_id" id="account_id"/>
@@ -290,6 +292,59 @@
 
 <script>
     $(document).ready(function(){
+    // add account ajax
+$('#addAccountForm').on('submit', function (e) {
+        e.preventDefault(); // prevent default form submission
+
+        let form = $(this);
+        let formData = new FormData(this);
+        let submitButton = form.find('button[type="submit"]');
+        
+        // Disable the button and show loading state
+        submitButton.prop('disabled', true).text('Saving...');
+
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': $('input[name="_token"]').val()
+            },
+            success: function (response) {
+               if (response.status) {
+            toastr.success(response.message);
+            form[0].reset();
+
+            // Close modal by ID
+            $('#invoiceModal').modal('hide');
+        } else {
+            toastr.error(response.message);
+        }
+            },
+            error: function (xhr) {
+                let errorDiv = $('#errorDiv');
+                errorDiv.empty();
+
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    $.each(errors, function (key, value) {
+                        errorDiv.append('<div>' + value[0] + '</div>');
+                    });
+                } else {
+                    errorDiv.text('An error occurred. Please try again.');
+                }
+            },
+            complete: function () {
+                // Re-enable the button
+                submitButton.prop('disabled', false).text('Save');
+            }
+        });
+    });
+
+// add account ajax
+
 
         $(document).on('click', '.open-delete-modal', function () {
         const id = $(this).data('id');
