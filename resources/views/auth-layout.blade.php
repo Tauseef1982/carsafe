@@ -7,7 +7,7 @@
    
     <link rel="icon" href="{{asset('assets/images/logo/carsafe-icon.png')}}" type="image/x-icon">
     <link rel="shortcut icon" href="{{asset('assets/images/logo/carsafe-icon.png')}}" type="image/x-icon">
-    <title>CarSafe - Login</title>
+    <title>CarSafe</title>
     <!-- Google font-->
     <link href="https://fonts.googleapis.com/css?family=Rubik:400,400i,500,500i,700,700i&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900&amp;display=swap" rel="stylesheet">
@@ -29,6 +29,8 @@
     <link id="color" rel="stylesheet" href="{{asset('assets/css/color-1.css')}}" media="screen">
     <!-- Responsive css-->
     <link rel="stylesheet" type="text/css" href="{{asset('assets/css/responsive.css')}}">
+     <link rel="stylesheet" type="text/css" href="{{asset('assets/css/vendors/toastr.min.css')}}">
+    @yield('css')
   </head>
   <body>
   
@@ -45,8 +47,19 @@
       <script src="{{asset('assets/js/icons/feather-icon/feather-icon.js')}}"></script>
      
       <script src="{{asset('assets/js/config.js')}}"></script>
-    
+     <script src="{{asset('assets/js/card-js.min.js')}}"></script>
+     <script src="{{asset('assets/js/toastr.min.js')}}"></script>
       <script src="{{asset('assets/js/script.js')}}"></script>
+       <script>
+         @if (session('success'))
+        toastr.success("{{ session('success') }}");
+        @endif
+
+        @if (session('error'))
+        toastr.warning("{{ session('error') }}");
+        @endif
+      </script>
+       @yield('js')
     
     </div>
   </body>

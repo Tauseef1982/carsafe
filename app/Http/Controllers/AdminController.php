@@ -11,6 +11,7 @@ use App\Models\Payment;
 use App\Models\Trip;
 use App\Models\TripEditHistory;
 use App\Models\User;
+use App\Models\Document;
 use App\Services\CustomPagination;
 use App\Services\LogService;
 use App\Services\TaxiCallerApi;
@@ -406,11 +407,11 @@ class AdminController extends Controller
 
         $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY); // Sunday 00:00 AM
         $endOfWeek = Carbon::now()->endOfWeek(Carbon::SATURDAY);
-
+        $documents = Document::where('driver_id', $data->driver_id)->get();
         $latestTrip = $data->trips()->latest('created_at')->first();
         $historyOfThisWeek = TripEditHistory::where('driver_id',$data->driver_id)->where('date','>=',$startOfWeek)->where('date','<=',$endOfWeek)->get();
 
-        return view('admin.single-driver', compact('util', 'data', 'latestTrip','historyOfThisWeek'));
+        return view('admin.single-driver', compact('util', 'data', 'latestTrip','historyOfThisWeek','documents'));
 
     }
     public function driver_inactive($id)

@@ -13,6 +13,7 @@ use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\CarImageController;
 use App\Http\Controllers\AccountComplaintController;
 use App\Http\Controllers\DriverComplaintController;
+use App\Http\Controllers\DocumentController;
 use App\Models\Trip;
 
 
@@ -154,7 +155,11 @@ Route::group(['middleware' => 'admin.auth'], function () {
 
         Route::get('/driver_complaints', [DriverComplaintController::class, 'index']);
         Route::post('/add_complaint' , [DriverComplaintController::class, 'store']);
-
+    // driver documnets routes
+    Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
+Route::post('/documents_store', [DocumentController::class, 'create'])->name('documents.store');
+Route::get('/documents/download/{document}', [DocumentController::class, 'download'])->name('documents.download');
+Route::delete('/document/delete/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
 
     });
 
@@ -170,7 +175,10 @@ Route::post('/send-otp', [\App\Http\Controllers\DriverController::class, 'sendOt
 Route::get('/send-otp-form', [\App\Http\Controllers\DriverController::class, 'showOtpForm'])->name('send-otp-form');
 Route::post('/verify-otp', [\App\Http\Controllers\DriverController::class, 'verifyOtp']);
 Route::get('/logout', [\App\Http\Controllers\DriverController::class, 'logout'])->name('logout');
-
+Route::get('register', function(){
+    return view('customer.register');
+});
+Route::post('add_account',[AccountController::class, 'create']);
 Route::post('/genToken', [CreditCardController::class, 'genToken'])->name('cardknox-genToken');
 Route::get('start-again/{id}', [TripController::class,'start_payment_again']);
 

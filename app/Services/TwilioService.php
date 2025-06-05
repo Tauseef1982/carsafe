@@ -210,6 +210,9 @@ class TwilioService
             }elseif($type == 'refilled-declined'){
                 $voice = '<Response><Say voice="man">Hello, this is Car Safe.,,,Your credit card was declined and we were unable to refill your prepaid account.,,,,,Please call customer service to add money to your account. Thank you.</Say></Response>';
 
+            }elseif($type == 'paypertrip-declined'){
+                $voice = '<Response><Say voice="man">Hello, this is Go Cab.,,,Your card was declined while trying to pay per trip.,,,,,Please call customer service to update your card.,,,,,We have deactivated your account.,,,,,Have a good day and thanks for riding with us.</Say></Response>';
+
             }else{
 
                 $voice = '<Response><Say voice="man">Hello, this is Car Safe.,,,,,Please call customer service to add money to your account.,,,,, Thank you.</Say></Response>';

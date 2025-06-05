@@ -29,6 +29,13 @@ class Kernel extends ConsoleKernel
 
 //      $schedule->command('DueInvoices:accounts');
              $schedule->command('cron:dispatcherUser')->dailyAt('02:00');
+             $schedule->command('prePaidInvoices:accounts')
+    ->timezone('America/New_York')
+    ->between('09:00', '23:55')
+    ->everyFiveMinutes()
+    ->when(function () {
+        return in_array(now()->day, [1, 16]);
+    });
 
 
 

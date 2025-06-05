@@ -248,20 +248,30 @@ class AccountController extends Controller
 
    public function create(Request $request)
 {
-    $expiry = $request->input('expiry');
-
-    if (count(explode('/', $expiry)) != 2) {
-        return response()->json(['status' => false, 'message' => 'Incorrect Expiry Format']);
-    }
+    if(isset($request->expiry)){
+         $expiry = $request->input('expiry');
+        if(count(explode('/', $expiry)) != 2){
+             return response()->json(['status' => false, 'message' => 'Incorrect Expiry Format.']);
+            //return redirect()->back()->with('error','Incorrect Expiry Format');
+        }
+        }
 
     if (Account::where('account_id', $request->account_id)->exists()) {
         return response()->json(['status' => false, 'message' => 'Already exists with same account number']);
     }
 
-    list($month, $year) = explode('/', $expiry);
-    $fullYear = '20' . $year;
-    $expiryDate = \Carbon\Carbon::createFromDate($fullYear, $month, 1)->toDateString();
-    $expiryWithoutSlash = str_replace('/', '', $expiry);
+     if(isset($request->month) && isset($request->year)){
+                $month = $request->month;
+                $year = $request->year;
+                $expiryWithoutSlash = $month.$year;
+
+            }else{
+                list($month, $year) = explode('/', $expiry);
+                $expiryWithoutSlash = str_replace('/', '', $expiry);
+
+            }
+        $fullYear = '20' . $year;
+        $expiryDate = \Carbon\Carbon::createFromDate($fullYear, $month, 1)->toDateString();
 
     $cardResponse = CardKnoxService::saveCard(
         $request->account_id,
@@ -272,7 +282,7 @@ class AccountController extends Controller
     );
 
     if (!$cardResponse['status']) {
-        return response()->json(['status' => false, 'message' => $cardResponse['msg']]);
+          return response()->json(['status' => false, 'message' =>"Please try another card to proceed"]);
     }
 
     $creditCard = new CreditCard;
@@ -333,12 +343,12 @@ class AccountController extends Controller
     $account->save();
 
     // Add discount
-    $discount = new Discount;
-    $discount->percentage = 10;
-    $discount->start_date = Carbon::now();
-    $discount->end_date = Carbon::now()->addDays(30);
-    $discount->save();
-    $discount->accounts()->attach($account->id);
+    // $discount = new Discount;
+    // $discount->percentage = 10;
+    // $discount->start_date = Carbon::now();
+    // $discount->end_date = Carbon::now()->addDays(30);
+    // $discount->save();
+    // $discount->accounts()->attach($account->id);
 
     // Save primary card
     $creditCard->account_id = $account->account_id;

@@ -152,4 +152,9 @@ class Driver extends Authenticatable
     return $this->hasMany(driverComplaint::class);
 }
 
+public function documents()
+{
+    return $this->hasMany(Document::class);
+}
+
 }
