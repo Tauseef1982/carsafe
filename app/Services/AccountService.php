@@ -18,7 +18,7 @@ class AccountService
 
 
             $account = Account::where('account_id',$request->account_id)->first();
-            $totalTripsQuery = DB::table('trips')->where('payment_method', 'account')
+            $totalTripsQuery = DB::table('trips')->whereIn('payment_method', ['account', 'card'])
                 ->where('account_number', $request->account_id)
                 ->where('is_delete', 0);
 
