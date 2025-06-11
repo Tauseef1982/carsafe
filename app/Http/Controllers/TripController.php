@@ -258,9 +258,10 @@ class TripController extends Controller
                  $from = strtolower(trim($trip->location_from));
                 $to = strtolower(trim($trip->location_to));
 
-                if (!$allowed->contains($from) || !$allowed->contains($to)) {
-                    return redirect()->back()->with('error','Trip is not allowed based on your account address restriction.');
+                if (!$allowed->contains($from) && !$allowed->contains($to)) {
+                    return redirect()->back()->with('error', 'Trip is not allowed based on your account address restriction.');
                 }
+
             }
             $pins = array_map('trim', explode(',', $account->pins)); // Split and clean
             $enteredPin = trim($request->input('account_pin')); // Clean user input

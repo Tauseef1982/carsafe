@@ -54,12 +54,17 @@ class PrePaidAccountsInvoices extends Command
 
         $today = Carbon::today();
 
-        if ($today->day > 15) {
-            $from_date = $today->copy()->startOfMonth()->format('Y-m-d');
-            $to_date = $today->copy()->startOfMonth()->addDays(14)->format('Y-m-d');
-        } else {
-            $from_date = $today->copy()->subMonth()->startOfMonth()->addDays(15)->format('Y-m-d');
-            $to_date = $today->copy()->subMonth()->endOfMonth()->format('Y-m-d');
+        // if ($today->day > 15) {
+        //     $from_date = $today->copy()->startOfMonth()->format('Y-m-d');
+        //     $to_date = $today->copy()->startOfMonth()->addDays(14)->format('Y-m-d');
+        // } else {
+        //     $from_date = $today->copy()->subMonth()->startOfMonth()->addDays(15)->format('Y-m-d');
+        //     $to_date = $today->copy()->subMonth()->endOfMonth()->format('Y-m-d');
+        // }
+        if ($today->day == 1) {
+            $from_date = $today->copy()->subMonth()->startOfMonth()->format('Y-m-d');
+             $to_date = $today->copy()->subMonth()->endOfMonth()->format('Y-m-d');
+
         }
 
         // $from_date = '2025-05-01';
