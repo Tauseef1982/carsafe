@@ -10,6 +10,7 @@ use App\Models\CreditCard;
 use App\Models\Payment;
 use App\Models\Trip;
 use App\Models\Discount;
+use App\Models\AllowedAddress;
 use App\Services\AccountService;
 use App\Services\CardKnoxService;
 use App\Services\CubeContact;
@@ -1932,6 +1933,39 @@ class AccountController extends Controller
     public function  account_complaint(Request $request,$id){
     $account_payment = AccountPayment::where('hash_id',$id)->first();
     return view('account_complaint', compact('account_payment'));
+    }
+
+    public function account_restriction(Request $request){
+        $id = $request->account_id;
+        $account = Account::find($id);
+        $account->address_restriction = $request->has('address_restriction');
+        $account->save();
+
+        
+
+        if ($account->address_restriction && $request->filled('addresses')) {
+        foreach ($request->addresses as $address) {
+            if (!empty($address)) {
+                $account->allowedAddresses()->create(['address' => $address]);
+            }
+        }
+    }
+
+    return back()->with('success', 'Account allowed addresses are updated.');
+    }
+
+    public function deleteAllowedAddress($id){
+         
+
+    $address = AllowedAddress::where('id', $id)->first();
+
+    if (!$address) {
+        return response()->json(['message' => 'Address not found or unauthorized.'], 404);
+    }
+
+    $address->delete();
+
+    return response()->json(['message' => 'Address deleted successfully.']);
     }
 
 

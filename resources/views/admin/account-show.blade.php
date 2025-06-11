@@ -60,549 +60,579 @@
 
 @endsection
 @section('content')
-    @php
+                    @php
 
-        $util = new \App\Utils\dateUtil();
+    $util = new \App\Utils\dateUtil();
 
-    @endphp
-    <div class="page-title">
-        <div class="row">
-            <div class="col-6">
-
-            </div>
-            <div class="col-6">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/admin/dashboard"><i data-feather="home"></i></a></li>
-                    <li class="breadcrumb-item"><a href="{{url('admin/accounts')}}">Accounts</a></li>
-                    <li class="breadcrumb-item"><a href="{{url('/#')}}">Account</a></li>
-                </ol>
-            </div>
-        </div>
-    </div>
-    </div>
-    <!-- Container-fluid starts-->
-    <div class="container-fluid">
-        <div class="row size-column">
-            <div class=" risk-col xl-100 box-col-12">
-                <div class="card total-users">
-                    @if (session('status') && session('message'))
-                        <div
-                            class="alert @if (session('status') == "error") alert-danger @else alert-success @endif  }}">
-                            {{ session('message') }}
-                        </div>
-                    @endif
-                    <div class="card-header card-no-border">
-                        <h5>{{$account->f_name}} {{$account->lname}}</h5>
-                         <a href="{{ url('admin/edit/account/') }}/{{$account->id  }}" target="_blank" class="btn btn-primary">Edit Account</a>
-                        <div class="card-header-right">
-
-                            <form id="filterForm">
-                                @csrf
-                                <div class="row">
-                                    <div class="col">
-                                        <label class="form-label">From Date</label>
-                                        <input type="date" name="from_date" class="form-control" id="from_date"
-                                               value="">
-                                    </div>
-                                    <div class="col">
-                                        <label class="form-label">To Date</label>
-                                        <input type="date" name="to_date" class="form-control digits date-field"
-                                               id="to_date" value="">
-                                    </div>
-                                </div>
-                            </form>
-                            
-                                <button class="btn-sm btn-dark mt-3"
-                                        onclick="download_invoice_link(' {{$account->id }} ')"
-                                        data-modalid="invoiceModal" data-original-title="test"
-                                        data-modalcontent="' . htmlentities($modalinvoice) . '">
-                                    Click Here for invoice
-                                </button>
-                            
-
-                        </div>
-                    </div>
-                    {{-- {{dd($account->account_id);}} --}}
-                    <input hidden value="{{$account->account_id}}" name="account_id" id="account_id"/>
-
-                    <div class="card-body pt-0 ">
+                    @endphp
+                    <div class="page-title">
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="bg-primary card p-10">
-                                    <h5 class=" text-center font-dark">Total Trips</h5>
-                                    <h6 id="total_trip" class="text-center font-dark">0</h6>
-
-                                </div>
+                            <div class="col-6">
 
                             </div>
-                            <!-- <div class="col-md-3">
-                                <div class="bg-info card p-10">
-                                    <h5 class="font-dark text-center">Total Driver Earnings</h5>
-                                    <h6 id="total_earnings" class="font-dark text-center">$0</h6>
-
-                                </div>
-                            </div> -->
-                            <!-- <div class="col-md-3">
-                                <div class="bg-success card p-10">
-                                    <h5 class="font-dark text-center">Total Driver Received</h5>
-                                    <h6 id="total_recived" class="font-dark text-center">$0</h6>
-
-                                </div>
-                            </div> -->
-
-                            <div class="col-md-6">
-                                <div class="bg-secondary card p-10">
-                                    <h5 class=" text-center " id="balance_headin">
-                                        @if($account->account_type != 'prepaid')
-                                            Owed to CarSafe
-                                        @else
-                                            Prepaid Balance
-                                        @endif
-                                    </h5>
-                                    <h6 id="total_gocab_paid" class=" text-center ">$0</h6>
-
-                                </div>
+                            <div class="col-6">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/admin/dashboard"><i data-feather="home"></i></a></li>
+                                    <li class="breadcrumb-item"><a href="{{url('admin/accounts')}}">Accounts</a></li>
+                                    <li class="breadcrumb-item"><a href="{{url('/#')}}">Account</a></li>
+                                </ol>
                             </div>
-
-                        </div>
-
-
-                    </div>
-                </div>
-                <div class="card total-users">
-                    <div class="card-header card-no-border">
-                        <h5>Profile</h5>
-                        <div class="card-header-right">
-
-
                         </div>
                     </div>
-                    <div class="card-body pt-0 ">
-                        <div class="row">
-                            <table>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Username</th>
-                                    <th>Phone</th>
-                                    <th>Email</th>
-                                    <th>Status</th>
-                                    <th>Pins</th>
-                                    <th>Action</th>
+                    </div>
+                    <!-- Container-fluid starts-->
+                    <div class="container-fluid">
+                        <div class="row size-column">
+                            <div class=" risk-col xl-100 box-col-12">
+                                <div class="card total-users">
+                                    @if (session('status') && session('message'))
+                                        <div
+                                            class="alert @if (session('status') == "error") alert-danger @else alert-success @endif  }}">
+                                            {{ session('message') }}
+                                        </div>
+                                    @endif
+                                    <div class="card-header card-no-border">
+                                        <h5>{{$account->f_name}} {{$account->lname}}</h5>
+                                         <a href="{{ url('admin/edit/account/') }}/{{$account->id  }}" target="_blank" class="btn btn-primary">Edit Account</a> 
 
-                                </tr>
-                                <tr>
-                                    <td>{{$account->f_name}}</td>
+                                         <form action="{{ url('admin/update_account_restriction') }}" method="post">
+                                         @csrf  
+                                         <input type="hidden" value="{{ $account->id }}" name="account_id">
+                                         <label>
+                                            <input type="checkbox" name="address_restriction" id="address_restriction" {{ $account->address_restriction ? 'checked' : '' }}>
+                                            Enable Address Restriction
+                                        </label> <br>
+                                        <div id="address-fields" style="{{ $account->address_restriction ? '' : 'display:none;' }}" class="mt-3">
+                                            <div id="existing-addresses">
+                                                @foreach ($account->allowedAddresses as $address)
+                                                    <div class="address-group" data-id="{{ $address->id }}">
+                                                        <input type="text" value="{{ $address->address }}" class="address-input form-control mb-2"
+                                                            style="display:inline-block; width: 80%;" >
+                                                        <button type="button" class="btn btn-danger btn-sm delete-existing-address"
+                                                            data-id="{{ $address->id }}">Delete</button>
+                                                        <br>
+                                                    </div>
+                                                @endforeach
 
-                                    <td>{{$account->account_id}}</td>
-                                    <td>{{$account->phone}}</td>
-                                    <td>{{$account->email}}</td>
-                                    <td>{{$account->status == 1  ? 'Active' : 'Inactive'}}</td>
-                                    <td>{{$account->pins}}</td>
-                                     <td>
-                                            <button class="btn btn-xs btn-primary" data-bs-toggle="modal" data-bs-target="#changeStatusModal">
-                                            Change Status 
-                                        </button>
-                                        <!-- Modal -->
-                                        <div class="modal fade" id="changeStatusModal" tabindex="-1" aria-labelledby="changeStatusModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="changeStatusModalLabel">Change Status</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+
+                                            <div id="new-address-container"></div>
+                                            <button type="button" class="btn btn-secondary" id="add-address-btn">Add Address</button>
+                                             
+                                        </div>
+                                        <button type="submit" class="btn btn-primary mt-3">Save</button>
+                                             </form>
+
+
+                                        <div class="card-header-right">
+
+                                            <form id="filterForm">
+                                                @csrf
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <label class="form-label">From Date</label>
+                                                        <input type="date" name="from_date" class="form-control" id="from_date"
+                                                               value="">
                                                     </div>
-                                                    <div class="modal-body">
-                                                        <form action="{{ url('admin/account/status') }}/ {{  $account->id}} " method="post">
-                                                            @csrf
-                                                            <input type="hidden" name="account_id" value="{{  $account->account_id}}">
-                                                            @if ($account->status == 0)
-                                                            <input type="hidden" name="status" value="1">
-                                                            @elseif($account->status == 1)
-                                                            <input type="hidden" name="status" value="0">
-                                                            @endif
-                                                            <label for="">Username</label>
-                                                            <input type="text" class="form-control mb-3" name="username_change_status" placeholder="Please Enter Your Username" >
-                                                            <label for="">Reason</label>
-                                                            <input type="text" class="form-control mb-3" name="reason_change_status" placeholder="Please Enter Reason" >
+                                                    <div class="col">
+                                                        <label class="form-label">To Date</label>
+                                                        <input type="date" name="to_date" class="form-control digits date-field"
+                                                               id="to_date" value="">
                                                     </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                        <button type="submit" class="btn btn-primary">Save changes</button>
-                                                    </div>
+                                                </div>
+                                            </form>
+
+                                                <button class="btn-sm btn-dark mt-3"
+                                                        onclick="download_invoice_link(' {{$account->id }} ')"
+                                                        data-modalid="invoiceModal" data-original-title="test"
+                                                        data-modalcontent="' . htmlentities($modalinvoice) . '">
+                                                    Click Here for invoice
+                                                </button>
+
+
+                                        </div>
+                                    </div>
+                                    {{-- {{dd($account->account_id);}} --}}
+                                    <input hidden value="{{$account->account_id}}" name="account_id" id="account_id"/>
+
+                                    <div class="card-body pt-0 ">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="bg-primary card p-10">
+                                                    <h5 class=" text-center font-dark">Total Trips</h5>
+                                                    <h6 id="total_trip" class="text-center font-dark">0</h6>
+
+                                                </div>
+
+                                            </div>
+                                            <!-- <div class="col-md-3">
+                                                <div class="bg-info card p-10">
+                                                    <h5 class="font-dark text-center">Total Driver Earnings</h5>
+                                                    <h6 id="total_earnings" class="font-dark text-center">$0</h6>
+
+                                                </div>
+                                            </div> -->
+                                            <!-- <div class="col-md-3">
+                                                <div class="bg-success card p-10">
+                                                    <h5 class="font-dark text-center">Total Driver Received</h5>
+                                                    <h6 id="total_recived" class="font-dark text-center">$0</h6>
+
+                                                </div>
+                                            </div> -->
+
+                                            <div class="col-md-6">
+                                                <div class="bg-secondary card p-10">
+                                                    <h5 class=" text-center " id="balance_headin">
+                                                        @if($account->account_type != 'prepaid')
+                                                            Owed to CarSafe
+                                                        @else
+                                                            Prepaid Balance
+                                                        @endif
+                                                    </h5>
+                                                    <h6 id="total_gocab_paid" class=" text-center ">$0</h6>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                                <div class="card total-users">
+                                    <div class="card-header card-no-border">
+                                        <h5>Profile</h5>
+                                        <div class="card-header-right">
+
+
+                                        </div>
+                                    </div>
+                                    <div class="card-body pt-0 ">
+                                        <div class="row">
+                                            <table>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Username</th>
+                                                    <th>Phone</th>
+                                                    <th>Email</th>
+                                                    <th>Status</th>
+                                                    <th>Pins</th>
+                                                    <th>Action</th>
+
+                                                </tr>
+                                                <tr>
+                                                    <td>{{$account->f_name}}</td>
+
+                                                    <td>{{$account->account_id}}</td>
+                                                    <td>{{$account->phone}}</td>
+                                                    <td>{{$account->email}}</td>
+                                                    <td>{{$account->status == 1 ? 'Active' : 'Inactive'}}</td>
+                                                    <td>{{$account->pins}}</td>
+                                                     <td>
+                                                            <button class="btn btn-xs btn-primary" data-bs-toggle="modal" data-bs-target="#changeStatusModal">
+                                                            Change Status 
+                                                        </button>
+                                                        <!-- Modal -->
+                                                        <div class="modal fade" id="changeStatusModal" tabindex="-1" aria-labelledby="changeStatusModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="changeStatusModalLabel">Change Status</h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <form action="{{ url('admin/account/status') }}/ {{  $account->id}} " method="post">
+                                                                            @csrf
+                                                                            <input type="hidden" name="account_id" value="{{  $account->account_id}}">
+                                                                            @if ($account->status == 0)
+                                                                            <input type="hidden" name="status" value="1">
+                                                                            @elseif($account->status == 1)
+                                                                            <input type="hidden" name="status" value="0">
+                                                                            @endif
+                                                                            <label for="">Username</label>
+                                                                            <input type="text" class="form-control mb-3" name="username_change_status" placeholder="Please Enter Your Username" >
+                                                                            <label for="">Reason</label>
+                                                                            <input type="text" class="form-control mb-3" name="reason_change_status" placeholder="Please Enter Reason" >
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                        <button type="submit" class="btn btn-primary">Save changes</button>
+                                                                    </div>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                      </td>
+                                                </tr>
+                                            </table>
+                                            <hr>
+
+                                            <div class="col-md-6 mt-3">
+                                                <div class="mb-3">
+                                                    <form action="{{url('admin/pay-to-refill')}}" method="POST">
+                                                        @csrf
+                                                        @if ($account->account_type == "prepaid")
+                                                            <label for="">Select Payment Method to refill </label> <br>
+                                                            <input type="radio" name="refill_method" value="cash" id="refill_cash">
+                                                            <label for="refill_cash">Cash</label>
+                                                            <input type="radio" name="refill_method" value="card" id="refill_card">
+                                                            <label for="refill_card">Card</label><br>
+                                                        @endif
+                                                        <label class="form-label" for="to_amount">Payment Refill</label>
+                                                        <input hidden value="{{$account->account_id}}" name="account_id"/>
+                                                        <input class="form-control btn-square" id="to_refill" type="number"
+                                                               name="to_refill"
+                                                               placeholder="Enter payment to Refill here" data-bs-original-title=""
+                                                               title="">
+                                                        <input type="submit" class="btn btn-primary mt-3" value="save">
                                                     </form>
                                                 </div>
                                             </div>
+
+
                                         </div>
-                                      </td>
-                                </tr>
-                            </table>
-                            <hr>
-
-                            <div class="col-md-6 mt-3">
-                                <div class="mb-3">
-                                    <form action="{{url('admin/pay-to-refill')}}" method="POST">
-                                        @csrf
-                                        @if ($account->account_type == "prepaid")
-                                            <label for="">Select Payment Method to refill </label> <br>
-                                            <input type="radio" name="refill_method" value="cash" id="refill_cash">
-                                            <label for="refill_cash">Cash</label>
-                                            <input type="radio" name="refill_method" value="card" id="refill_card">
-                                            <label for="refill_card">Card</label><br>
-                                        @endif
-                                        <label class="form-label" for="to_amount">Payment Refill</label>
-                                        <input hidden value="{{$account->account_id}}" name="account_id"/>
-                                        <input class="form-control btn-square" id="to_refill" type="number"
-                                               name="to_refill"
-                                               placeholder="Enter payment to Refill here" data-bs-original-title=""
-                                               title="">
-                                        <input type="submit" class="btn btn-primary mt-3" value="save">
-                                    </form>
-                                </div>
-                            </div>
 
 
-                        </div>
-
-
-                    </div>
-                </div>
-                <div class="card total-users">
-                    <div class="card-header card-no-border">
-                        <h5>Card Information</h5>
-                        <div class="card-header-right">
-                        @if ($account->account_type == "prepaid")
-                         <button class="btn btn-primary open-card-modal" data-bs-toggle="modal" data-id="{{ $account->account_id }}" data-bs-target="#addCreditCardModal">Add New Card</button>
-                         @endif
-
-                        </div>
-                    </div>
-                    <div class="card-body pt-0 ">
-                        <div class="row">
-                            <table>
-                                <tr>
-                                <th>Card Number</th>
-                                    <th>cvc</th>
-                                    <th>Pirority</th>
-                                    <th>Expiry</th>
-
-                                </tr>
-                                @foreach($account->cards->where('is_deleted',0) as $card)
-
-                                    <tr>
-
-                                        <td>{{$card->card_number}}</td>
-                                        <td>{{$card->cvc}}</td>
-                                        <td>{{$card->charge_priority == 1 ? 'primary' : 'secondary' }}</td>
-                                        <td>{{$card->expiry}}</td>
-                                        @if ($account->account_type == "prepaid")
-                                            <td>
-                                                <form action="{{url('admin/delete/card/')}}/{{$card->id}}"
-                                                      method="post">
-                                                    @csrf
-                                                    <input type="text" hidden>
-                                                    <input type="submit" class="btn btn-danger" value="Delete">
-                                                </form>
-                                            </td>
-
-                                        @else
-                                            <td><a href="{{url('admin/edit/creditcard/')}}/{{$card->id}}"
-                                                   class="btn btn-primary">Edit</a></td>
-                                        @endif
-
-
-                                    </tr>
-                                @endforeach
-
-                            </table>
-
-
-                        </div>
-
-
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header bg-primary">
-
-                    </div>
-                    <div class="card-body">
-
-                        <div class="tabbed-card">
-                            <ul class="pull-left nav nav-pills nav-primary" id="pills-clrtab1" role="tablist">
-
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark showajax-trips" data-type="all" data-idd="pills-trips"
-                                       id="pills-trips-tab1" data-bs-toggle="pill" href="#pills-trips" role="tab"
-                                       aria-controls="pills-trips" aria-selected="false" data-bs-original-title=""
-                                       title="">
-                                        Trips
-                                    </a>
-                                </li>
-                                @if($account->account_type != 'prepaid')
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark showajax-trips" data-type="paid"
-                                           data-idd="pills-paidtrips"
-                                           id="pills-paidtrips-tab1" data-bs-toggle="pill" href="#pills-paidtrips"
-                                           role="tab"
-                                           aria-controls="pills-trips" aria-selected="false" data-bs-original-title=""
-                                           title="">
-                                            Paid Trips
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark showajax-trips" data-type="partial"
-                                           data-idd="pills-partialtrips" id="pills-partialtrips-tab1"
-                                           data-bs-toggle="pill"
-                                           href="#pills-partialtrips" role="tab" aria-controls="pills-trips"
-                                           aria-selected="false" data-bs-original-title="" title="">
-                                            Partial/Unpaid Trips
-                                        </a>
-                                    </li>
-                                @endif
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark showajax-payments" id="pills-tripsbatch-tab1"
-                                       data-bs-toggle="pill" href="#pills-tripsbatch" role="tab"
-                                       aria-controls="pills-tripsbatch" aria-selected="false" data-bs-original-title=""
-                                       title="">
-                                        Payments To CarSafe
-                                    </a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" id="pills-updated-cost-tab" data-bs-toggle="pill"
-                                       href="#pills-updated-cost" role="tab" aria-controls="pills-updated-cost"
-                                       aria-selected="false" data-bs-original-title="" title="">
-                                        Invoices
-                                    </a>
-                                </li>
-
-
-                            </ul>
-                            <div class="tab-content" id="pills-clrtabContent1">
-
-
-                                <div class="tab-pane fade active show showed_ajax_trips" id="pills-trips"
-                                     role="tabpanel"
-                                     aria-labelledby="">
-
-                                </div>
-
-                                <div class="tab-pane fade showed_ajax_trips" id="pills-paidtrips" role="tabpanel">
-
-                                </div>
-
-                                <div class="tab-pane fade showed_ajax_trips" id="pills-partialtrips" role="tabpanel">
-
-                                </div>
-
-                                <div class="tab-pane fade " id="pills-tripsbatch" role="tabpanel"
-                                     aria-labelledby="pills-clrprofile-tab1">
-                                    <div class="table-responsive">
-                                        <table class="display" id="batchesTable">
-                                            <thead>
-                                            <tr>
-                                                <th></th> <!-- For the expand button -->
-                                                @if($account->account_type != 'prepaid')
-                                                    <th>Batch ID</th>
-                                                @else
-                                                    <th>Payment ID</th>
-                                                @endif
-
-                                                <th>Account ID</th>
-                                                <th>Payment Type</th>
-                                                <th>Amount</th>
-                                                <th></th>
-                                                @if($account->account_type == 'prepaid')
-                                                    <th>Date</th>
-
-                                                @endif
-
-                                            </tr>
-                                            </thead>
-                                            <tbody></tbody>
-                                        </table>
                                     </div>
                                 </div>
+                                <div class="card total-users">
+                                    <div class="card-header card-no-border">
+                                        <h5>Card Information</h5>
+                                        <div class="card-header-right">
+                                        @if ($account->account_type == "prepaid")
+                                         <button class="btn btn-primary open-card-modal" data-bs-toggle="modal" data-id="{{ $account->account_id }}" data-bs-target="#addCreditCardModal">Add New Card</button>
+                                         @endif
 
-                                <div class="tab-pane fade" id="pills-todriver" role="tabpanel" aria-labelledby="">
-                                    <div class="table-responsive">
-                                        <table class="display" id="advance-3">
-                                            <thead>
-                                            <tr>
-                                                <th>Id</th>
-                                                <th>Driver Id</th>
-                                                <th>Trip Id</th>
-                                                <th>Payment Type</th>
-                                                <th>Date</th>
-                                                <th>Amount</th>
-
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-
-                                            </tbody>
-                                            <tfoot>
-                                            <tr>
-                                                <th>Id</th>
-                                                <th>Driver Id</th>
-                                                <th>Trip Id</th>
-                                                <th>Payment Type</th>
-                                                <th>Date</th>
-                                                <th>Amount</th>
-
-                                            </tr>
-                                            </tfoot>
-                                        </table>
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div class="tab-pane fade " id="pills-updated-cost" role="tabpanel" aria-labelledby="">
-                                    <div class="table-responsive">
-                                        <table class="display table table-sm" id="">
-                                            <thead>
-                                            <tr>
-
-                                                <th>Ref No</th>
-                                                <th>Amount</th>
-                                                <th>From</th>
-                                                <th>To</th>
-                                                <th>Status</th>
-                                                <th>Ref Id</th>
-                                                <th>Due Date</th>
-
-                                                <th>Veiw</th>
-
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-
-                                            @foreach ($invoices as $invoice )
+                                    <div class="card-body pt-0 ">
+                                        <div class="row">
+                                            <table>
                                                 <tr>
-
-                                                    <td>{{$invoice->ref_no}}</td>
-                                                    <td>{{$invoice->amount}}</td>
-                                                    <td>{{$invoice->invoice_from_date}}</td>
-                                                    <td>{{$invoice->invoice_to_date}}</td>
-                                                    <td>{{$invoice->status}}</td>
-                                                    <td>{{$invoice->transaction_id}}</td>
-                                                    <td>{{$invoice->due_date}}</td>
-                                                    <td><a href="{{url('account-invoice')}}/{{$invoice->hash_id}}"
-                                                           target="_blank" class="btn btn-primary">View</a></td>
+                                                <th>Card Number</th>
+                                                    <th>cvc</th>
+                                                    <th>Pirority</th>
+                                                    <th>Expiry</th>
 
                                                 </tr>
+                                                @foreach($account->cards->where('is_deleted', 0) as $card)
 
-                                            @endforeach
+                                                    <tr>
+
+                                                        <td>{{$card->card_number}}</td>
+                                                        <td>{{$card->cvc}}</td>
+                                                        <td>{{$card->charge_priority == 1 ? 'primary' : 'secondary' }}</td>
+                                                        <td>{{$card->expiry}}</td>
+                                                        @if ($account->account_type == "prepaid")
+                                                            <td>
+                                                                <form action="{{url('admin/delete/card/')}}/{{$card->id}}"
+                                                                      method="post">
+                                                                    @csrf
+                                                                    <input type="text" hidden>
+                                                                    <input type="submit" class="btn btn-danger" value="Delete">
+                                                                </form>
+                                                            </td>
+
+                                                        @else
+                                                            <td><a href="{{url('admin/edit/creditcard/')}}/{{$card->id}}"
+                                                                   class="btn btn-primary">Edit</a></td>
+                                                        @endif
 
 
-                                            <tfoot>
-                                            <tr>
+                                                    </tr>
+                                                @endforeach
 
-                                                <th>Ref No</th>
-                                                <th>Amount</th>
-                                                <th>From</th>
-                                                <th>To</th>
-                                                <th>Status</th>
-                                                <th>Ref Id</th>
-                                                <th>Due Date</th>
+                                            </table>
 
-                                                <th>Veiw</th>
 
-                                            </tr>
-                                            </tfoot>
-                                        </table>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header bg-primary">
+
+                                    </div>
+                                    <div class="card-body">
+
+                                        <div class="tabbed-card">
+                                            <ul class="pull-left nav nav-pills nav-primary" id="pills-clrtab1" role="tablist">
+
+                                                <li class="nav-item">
+                                                    <a class="nav-link text-dark showajax-trips" data-type="all" data-idd="pills-trips"
+                                                       id="pills-trips-tab1" data-bs-toggle="pill" href="#pills-trips" role="tab"
+                                                       aria-controls="pills-trips" aria-selected="false" data-bs-original-title=""
+                                                       title="">
+                                                        Trips
+                                                    </a>
+                                                </li>
+                                                @if($account->account_type != 'prepaid')
+                                                    <li class="nav-item">
+                                                        <a class="nav-link text-dark showajax-trips" data-type="paid"
+                                                           data-idd="pills-paidtrips"
+                                                           id="pills-paidtrips-tab1" data-bs-toggle="pill" href="#pills-paidtrips"
+                                                           role="tab"
+                                                           aria-controls="pills-trips" aria-selected="false" data-bs-original-title=""
+                                                           title="">
+                                                            Paid Trips
+                                                        </a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link text-dark showajax-trips" data-type="partial"
+                                                           data-idd="pills-partialtrips" id="pills-partialtrips-tab1"
+                                                           data-bs-toggle="pill"
+                                                           href="#pills-partialtrips" role="tab" aria-controls="pills-trips"
+                                                           aria-selected="false" data-bs-original-title="" title="">
+                                                            Partial/Unpaid Trips
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                                <li class="nav-item">
+                                                    <a class="nav-link text-dark showajax-payments" id="pills-tripsbatch-tab1"
+                                                       data-bs-toggle="pill" href="#pills-tripsbatch" role="tab"
+                                                       aria-controls="pills-tripsbatch" aria-selected="false" data-bs-original-title=""
+                                                       title="">
+                                                        Payments To CarSafe
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a class="nav-link text-dark" id="pills-updated-cost-tab" data-bs-toggle="pill"
+                                                       href="#pills-updated-cost" role="tab" aria-controls="pills-updated-cost"
+                                                       aria-selected="false" data-bs-original-title="" title="">
+                                                        Invoices
+                                                    </a>
+                                                </li>
+
+
+                                            </ul>
+                                            <div class="tab-content" id="pills-clrtabContent1">
+
+
+                                                <div class="tab-pane fade active show showed_ajax_trips" id="pills-trips"
+                                                     role="tabpanel"
+                                                     aria-labelledby="">
+
+                                                </div>
+
+                                                <div class="tab-pane fade showed_ajax_trips" id="pills-paidtrips" role="tabpanel">
+
+                                                </div>
+
+                                                <div class="tab-pane fade showed_ajax_trips" id="pills-partialtrips" role="tabpanel">
+
+                                                </div>
+
+                                                <div class="tab-pane fade " id="pills-tripsbatch" role="tabpanel"
+                                                     aria-labelledby="pills-clrprofile-tab1">
+                                                    <div class="table-responsive">
+                                                        <table class="display" id="batchesTable">
+                                                            <thead>
+                                                            <tr>
+                                                                <th></th> <!-- For the expand button -->
+                                                                @if($account->account_type != 'prepaid')
+                                                                    <th>Batch ID</th>
+                                                                @else
+                                                                    <th>Payment ID</th>
+                                                                @endif
+
+                                                                <th>Account ID</th>
+                                                                <th>Payment Type</th>
+                                                                <th>Amount</th>
+                                                                <th></th>
+                                                                @if($account->account_type == 'prepaid')
+                                                                    <th>Date</th>
+
+                                                                @endif
+
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody></tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+
+                                                <div class="tab-pane fade" id="pills-todriver" role="tabpanel" aria-labelledby="">
+                                                    <div class="table-responsive">
+                                                        <table class="display" id="advance-3">
+                                                            <thead>
+                                                            <tr>
+                                                                <th>Id</th>
+                                                                <th>Driver Id</th>
+                                                                <th>Trip Id</th>
+                                                                <th>Payment Type</th>
+                                                                <th>Date</th>
+                                                                <th>Amount</th>
+
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+
+                                                            </tbody>
+                                                            <tfoot>
+                                                            <tr>
+                                                                <th>Id</th>
+                                                                <th>Driver Id</th>
+                                                                <th>Trip Id</th>
+                                                                <th>Payment Type</th>
+                                                                <th>Date</th>
+                                                                <th>Amount</th>
+
+                                                            </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                    </div>
+                                                </div>
+
+                                                <div class="tab-pane fade " id="pills-updated-cost" role="tabpanel" aria-labelledby="">
+                                                    <div class="table-responsive">
+                                                        <table class="display table table-sm" id="">
+                                                            <thead>
+                                                            <tr>
+
+                                                                <th>Ref No</th>
+                                                                <th>Amount</th>
+                                                                <th>From</th>
+                                                                <th>To</th>
+                                                                <th>Status</th>
+                                                                <th>Ref Id</th>
+                                                                <th>Due Date</th>
+
+                                                                <th>Veiw</th>
+
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+
+                                                            @foreach ($invoices as $invoice)
+                                                                <tr>
+
+                                                                    <td>{{$invoice->ref_no}}</td>
+                                                                    <td>{{$invoice->amount}}</td>
+                                                                    <td>{{$invoice->invoice_from_date}}</td>
+                                                                    <td>{{$invoice->invoice_to_date}}</td>
+                                                                    <td>{{$invoice->status}}</td>
+                                                                    <td>{{$invoice->transaction_id}}</td>
+                                                                    <td>{{$invoice->due_date}}</td>
+                                                                    <td><a href="{{url('account-invoice')}}/{{$invoice->hash_id}}"
+                                                                           target="_blank" class="btn btn-primary">View</a></td>
+
+                                                                </tr>
+
+                                                            @endforeach
+
+
+                                                            <tfoot>
+                                                            <tr>
+
+                                                                <th>Ref No</th>
+                                                                <th>Amount</th>
+                                                                <th>From</th>
+                                                                <th>To</th>
+                                                                <th>Status</th>
+                                                                <th>Ref Id</th>
+                                                                <th>Due Date</th>
+
+                                                                <th>Veiw</th>
+
+                                                            </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
 
                             </div>
+
                         </div>
                     </div>
-                </div>
-
-
-            </div>
-
-        </div>
-    </div>
-    <div id="ajax-loader" style="display: none;">
-        Loading...
-    </div>
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Update Fee</h5>
-                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="{{route('admin.change-driver-fee')}}" method="post">
-
-                    <div class="modal-body">
-                        @csrf
-                        <label for="">Weekly Fee</label>
-                        <input hidden value="{{$account->driver_id}}" name="driver_id"/>
-                        <input type="text" class="form-control" name="fee" placeholder="Please Enter new fee here"
-                               value="">
-
+                    <div id="ajax-loader" style="display: none;">
+                        Loading...
                     </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-dark" type="button" data-bs-dismiss="modal">Close</button>
-                        <button class="btn btn-primary" type="submit">Save changes</button>
+                    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Update Fee</h5>
+                                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form action="{{route('admin.change-driver-fee')}}" method="post">
+
+                                    <div class="modal-body">
+                                        @csrf
+                                        <label for="">Weekly Fee</label>
+                                        <input hidden value="{{$account->driver_id}}" name="driver_id"/>
+                                        <input type="text" class="form-control" name="fee" placeholder="Please Enter new fee here"
+                                               value="">
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-dark" type="button" data-bs-dismiss="modal">Close</button>
+                                        <button class="btn btn-primary" type="submit">Save changes</button>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
                     </div>
-                </form>
+                     <!-- card modal -->
+                     <div class="modal fade" id="addCreditCardModal" tabindex="-1" role="dialog" aria-labelledby="addCreditCardModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="addCreditCardModalLabel">Add Credit Card</h5>
+                              <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
 
-            </div>
-        </div>
-    </div>
-     <!-- card modal -->
-     <div class="modal fade" id="addCreditCardModal" tabindex="-1" role="dialog" aria-labelledby="addCreditCardModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="addCreditCardModalLabel">Add Credit Card</h5>
-              <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              
-              <form method="post" action="{{ url('admin/add/credit-card') }}">
-                @csrf
+                              <form method="post" action="{{ url('admin/add/credit-card') }}">
+                                @csrf
 
-                <div class="row">
-                  <div class="col-12">
-                    
-                    <input type="hidden" class="form-control mb-3" name="account_id" id="account_id_card" required>
-                  </div> 
-               
+                                <div class="row">
+                                  <div class="col-12">
+
+                                    <input type="hidden" class="form-control mb-3" name="account_id" id="account_id_card" required>
+                                  </div> 
 
 
-                 
-                  <div class="col-12">
-                    <label for="card_number">Card Number</label>
-                    <input type="text" class="form-control" name="card_number" id="card_number" required>
-                  </div>
-                  <div class="col-6">
-                    <label for="cvc">CVC</label>
-                    <input type="number" class="form-control" name="cvc" id="cvc" required>
-                  </div>
-                  <div class="col-6">
-                    <label for="expiry">Expiry (MM/YY)</label>
-                    <input type="text" class="form-control" name="expiry" id="expiry" required placeholder="MM/YY">
-                  </div>
-                  <div class="col-12">
-                    <label for="card_zip">Card Zip</label>
-                    <input type="text" class="form-control" name="card_zip" id="card_zip" required>
-                  </div>
-                  <div class="col-12">
-                    <label for="type">Card Type</label>
-                    <input type="text" class="form-control" name="type" id="type" value="credit" readonly>
-                  </div>
-                </div>
 
-                <button class="btn btn-primary mt-3" type="submit">Save</button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
+
+                                  <div class="col-12">
+                                    <label for="card_number">Card Number</label>
+                                    <input type="text" class="form-control" name="card_number" id="card_number" required>
+                                  </div>
+                                  <div class="col-6">
+                                    <label for="cvc">CVC</label>
+                                    <input type="number" class="form-control" name="cvc" id="cvc" required>
+                                  </div>
+                                  <div class="col-6">
+                                    <label for="expiry">Expiry (MM/YY)</label>
+                                    <input type="text" class="form-control" name="expiry" id="expiry" required placeholder="MM/YY">
+                                  </div>
+                                  <div class="col-12">
+                                    <label for="card_zip">Card Zip</label>
+                                    <input type="text" class="form-control" name="card_zip" id="card_zip" required>
+                                  </div>
+                                  <div class="col-12">
+                                    <label for="type">Card Type</label>
+                                    <input type="text" class="form-control" name="type" id="type" value="credit" readonly>
+                                  </div>
+                                </div>
+
+                                <button class="btn btn-primary mt-3" type="submit">Save</button>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 @endsection
 
 @section('js')
@@ -668,6 +698,49 @@
         }
 
         $(document).ready(function () {
+//  accountrestriction code
+$(document).on('click', '.delete-existing-address', function () {
+            const addressId = $(this).data('id');
+            const $group = $(this).closest('.address-group');
+
+            if (confirm('Are you sure you want to delete this address?')) {
+                $.ajax({
+                    url: '/admin/account/allowed-addresses/' + addressId,
+                    type: 'DELETE',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function (response) {
+                        $group.remove();
+                        toastr.success(response.message);
+                    },
+                    error: function (xhr) {
+                        toastr.success('Error please try again');
+                    }
+                });
+            }
+        });
+ $('#address_restriction').change(function () {
+            $('#address-fields').toggle(this.checked);
+        });
+
+        $('#add-address-btn').click(function () {
+            const addressField = `
+                <div class="address-group" style="margin-bottom: 10px;">
+                    <input type="text" name="addresses[]" class="address-input form-control mb-3" placeholder="Enter address" style="margin-right: 10px;">
+                    <button type="button" class="delete-address-btn btn-danger">Delete</button>
+                </div>
+            `;
+            $('#new-address-container').append(addressField);
+        });
+
+        // Event delegation to handle delete button clicks on dynamically added elements
+        $(document).on('click', '.delete-address-btn', function () {
+            $(this).closest('.address-group').remove();
+        });
+
+//  accountrestriction code
+
             $(document).on('click', '.open-card-modal', function () {
     var accountId = $(this).data('id'); // get data-id value
     $('#account_id_card').val(accountId); // set it as value of input

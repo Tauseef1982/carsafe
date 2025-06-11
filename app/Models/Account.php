@@ -63,6 +63,9 @@ class Account extends Authenticatable
         return $this->belongsToMany(Discount::class, 'discount_client', 'account_id', 'discount_id');
     }
 
-
+public function allowedAddresses()
+{
+    return $this->hasMany(AllowedAddress::class);
+}
 
 }

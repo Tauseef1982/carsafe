@@ -253,6 +253,15 @@ class TripController extends Controller
             if ($account->status == 0) {
                 return redirect()->back()->with('error', 'Account is Inactive');
             }
+            if($account->address_restriction){
+                 $allowed = $account->allowedAddresses->pluck('address')->map(fn($a) => strtolower(trim($a)));
+                 $from = strtolower(trim($trip->location_from));
+                $to = strtolower(trim($trip->location_to));
+
+                if (!$allowed->contains($from) || !$allowed->contains($to)) {
+                    return redirect()->back()->with('error','Trip is not allowed based on your account address restriction.');
+                }
+            }
             $pins = array_map('trim', explode(',', $account->pins)); // Split and clean
             $enteredPin = trim($request->input('account_pin')); // Clean user input
             if (isset($request->is_driver)) {
