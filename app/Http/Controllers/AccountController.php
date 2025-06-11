@@ -1269,7 +1269,9 @@ class AccountController extends Controller
 
         $invoice = AccountPayment::where('hash_id',$id)->first();
 
-        $trip_ids = $invoice->trip_ids != null ? json_decode($invoice->trip_ids) : null;
+        // $trip_ids = $invoice->trip_ids != null ? json_decode($invoice->trip_ids) : null;
+        $trip_ids = $invoice && $invoice->trip_ids ? json_decode($invoice->trip_ids) : null;
+
         if($invoice){
             $account = Account::where('account_id',$invoice->account_id)->first();
 

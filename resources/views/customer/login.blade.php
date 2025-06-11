@@ -51,6 +51,7 @@
 
 
                 </form>
+                <a href="{{ url('register') }}" class="btn btn-secondary btn-block w-100 mt-3">Sign Up</a>
                 <a href="{{ url('customer/reset_password') }}">Reset you password</a>
               </div>
             </div>

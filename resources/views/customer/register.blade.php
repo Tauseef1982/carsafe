@@ -154,9 +154,9 @@
     </div>
     <div class="payment-section">
     <div class="form-group">
-    <label for="">Please Enter your first recharge amount</label>
+    <label for="">Please enter your initial amount to be added to your account</label>
     <div class="input-group">
-    <input type="number"  class="form-control mb-2" name="first_refill" placeholder="Please enter your recharge amount">
+    <input type="number"  class="form-control mb-2" name="first_refill" placeholder="Please enter your initial amount to be added to your account">
     <input type="hidden" id="on-autofill" name="autofill"  value="on">
     
     </div>

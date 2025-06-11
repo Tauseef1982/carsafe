@@ -44,7 +44,9 @@
             <div class="col-md-8 mx-auto">
              <form action="{{url('add_account_complaint')}}" method="post">
                 @csrf
-             <input type="text" hidden name="hash_id" value="{{$account_payment->hash_id}}">
+                @if($account_payment)
+                    <input type="text" hidden name="hash_id" value="{{ $account_payment->hash_id }}">
+                @endif
              <input type="text" hidden class="form-control mt-2 mb-3" value="{{$account_payment->account_id}}" name="account_id" placeholder="Please Enter Your Account Id Here....">
                 <label for="">Trip Id</label>
                 <input type="text" class="form-control mt-2 mb-3" required name="trip_id" placeholder="Please Enter Trip Id Here....">

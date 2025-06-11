@@ -34,7 +34,7 @@ class Kernel extends ConsoleKernel
     ->between('09:00', '23:55')
     ->everyFiveMinutes()
     ->when(function () {
-        return in_array(now()->day, [1, 16]);
+        return in_array(now()->day, [1]);
     });
 
 

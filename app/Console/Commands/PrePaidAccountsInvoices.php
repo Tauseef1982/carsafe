@@ -67,8 +67,8 @@ class PrePaidAccountsInvoices extends Command
 
         }
 
-         $from_date = '2025-05-01';
-         $to_date = '2025-05-31';
+        // $from_date = '2025-05-01';
+        // $to_date = '2025-05-31';
         $accounts = Account::with(['trips' => function ($query) use ($from_date, $to_date) {
             $query->whereIn('payment_method', ['account', 'card'])
                 ->where('is_delete', 0)
