@@ -1290,7 +1290,7 @@ class TripController extends Controller
         $account = Account::where('account_id', $request->account)->first();
         $trip_id = $request->trip_id;
         $trip = Trip::where('trip_id', $trip_id)->first();
-
+        $oldaccount_nmber = $trip->account_number;
         $trip->reason = $request->reason . ' Updated by /' . Auth::guard('admin')->user()->name;
         $trip->payment_method = $request->payment_method;
         $trip->account_number = $request->account;
@@ -1301,11 +1301,14 @@ class TripController extends Controller
                 $from_prepaid_deduction = $this->prepaidAccountDeduction($trip, $account);
                 $account->balance = $account->balance - $trip->trip_cost;
                 $account->save();
+                $oldaccount = Account::where('account_id', $oldaccount_nmber)->first();
+                $oldaccount->balance = $oldaccount->balance + $trip->trip_cost;
+                $oldaccount->save();
             } else {
 
                 \App\Services\TwilioService::voicecall($account->phone, 'refill-need');
                 //                CubeContact::deleteAccount($account->account_id);
-                CubeContact::updateCubeAccount($account->account_id, "Your Account Balance Is zero", "Inactive");
+                //CubeContact::updateCubeAccount($account->account_id, "Your Account Balance Is zero", "Inactive");
 
                 return redirect()->back()->with('error', 'Prepaid Account:Low Balance');
 

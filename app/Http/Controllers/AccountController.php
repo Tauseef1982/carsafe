@@ -314,11 +314,6 @@ class AccountController extends Controller
    // $account->secondary_contact = $request->secondary_contact;
     $account->save();
 
-    // Send login info via email
-    $data['username'] = $request->account_id;
-    $data['password'] = $request->password;
-    Mail::to($request->email)->send(new CustomerLogins($data));
-
     // Process card payment
     $cardknoxToken = $creditCard->cardnox_token;
     $fee = $account->first_refill * 0.03;
@@ -327,8 +322,16 @@ class AccountController extends Controller
     $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $amount, $account->account_id);
 
     if ($cardknoxResponse['status'] !== 'approved') {
+        $account->delete();
         return response()->json(['status' => false, 'message' => 'Payment declined.']);
     }
+
+    // Send login info via email
+    $data['username'] = $request->account_id;
+    $data['password'] = $request->password;
+    Mail::to($request->email)->send(new CustomerLogins($data));
+
+    
 
     // Save payment
     $account_payment = new AccountPayment();
@@ -1971,7 +1974,11 @@ class AccountController extends Controller
     }
 
 
+public function checkAccountId(Request $request){
+ $exists = Account::where('account_id', $request->account_id)->exists();
 
+    return response()->json(['exists' => $exists]);
+}
 
 
 

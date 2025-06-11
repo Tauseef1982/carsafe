@@ -181,6 +181,11 @@ Route::get('/logout', [\App\Http\Controllers\DriverController::class, 'logout'])
 Route::get('register', function(){
     return view('customer.register');
 });
+Route::get('/account/created', function(){
+    return view('customer.success');
+});
+Route::post('/check-account-id', [AccountController::class, 'checkAccountId']);
+
 Route::post('add_account',[AccountController::class, 'create']);
 Route::post('/genToken', [CreditCardController::class, 'genToken'])->name('cardknox-genToken');
 Route::get('start-again/{id}', [TripController::class,'start_payment_again']);

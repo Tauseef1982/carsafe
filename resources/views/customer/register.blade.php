@@ -48,9 +48,11 @@
       <div class="input-group">
     <input type="number" class="form-control mb-3" required placeholder="Please enter an unique account number" name="account_id"
       id="account_id" />
+      
     <input type="hidden" name="password" value="{{ rand(10000000, 99999999) }}">
     </div>
     <div id="errorDiv" style="color: red;"></div>
+    <small id="account-id-error" class="text-danger d-none">This Account Number Already exists.</small>
      </div>
     <div class="form-group">
     <label class="col-form-label">Name</label>
@@ -109,7 +111,7 @@
     <div class="form-group mb-3">
 
     <div class="text-end mt-3">
-    <button class="btn btn-primary btn-block w-100" id="next-2nd" type="">Next</button>
+    <button class="btn btn-primary btn-block w-100" id="next-2nd" disabled>Next</button>
     </div>
     </div>
   </div>
@@ -132,7 +134,7 @@
     <div class="form-group mb-3">
 
     <div class="text-end mt-3">
-    <button class="btn btn-primary btn-block w-100" id="next-3rd" type="">Next</button>
+    <button class="btn btn-primary btn-block w-100" id="next-3rd" disabled >Next</button>
     </div>
     </div>
 
@@ -197,92 +199,142 @@
 
       @section('js')
          <script>
+          function validatePinInputs() {
+            let isValid = false;
+
+            $('.pinInput').each(function () {
+            if ($(this).val().length === 4 && /^\d{4}$/.test($(this).val())) {
+              isValid = true;
+              return false; // Exit loop early
+            }
+            });
+
+            $('#next-3rd').prop('disabled', !isValid);
+          }
+
          function addPinInput(value = '', pinId = null) {
            const inputGroup = $(`
         <div class="input-group mb-2">
-          <input type="text" class="form-control" name="pinItem" value="${value}" placeholder="Enter pin">
+          <input type="text" class="form-control pinInput" name="pinItem" value="${value}" placeholder="Please Enter 4 Digit pin">
           <button type="button" class="btn btn-danger removeBtn">Delete</button>
         </div>
-      `);
+        `);
 
 
-      inputGroup.find('.removeBtn').click(function () {
+        inputGroup.find('.removeBtn').click(function () {
         inputGroup.remove(); 
-
+        validatePinInputs();
 
         submitAllPinsViaAjax();
+        });
+        inputGroup.find('.pinInput').on('input', function () {
+        validatePinInputs();
       });
 
-      $('#pinInputsContainer').append(inputGroup);
-    }
-    function collectPins() {
-      const pinValues = [];
-      $('input[name="pinItem"]').each(function () {
+        $('#pinInputsContainer').append(inputGroup);
+        validatePinInputs();
+      }
+      function collectPins() {
+        const pinValues = [];
+        $('input[name="pinItem"]').each(function () {
         const val = $(this).val().trim();
         if (val !== '') {
           pinValues.push(val);
         }
+        });
+        return pinValues.join(',');
+      }
+      $(document).ready(function () {
+        $('#account_id').on('input', function () {
+        let accountId = $(this).val();
+
+        // Clear any previous messages or button state
+        if (accountId.length < 4) {
+          $('#next-2nd').prop('disabled', true);
+          $('#account-id-error').addClass('d-none');
+          return;
+        }
+
+        // Only call AJAX if 4 or more digits
+        $.ajax({
+          url: '{{ url("/check-account-id") }}',
+          type: 'POST',
+          data: {
+            account_id: accountId,
+            _token: '{{ csrf_token() }}'
+          },
+          success: function (response) {
+            if (response.exists) {
+              $('#next-2nd').prop('disabled', true);
+              $('#account-id-error').removeClass('d-none');
+            } else {
+              $('#next-2nd').prop('disabled', false);
+              $('#account-id-error').addClass('d-none');
+            }
+          },
+          error: function () {
+            $('#next-2nd').prop('disabled', true);
+            $('#account-id-error').removeClass('d-none').text('Server error. Please try again.');
+          }
+        });
       });
-      return pinValues.join(',');
-    }
-    $(document).ready(function () {
-      $('#next-2nd').click(function(){
+        $('#next-2nd').click(function(){
         $('.second_step').show();
         $('.first_step').hide();
         $('.third_step').hide();
-      });
-      
+        });
+
         $('#go_second_step').click(function(){
         $('.second_step').show();
         $('.first_step').hide();
         $('.third_step').hide();
-      });
-      $('#go_first_step').click(function(){
+        });
+        $('#go_first_step').click(function(){
          $('.second_step').hide();
         $('.first_step').show();
         $('.third_step').hide();
-      });
-      $('#next-3rd').click(function(){
+        });
+        $('#next-3rd').click(function(){
          $('.second_step').hide();
         $('.first_step').hide();
         $('.third_step').show();   
-      });
+        });
 
 
 
-    $(".expiry").addClass("form-control mt-3");
-    
-       $('#account_id').on('input', function () {
+      $(".expiry").addClass("form-control mt-3");
+
+         $('#account_id').on('input', function () {
 
         var value = $(this).val();
 
         if (value.length >= 4) {
-            $('#errorDiv').text('');
+          $('#errorDiv').text('');
         }
         if (value.length < 4) {
-            $('#errorDiv').text('Account number must be at least 4 digits long.');
+          $('#errorDiv').text('Account number must be at least 4 digits long.');
         }
-    });
-       
-    
-    addPinInput();
+      });
 
 
-      // Submit button triggers same AJAX function
-      $('#submitBtn').click(function (e) {
+      addPinInput();
+
+
+        // Submit button triggers same AJAX function
+        $('#submitBtn').click(function (e) {
         e.preventDefault(); // stop actual form submit
         submitAllPinsViaAjax();
-      });
+        });
 
-      // Add new pin input
-      $('#addPinBtn').click(function () {
-       
+        // Add new pin input
+        $('#addPinBtn').click(function () {
+
         addPinInput();
-      });
-     
+        });
 
-      // add account ajax
-$('#addAccountForm').on('submit', function (e) {
+
+        // add account ajax
+    $('#addAccountForm').on('submit', function (e) {
         e.preventDefault(); // prevent default form submission
          const pins = collectPins();
         let form = $(this);
@@ -293,49 +345,51 @@ $('#addAccountForm').on('submit', function (e) {
         submitButton.prop('disabled', true).text('Saving...');
 
         $.ajax({
-            url: form.attr('action'),
-            method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-CSRF-TOKEN': $('input[name="_token"]').val()
-            },
-            success: function (response) {
-               if (response.status) {
-            toastr.success(response.message);
-            form[0].reset();
+          url: form.attr('action'),
+          method: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          headers: {
+            'X-CSRF-TOKEN': $('input[name="_token"]').val()
+          },
+          success: function (response) {
+             if (response.status) {
+          toastr.success(response.message);
+          form[0].reset();
+          window.location.href = "{{ url('account/created') }}";
 
-          
+
+
         } else {
-            toastr.error(response.message);
-             submitButton.prop('disabled', false).text('Submit');
+          toastr.error(response.message);
+           submitButton.prop('disabled', false).text('Submit');
         }
-            },
-            error: function (xhr) {
-                let errorDiv = $('#errorDiv');
-                errorDiv.empty();
+          },
+          error: function (xhr) {
+            let errorDiv = $('#errorDiv');
+            errorDiv.empty();
 
-                if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
-                    $.each(errors, function (key, value) {
-                        errorDiv.append('<div>' + value[0] + '</div>');
-                    });
-                     submitButton.prop('disabled', false).text('Submit');
-                } else {
-                    errorDiv.text('An error occurred. Please try again.');
-                     submitButton.prop('disabled', false).text('Submit');
-                }
-            },
-            complete: function () {
-                // Re-enable the button
-                submitButton.prop('disabled', false).text('Submit');
+            if (xhr.status === 422) {
+              let errors = xhr.responseJSON.errors;
+              $.each(errors, function (key, value) {
+                errorDiv.append('<div>' + value[0] + '</div>');
+              });
+               submitButton.prop('disabled', false).text('Submit');
+            } else {
+              errorDiv.text('An error occurred. Please try again.');
+               submitButton.prop('disabled', false).text('Submit');
             }
+          },
+          complete: function () {
+            // Re-enable the button
+            submitButton.prop('disabled', false).text('Submit');
+          }
         });
-    });
+      });
 
-// add account ajax
+    // add account ajax
 
-    });
+      });
          </script>
-    @endsection
+  @endsection
