@@ -50,7 +50,8 @@ class Trip extends Model
         'payment_id',
         'ts_delivered',
         'accepted_by',
-        'icked_up'
+        'icked_up',
+        'first_destination'
 
     ];
 

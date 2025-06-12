@@ -82,7 +82,7 @@ class SyncTrips extends Command
 
 
         foreach ($trips as $trip) {
-
+          // dd($trip);
 
             // Check if 'start' is valid
             if ($trip->{'start'} != '-' && $trip->{'start'} != '') {
@@ -145,6 +145,7 @@ class SyncTrips extends Command
                                 'status' => $trip->{'job.state.status_localized'},
                                 'ts_delivered' => $tsDelivered,
                                 'icked_up' => $ickedup,
+                                'first_destination'=>$trip->{'route.drop_off_text'}
                             ]);
                         }
 

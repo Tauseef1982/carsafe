@@ -32,7 +32,7 @@ Route::get('/mg', function () {
 
 Route::get('/mg2', function () {
 
-    \Illuminate\Support\Facades\Artisan::call('prePaidInvoices:accounts');
+    \Illuminate\Support\Facades\Artisan::call('trips:sync');
     return 'Command executed successfully!';
 
 

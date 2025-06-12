@@ -257,8 +257,9 @@ class TripController extends Controller
                  $allowed = $account->allowedAddresses->pluck('address')->map(fn($a) => strtolower(trim($a)));
                  $from = strtolower(trim($trip->location_from));
                 $to = strtolower(trim($trip->location_to));
+                $first_drop = strtolower(trim($trip->first_destination));
 
-                if (!$allowed->contains($from) && !$allowed->contains($to)) {
+                if (!$allowed->contains($from) && !$allowed->contains($to) && !$allowed->contains($first_drop)) {
                     return redirect()->back()->with('error', 'Trip is not allowed based on your account address restriction.');
                 }
 
