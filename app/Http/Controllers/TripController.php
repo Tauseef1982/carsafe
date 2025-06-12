@@ -250,6 +250,10 @@ class TripController extends Controller
             }
 
             $account = Account::where('account_id', $request->account)->first();
+            if (!$account) {
+                return redirect()->back()->with('error', 'Account not found.');
+            }
+
             if ($account->status == 0) {
                 return redirect()->back()->with('error', 'Account is Inactive');
             }
