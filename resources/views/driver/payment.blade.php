@@ -364,7 +364,7 @@ console.log(formattedTime);
 
                     $("#show-method-div").click();
                     selectedTripCost = $(this).data('trip-cost');
-                    console.log(selectedTripCost);
+                   // console.log(selectedTripCost);
                 } else {
 
                     $("#show-method-div").prop("disabled", false);
@@ -546,18 +546,30 @@ console.log(formattedTime);
             $('#show-method-back').click(function () {
                 $("#method-div").show();
                 $("#complaint-div").hide();
-            })
+            });
 
-
-        });
-        $('#account-check').click(function () {
+             $('#account-check').click(function () {
             $('#radio19').prop('checked', true);
             $("#show-amount-div").click();
         });
         $('#card-check').click(function () {
-            $('#radio20').prop('checked', true);
-            $("#show-amount-div").click();
+          
+            
+            if(selectedTripCost == 0 || selectedTripCost == null){
+                  $('#radio20').prop('checked', true);
+                    $("#show-amount-div").click();
+            }else{
+                $('#amount-field').val(selectedTripCost).prop('readonly', true);
+                $('#next-step-btn').prop('disabled', false).click();
+
+                console.log('in else condition');
+            }
+           
         });
+
+
+        });
+       
 
         function toggleButton() {
 
