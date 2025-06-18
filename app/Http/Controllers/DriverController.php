@@ -383,12 +383,13 @@ class DriverController extends Controller
     public function download_sheet(Request $request){
         if($request->ajax()){
              $from = $request->input('from');
-        $to = $request->input('to');
+              $to = $request->input('to');
+             
 
         $drivers = Driver::all()->filter(function ($driver) use ($from, $to) {
         return $driver->balance($from, $to) > 0;
     });
-
+           
         return DataTables::of($drivers)
             ->addColumn('balance', function ($driver) use ($from, $to) {
                 return number_format($driver->balance($from, $to), 2);

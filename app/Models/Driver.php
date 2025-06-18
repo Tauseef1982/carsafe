@@ -143,6 +143,7 @@ class Driver extends Authenticatable
         ->where('user_type', '!=', 'customer')
         ->where('driver_id', $this->driver_id)
         ->where('type', 'debit');
+        
 
     $adjustments = Adjustment::where('driver_id', $this->driver_id)
         ->where('type', 'debit_driver_balance');
@@ -151,12 +152,12 @@ class Driver extends Authenticatable
         ->where('type', 'admin_paid_auto');
 
     if ($from && $to) {
-        $payments->whereBetween('created_at', [$from, $to]);
-        $payments_debit->whereBetween('created_at', [$from, $to]);
+        $payments->whereBetween('payment_date', [$from, $to]);
+        $payments_debit->whereBetween('payment_date', [$from, $to]);
         $adjustments->whereBetween('created_at', [$from, $to]);
         $adjustments_debit->whereBetween('created_at', [$from, $to]);
     }
-
+      
     $balance = (float) $payments->sum('amount') - (float) $payments_debit->sum('amount');
     $balance -= (float) $adjustments->sum('amount');
     // $balance -= (float) $adjustments_debit->sum('amount');
