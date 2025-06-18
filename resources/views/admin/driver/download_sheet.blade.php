@@ -32,7 +32,7 @@ $util = new \App\Utils\dateUtil();
 
        <div class="card">
     <div class="card-header">
-        <h4>Please Select A Date Range And Download Report</h4>
+        <h4>Please Select  Date Range And Download Report</h4>
     </div>
     <div class="card-body">
         <form id="filter-form" class="form-inline mb-3">
@@ -71,7 +71,31 @@ $util = new \App\Utils\dateUtil();
                 data: { from: from, to: to }
             },
             dom: 'Bfrtip', // 👈 enables buttons
-       
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                title: `Driver_Balances_${from}_to_${to}`, // 👈 filename includes date range
+                filename: `Driver_Balances_${from}_to_${to}`,
+                exportOptions: {
+                    columns: [0, 1, 2]
+                }
+            },
+            {
+                extend: 'csvHtml5',
+                title: `Driver_Balances_${from}_to_${to}`,
+                filename: `Driver_Balances_${from}_to_${to}`,
+                exportOptions: {
+                    columns: [0, 1, 2]
+                }
+            },
+            {
+                extend: 'print',
+                title: `Driver Balances from ${from} to ${to}`, // 👈 shown in print header
+                exportOptions: {
+                    columns: [0, 1, 2]
+                }
+            }
+        ],
             columns: [
                 { data: 'driver_id', name: 'id' },
                 { data: 'username', name: 'name' },
