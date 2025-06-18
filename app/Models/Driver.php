@@ -120,19 +120,50 @@ class Driver extends Authenticatable
          return $balance;
 
     }
-    public function balance()
-    {
+    // public function balance()
+    // {
 
-        $balance = Payment::where('is_delete',0)->where('driver_id',$this->driver_id)->where('type','credit')->sum('amount');
-        $balance_debit = Payment::where('is_delete',0)->where('user_type','!=','customer')->where('driver_id',$this->driver_id)->where('type','debit')->sum('amount');
-        $adjust = Adjustment::where('driver_id',$this->driver_id)->where('type','debit_driver_balance')->sum('amount');
-        $adjust_debit = Adjustment::where('driver_id',$this->driver_id)->where('type','admin_paid_auto')->sum('amount');
+    //     $balance = Payment::where('is_delete',0)->where('driver_id',$this->driver_id)->where('type','credit')->sum('amount');
+    //     $balance_debit = Payment::where('is_delete',0)->where('user_type','!=','customer')->where('driver_id',$this->driver_id)->where('type','debit')->sum('amount');
+    //     $adjust = Adjustment::where('driver_id',$this->driver_id)->where('type','debit_driver_balance')->sum('amount');
+    //     $adjust_debit = Adjustment::where('driver_id',$this->driver_id)->where('type','admin_paid_auto')->sum('amount');
 
-        $balance = ((float)$balance - (float)$balance_debit);
-        $balance =  $balance - $adjust;
-//        $balance = $balance - $adjust_debit;
-        return $balance;
+    //     $balance = ((float)$balance - (float)$balance_debit);
+    //     $balance =  $balance - $adjust;
+
+    //     return $balance;
+    // }
+    public function balance($from = null, $to = null)
+{
+    $payments = Payment::where('is_delete', 0)
+        ->where('driver_id', $this->driver_id)
+        ->where('type', 'credit');
+
+    $payments_debit = Payment::where('is_delete', 0)
+        ->where('user_type', '!=', 'customer')
+        ->where('driver_id', $this->driver_id)
+        ->where('type', 'debit');
+
+    $adjustments = Adjustment::where('driver_id', $this->driver_id)
+        ->where('type', 'debit_driver_balance');
+
+    $adjustments_debit = Adjustment::where('driver_id', $this->driver_id)
+        ->where('type', 'admin_paid_auto');
+
+    if ($from && $to) {
+        $payments->whereBetween('created_at', [$from, $to]);
+        $payments_debit->whereBetween('created_at', [$from, $to]);
+        $adjustments->whereBetween('created_at', [$from, $to]);
+        $adjustments_debit->whereBetween('created_at', [$from, $to]);
     }
+
+    $balance = (float) $payments->sum('amount') - (float) $payments_debit->sum('amount');
+    $balance -= (float) $adjustments->sum('amount');
+    // $balance -= (float) $adjustments_debit->sum('amount');
+
+    return $balance;
+}
+
 
     public function trips()
     {

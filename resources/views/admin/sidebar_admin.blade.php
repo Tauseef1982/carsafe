@@ -25,6 +25,7 @@
                     <a class="sidebar-link sidebar-title " style="background-color:rgba(115, 102, 255, 0.06);padding-top:15px; padding-bottom:13px;padding-left:20px;" href="#"><span class="lan-">Drivers</span></a>
                     <ul class="sidebar-submenu">
                       <li><a class="lan-" href="{{url('admin/drivers')}}">All Active Drivers</a></li>
+                      <li><a class="lan-" href="{{url('admin/download/drivers_sheet')}}">Download Drivers Sheet</a></li>
                     <li><a class="lan-" href="{{url('admin/inactive-drivers')}}">Inactive Drivers</a></li>
                     <li><a class="lan-" href="{{url('admin/drivers?show_negative=true')}}">Negative Balance</a></li>
                     <li><a class="lan-" href="{{url('admin/driver_complaints')}}">Complaints</a></li>   

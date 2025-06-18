@@ -20,6 +20,7 @@ use function PHPUnit\Framework\stringContains;
 use function Symfony\Component\Mime\to;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
+use Yajra\DataTables\DataTables;
 
 class DriverController extends Controller
 {
@@ -377,6 +378,25 @@ class DriverController extends Controller
         }
 
         return response()->json(['message' => 'Dispatchers have been added to the users table successfully.']);
+    }
+
+    public function download_sheet(Request $request){
+        if($request->ajax()){
+             $from = $request->input('from');
+        $to = $request->input('to');
+
+        $drivers = Driver::all()->filter(function ($driver) use ($from, $to) {
+        return $driver->balance($from, $to) > 0;
+    });
+
+        return DataTables::of($drivers)
+            ->addColumn('balance', function ($driver) use ($from, $to) {
+                return number_format($driver->balance($from, $to), 2);
+            })
+            ->make(true);
+        }
+        return view('admin.driver.download_sheet');
+
     }
 
 
