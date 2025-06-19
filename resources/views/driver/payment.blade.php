@@ -38,12 +38,13 @@ $util = new \App\Utils\dateUtil();
                 <div class="col-xl-3 risk-col xl-100 box-col-12">
                     <div class="card total-users">
                         <div class="card-header card-no-border">
-                            <h5>Payment {{--@if(!empty($discount))(Today Discount {{$discount}}% ) @endif --}}</h5>
+                            <h5>Payment</h5>
                             @if (session('error'))
                                 <div class="alert alert-danger">
                                     {{ session('error') }}
                                 </div>
                             @endif
+                            <a href="{{ url('payment') }}" class="btn btn-primary float-end">Get updated Price</a>
                         </div>
                         <form action="{{url('add-payment')}}" method="post" id="payment_form" onsubmit="disableButton()">
                             @csrf
