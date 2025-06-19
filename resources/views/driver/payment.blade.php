@@ -553,17 +553,18 @@ console.log(formattedTime);
             $("#show-amount-div").click();
         });
         $('#card-check').click(function () {
-          
+          $('#radio20').prop('checked', true);
+            $("#show-amount-div").click();
             
-            if(selectedTripCost == 0 || selectedTripCost == null){
-                  $('#radio20').prop('checked', true);
-                    $("#show-amount-div").click();
-            }else{
-                $('#amount-field').val(selectedTripCost).prop('readonly', true);
-                $('#next-step-btn').prop('disabled', false).click();
+            //  if(selectedTripCost == 0 || selectedTripCost == null){
+            //       $('#radio20').prop('checked', true);
+            //         $("#show-amount-div").click();
+            // }else{
+            //     $('#amount-field').val(selectedTripCost).prop('readonly', true);
+            //     $('#next-step-btn').prop('disabled', false).click();
 
-                console.log('in else condition');
-            }
+            //     console.log('in else condition');
+            // }
            
         });
 
