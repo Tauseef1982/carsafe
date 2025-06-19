@@ -20,4 +20,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::post('/testwebhook', [TripController::class, 'cubePayment']);
+Route::post('/webhook-store-trip', [\App\Http\Controllers\ApiController::class, 'getWebHookTrip']);
 
