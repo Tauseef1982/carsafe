@@ -323,7 +323,7 @@ $util = new \App\Utils\dateUtil();
                                     <h6 class="mt-0 mega-title-badge">
                                         ${trip.location_from} to ${trip.location_to}
                                         <span class="badge badge-primary pull-right digits">
-                                         $${trip.trip_cost} + $${trip.extra_charges ??  0} = $${parseFloat(trip.trip_cost) + parseFloat(trip.extra_charges ?? 0)}
+                                         $${trip.trip_cost} + $${parseFloat(trip.extra_charges) ??  0} = $${parseFloat(trip.trip_cost) + parseFloat(trip.extra_charges ?? 0)}
                                         </span>
                                     </h6>
                                     <p class="notranslate">
