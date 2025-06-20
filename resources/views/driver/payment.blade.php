@@ -304,29 +304,27 @@ $util = new \App\Utils\dateUtil();
                         $('#trips-container').html('<p>Loading trips...</p>');
                     },
                     success: function (response) {
-                        console.log(response); // Log the response
+                        console.log(response); 
                         let tripsHtml = '';
 
                         if (response.trips && response.trips.length > 0) {
                             response.trips.forEach(function (trip) {
                                 const formattedDate = trip.date ? new Date(trip.date).toLocaleDateString() : 'N/A';
                                 const formattedTime = trip.time;
-
-console.log(formattedTime);
-
-
-                                tripsHtml += `
+                      tripsHtml += `
                 <div class="card">
                     <div class="media p-20">
                         <div class="form-check radio radio-primary me-3">
                             <input class="form-check-input trip-radio" id="radio${trip.trip_id}"
                                    type="radio" name="trip"
-                                   value="${trip.trip_id}" data-trip-cost="${trip.trip_cost}" />
+                                   value="${trip.trip_id}" data-trip-cost="${parseFloat(trip.trip_cost) + parseFloat(trip.extra_charges ?? 0)}" />
                             <label class="form-check-label" for="radio${trip.trip_id}">
                                 <div class="media-body">
                                     <h6 class="mt-0 mega-title-badge">
                                         ${trip.location_from} to ${trip.location_to}
-                                        <span class="badge badge-primary pull-right digits">$${trip.trip_cost}</span>
+                                        <span class="badge badge-primary pull-right digits">
+                                         $${trip.trip_cost} + $${trip.extra_charges ??  0} = $${parseFloat(trip.trip_cost) + parseFloat(trip.extra_charges ?? 0)}
+                                        </span>
                                     </h6>
                                     <p class="notranslate">
                                         Date: ${formattedDate} <span>${formattedTime}</span>
@@ -352,7 +350,7 @@ console.log(formattedTime);
                 });
             }
 
-            // Load trips on page load
+            
             loadLatestTrips();
         });
     </script>
@@ -365,7 +363,7 @@ console.log(formattedTime);
 
                     $("#show-method-div").click();
                     selectedTripCost = $(this).data('trip-cost');
-                   // console.log(selectedTripCost);
+                    //console.log(selectedTripCost);
                 } else {
 
                     $("#show-method-div").prop("disabled", false);
@@ -520,7 +518,7 @@ console.log(formattedTime);
                             extraCharges = parseFloat(extraCharges);
                             selectedTripCost = parseFloat(selectedTripCost);
                             let totalCharges = selectedTripCost + extraCharges;
-
+                            console.log(selectedTripCost );
                             $('#extra-span').html(extraCharges);
                             $('#total-span').html(totalCharges);
                             $('.span-exto').show();
@@ -557,15 +555,6 @@ console.log(formattedTime);
           $('#radio20').prop('checked', true);
             $("#show-amount-div").click();
             
-            //  if(selectedTripCost == 0 || selectedTripCost == null){
-            //       $('#radio20').prop('checked', true);
-            //         $("#show-amount-div").click();
-            // }else{
-            //     $('#amount-field').val(selectedTripCost).prop('readonly', true);
-            //     $('#next-step-btn').prop('disabled', false).click();
-
-            //     console.log('in else condition');
-            // }
            
         });
 

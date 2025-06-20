@@ -280,9 +280,10 @@ class TripController extends Controller
 
             if ($account) {
                 if ($account->paypertrip === 'on') {
+                
                     $cost = $trip->trip_cost > 0 ? (float) $trip->trip_cost : (float) $request->amount;
 
-                    $extraCharges = (float) $request->extra_charges;
+                    $extraCharges = $request->extra_charges > 0 ? (float) $request->extra_charges : (float) $trip->extra_charges ;
                     $cost += $extraCharges;
                     $fee = ($cost * 0.03333333333) + 0.30;
                     $cardknoxAmount = $cost + $fee;
@@ -367,7 +368,7 @@ class TripController extends Controller
                         }
 
 
-                        $extraCharges = $request->extra_charges;
+                        $extraCharges = $request->extra_charges > 0 ? $request->extra_charges : $trip->extra_charges;
                         $cost = $cost + (float) $extraCharges;
 
                         $discount = Discount::select('discounts.*')
@@ -391,7 +392,7 @@ class TripController extends Controller
                         $trip->gocab_paid = $trip_cost;
                         $trip->payment_method = 'account';
                         $trip->cube_pin_status = $request->account_pin;
-                        $trip->extra_charges = $request->extra_charges;
+                        $trip->extra_charges = $extraCharges;
 
                         if (isset($request->stop_amount)) {
                             $trip->extra_stop_amount = $request->stop_amount;
@@ -595,7 +596,7 @@ class TripController extends Controller
                         }
 
 
-                        $extraCharges = $request->extra_charges;
+                        $extraCharges = $request->extra_charges > 0 ? (float)$request->extra_charges : (float)$trip->extra_charges ;
                         $cost = $cost + (float) $extraCharges;
 
                         $discount = Discount::select('discounts.*')
@@ -619,7 +620,7 @@ class TripController extends Controller
                         $trip->gocab_paid = $trip_cost;
                         $trip->payment_method = 'account';
                         $trip->cube_pin_status = $request->account_pin;
-                        $trip->extra_charges = $request->extra_charges;
+                        $trip->extra_charges = $extraCharges;
 
                         if (isset($request->stop_amount)) {
                             $trip->extra_stop_amount = $request->stop_amount;
