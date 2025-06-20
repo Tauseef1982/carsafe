@@ -187,7 +187,7 @@ class ApiController extends Controller
                             $date = $dateTime->format('Y-m-d'); // e.g., '2024-09-01'
                             $time = $dateTime->format('H:i:s'); // e.g., '12:25:00'
 
-                            $existingTrip = Trip::where('trip_id', (int)$trip['id'])->first();
+                            $existingTrip = Trip::where('trip_id', $trip['id'])->first();
 
 
                                 $to_location = $trip['route.drop_off_text'];
