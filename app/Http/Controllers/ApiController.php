@@ -262,4 +262,259 @@ class ApiController extends Controller
             }
 
 
+             public function voiceCall(Request $request){
+
+        Log::info($request->all());
+
+        $account = Account::where('account_id',$request->account)->first();
+        if($account){
+            return response()->json([
+                'valid' => true,
+                'balance' => 25.75
+            ]);
+        }else{
+            return response()->json([
+                'valid' => false,
+                'balance' => 0
+            ]);
+        }
+
+
+
+    }
+
+    public function tryrecharge(Request $request){
+
+        Log::info('first-trips');
+
+        $account_id = $request->account;
+
+        $uaccount = Account::where('account_id',$account_id)->first();
+        $trips = $uaccount->trips->where('date', '>=', '2024-10-15')->where('payment_method', 'account');
+
+        $filteredTrips = $trips->filter(function ($trip) {
+            $paid = $trip->TripPaidByCustomerFromAccount->sum('amount');
+            return $trip->trip_cost > $paid;
+        });
+        $tids = $filteredTrips->pluck('trip_id')->toArray();
+        Log::info($tids);
+        return response()->json([
+            'valid' => true,
+            'trip_ids' => json_encode($tids)
+        ]);
+
+
+    }
+
+    public function tryrechargefinal(Request $request){
+
+        Log::info($request->all());
+
+        $to_refill = $request->amount;
+        $account_id = $request->account;
+
+        $uaccount = Account::where('account_id',$account_id)->first(); // Retrieve the account
+
+        $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',1)->where('is_deleted', 0)->first();
+
+        if (empty($cardDetails)) {
+            // if no primary then secondary
+            $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',0)->where('is_deleted', 0)->first();
+            if (empty($cardDetails)) {
+
+                return response()->json([
+                    'valid' => false,
+                    'new_balace' => 'No credit card details found for Account'
+                ]);
+
+
+            }
+        }
+
+        $trip_ids = json_decode($request->trip_ids[0]);
+        $cardknoxToken = $cardDetails->cardnox_token;
+        $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $to_refill, $account_id);
+
+        if ($cardknoxResponse['status'] == 'approved') {
+
+            $account_payment = new AccountPayment();
+            $account_payment->account_id = $uaccount->account_id;
+            $account_payment->account_type = $uaccount->account_type;
+            $account_payment->amount = $to_refill;
+            $account_payment->transaction_id = $cardknoxResponse['transaction_id'];
+            $account_payment->payment_date = Carbon::today();
+            $account_payment->payment_type = 'card';
+            $account_payment->save();
+            if($uaccount->account_type == 'postpaid'){
+
+                $trips_to_be_paid = Trip::whereIn('trip_id',$trip_ids)->get();
+                Log::info('inside');
+                $total_payments = 0;
+                $batch_p = new BatchPayment();
+                $batch_p->account_id = $uaccount->account_id;
+                $batch_p->from = 'trips_paid_with_upfront_credit';
+                $batch_p->amount = $total_payments;
+                $batch_p->save();
+                Log::info('Batch='.$batch_p->id);
+                Log::info('refill='.$to_refill);
+
+                foreach ($trips_to_be_paid as $paytrip) {
+
+                    $unpaid_amount = $paytrip->trip_cost;
+                    Log::info($paytrip->trip_id);
+
+                    // Only pay if unpaid amount is <= available to_refill
+                    if ($unpaid_amount > 0 && $unpaid_amount <= $to_refill) {
+                        //$pay_data = $this->addpay_customer($paytrip, $request,  $batch_p->id);
+                        $new = new Payment();
+                        $new->driver_id = $paytrip->driver_id;
+                        $new->trip_id = $paytrip->trip_id;
+                        $new->payment_date = now()->toDateString();
+                        $new->amount = (float)$paytrip->trip_cost;
+                        $new->user_id = 0;
+                        $new->user_type = 'customer';
+                        $new->type = 'debit';
+                        $new->batch_id = $batch_p->id;
+                        $new->description = 'payment_added_from_twilio_' . $request['account_id'];
+                        $new->account_id = $paytrip->account_number;
+                        $new->save();
+                        $total_payments += $unpaid_amount;
+                        $to_refill -= $unpaid_amount; // update to_refill after payment
+                        Log::info($unpaid_amount);
+
+                    }
+
+                }
+
+                $batch_p->amount = $total_payments;
+                $batch_p->save();
+                $account_payment->batch_id = $batch_p->id;
+                $account_payment->save();
+
+            }
+
+                $uaccount->balance += $to_refill;
+                $uaccount->save();
+
+
+                if($uaccount->account_type == 'prepaid') {
+
+                    if ($uaccount->balance > 0) {
+                        $uaccount->status = 1;
+                        if ($uaccount->cube_id == null || $uaccount->cube_id == '') {
+                          //  CubeContact::createAccount($uaccount->account_id);
+                        }
+                        // CubeContact::updateCubeAccount($uaccount->account_id,null,'active');
+
+                        $uaccount->save();
+                    }
+                }
+
+
+
+            $logdata = [
+                'from' => 'customer',
+                'payment' => $to_refill,
+                'cardknox_response' => $cardknoxResponse,
+                'message' => 'Refill Payment added using Cardknox for Account#' . $account_id . ' Amount: ' . $to_refill
+            ];
+            LogService::saveLog($logdata);
+            Log::info('finallllllll');
+
+
+            DB::commit();
+        } elseif ($cardknoxResponse['status'] == 'declined') {
+
+            return response()->json([
+                'valid' => false,
+                'message' => 'Card Decline'
+            ]);
+
+        } else {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Payment Failed'
+            ]);
+
+        }
+
+        return response()->json([
+            'valid' => true,
+            'message' => 'Charge Successfully'
+        ]);
+
+
+    }
+
+
+    public function addcard(Request $request){
+
+        Log::info($request->all());
+          $checkCard = CreditCard::where('account_id', $request->account_id)->first();
+        $creditCard = new CreditCard;
+        $creditCard->account_id = $request->account_id;
+
+        if ($checkCard) {
+
+            $creditCard->charge_priority = 0;
+
+        }
+         $cardNumber = $request->card_number;
+            $maskedCard = substr($cardNumber, 0, 1) . str_repeat('*', strlen($cardNumber) - 5) . substr($cardNumber, -4);
+
+            $creditCard->card_number = $maskedCard;
+            $creditCard->cvc = $request->cvc;
+            // Process expiry date
+            $expiry = $request->input('expiry');
+
+            if(isset($request->month) && isset($request->year)){
+                $month = $request->month;
+                $year = $request->year;
+                $expiryWithoutSlash = $month.$year;
+
+            }else{
+                list($month, $year) = explode('/', $expiry);
+                $expiryWithoutSlash = str_replace('/', '', $expiry);
+
+            }
+
+            $fullYear = '20' . $year;
+            $expiryDate = \Carbon\Carbon::createFromDate($fullYear, $month, 1)->toDateString();
+            $creditCard->expiry = $expiryDate;
+
+            // Remove the slash from expiry for CardKnoxService
+
+            // Call CardKnoxService to save the card
+            $cardResponse = CardKnoxService::saveCard(
+                $request->account_id,
+                'credit',
+                $request->card_number,
+                $expiryWithoutSlash,
+                $request->card_zip
+            );
+             if ($cardResponse['status']) {
+            $creditCard->cardnox_token = $cardResponse['data']['xToken'];
+            $creditCard->save();
+
+           
+            
+                 return response()->json([
+            'valid' => true,
+            'message' => 'Charge Successfully'
+        ]);
+            
+        } else {
+          
+                 return response()->json([
+            'valid' => false,
+            'message' => 'Error in proccessing please try again'
+        ]);
+             
+        }
+   
+
+
+    }
+
+
 }
