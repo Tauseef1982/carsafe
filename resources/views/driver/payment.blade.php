@@ -152,14 +152,32 @@ $util = new \App\Utils\dateUtil();
                                             <input class="form-control" type="tel" name="amount" autofocus value=""
                                                    id="amount-field" readonly placeholder="00.00" />
                                         </div>
-                                      
+
                                     </div>
                                     <span class="toggle-extra" data-target="2">Add Extras </span>
-                                      <div class="  p-3 extracharges-field-div" data-id="2">
+                                    <div class="  p-3 extracharges-field-div" data-id="2">
+                                        <div class="mb-3">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-4">−</button>
+                                                <span class="mx-2 fw-bold">$4 Stop</span>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-4">+</button>
+                                            </div>
 
-                                       
-                                          <button class="btn btn-primary add_stop_charges">Add Stop Charges</button>
-                                         <button class="btn btn-secondary add_wait_charges">Add Wait Charges</button> <br>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-5">−</button>
+                                                <span class="mx-2 fw-bold">$5 Stop</span>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-5">+</button>
+                                            </div>
+
+                                            <div class="d-flex align-items-center">
+                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-wait">−</button>
+                                                <span class="mx-2 fw-bold">Wait Charges</span>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-wait">+</button>
+                                            </div>
+                                        </div>
+
+
+
                                         <label for="stop_amount" class="me-2">Stop:</label>
                                         <div class="input-group mb-3">
 
@@ -178,7 +196,7 @@ $util = new \App\Utils\dateUtil();
                                             <input class="form-control me-2 wait_amount" type="tel" name="wait_amount[]" readonly id=""
                                                    placeholder="00.00" />
                                         </div>
-        
+
 
                                     </div>
                                 </div>
@@ -250,8 +268,25 @@ $util = new \App\Utils\dateUtil();
                                     <span class="toggle-extra" data-target="1">Add Extras</span>
 
                                     <div class="  p-3 extracharges-field-div" data-id="1">
-                                         <button class="btn btn-primary add_stop_charges">Add Stop Charges</button>
-                                         <button class="btn btn-secondary add_wait_charges">Add Wait Charges</button> <br>
+                                       <div class="mb-3">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-4">−</button>
+                                                <span class="mx-2 fw-bold">$4 Stop</span>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-4">+</button>
+                                            </div>
+
+                                            <div class="d-flex align-items-center mb-2">
+                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-5">−</button>
+                                                <span class="mx-2 fw-bold">$5 Stop</span>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-5">+</button>
+                                            </div>
+
+                                            <div class="d-flex align-items-center">
+                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-wait">−</button>
+                                                <span class="mx-2 fw-bold">Wait Charges</span>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-wait">+</button>
+                                            </div>
+                                        </div>
                                         <span class="input-group-text hide">$</span>
                                         <input class="form-control hide" type="tel" name="extra_charges"  autofocus value=""
                                                id="extra_charges" placeholder="00.00 " />
@@ -274,7 +309,7 @@ $util = new \App\Utils\dateUtil();
                                             <input class="form-control me-2 wait_amount" type="tel" name="wait_amount[]" readonly id="wait_amount"
                                                    placeholder="00.00" />
                                         </div>
-                       
+
 
                                     </div>
                                 </div>
@@ -391,24 +426,72 @@ $util = new \App\Utils\dateUtil();
         var targetId = $(this).data('target');
         $('.extracharges-field-div[data-id="' + targetId + '"]').toggle();
     });
-         $('.add_stop_charges').click(function (e) {
-            e.preventDefault();
-            var $container = $(this).closest('.extracharges-field-div');
-            var $stopInput = $(this).closest('.extracharges-field-div').find('.stop_amount').first();
-            var currentValue = parseFloat($stopInput.val()) || 0;
-            $stopInput.val((currentValue + 4).toFixed(2));
-             updateExtraCharges($container);
-        });
+        // + $4 Stop
+    $('.add-stop-4').click(function (e) {
+        e.preventDefault();
+        var $container = $(this).closest('.extracharges-field-div');
+        var $input = $container.find('.stop_amount').first();
+        var current = parseFloat($input.val()) || 0;
+        $input.val((current + 4).toFixed(2));
+        updateExtraCharges($container);
+    });
 
-        // Add 0.5 to nearest wait_amount
-        $('.add_wait_charges').click(function (e) {
-            e.preventDefault();
-            var $container = $(this).closest('.extracharges-field-div');
-            var $waitInput = $(this).closest('.extracharges-field-div').find('.wait_amount').first();
-            var currentValue = parseFloat($waitInput.val()) || 0;
-            $waitInput.val((currentValue + 0.5).toFixed(2));
-             updateExtraCharges($container);
-        });
+    // − $4 Stop
+    $('.remove-stop-4').click(function (e) {
+        e.preventDefault();
+        var $container = $(this).closest('.extracharges-field-div');
+        var $input = $container.find('.stop_amount').first();
+        var current = parseFloat($input.val()) || 0;
+        if (current >= 4) {
+            $input.val((current - 4).toFixed(2));
+            updateExtraCharges($container);
+        }
+    });
+
+    // + $5 Stop
+    $('.add-stop-5').click(function (e) {
+        e.preventDefault();
+        var $container = $(this).closest('.extracharges-field-div');
+        var $input = $container.find('.stop_amount').first();
+        var current = parseFloat($input.val()) || 0;
+        $input.val((current + 5).toFixed(2));
+        updateExtraCharges($container);
+    });
+
+    // − $5 Stop
+    $('.remove-stop-5').click(function (e) {
+        e.preventDefault();
+        var $container = $(this).closest('.extracharges-field-div');
+        var $input = $container.find('.stop_amount').first();
+        var current = parseFloat($input.val()) || 0;
+        if (current >= 5) {
+            $input.val((current - 5).toFixed(2));
+            updateExtraCharges($container);
+        }
+    });
+
+    // + Wait
+    $('.add-wait').click(function (e) {
+        e.preventDefault();
+        var $container = $(this).closest('.extracharges-field-div');
+        var $input = $container.find('.wait_amount').first();
+        var current = parseFloat($input.val()) || 0;
+        $input.val((current + .5).toFixed(2)); // adjust per unit wait charge if needed
+        updateExtraCharges($container);
+    });
+
+    // − Wait
+    $('.remove-wait').click(function (e) {
+        e.preventDefault();
+        var $container = $(this).closest('.extracharges-field-div');
+        var $input = $container.find('.wait_amount').first();
+        var current = parseFloat($input.val()) || 0;
+        if (current >= 1) {
+            $input.val((current - .5).toFixed(2));
+            updateExtraCharges($container);
+        }
+    });
+
         function updateExtraCharges($container) {
     var stopAmount = parseFloat($container.find('.stop_amount').first().val()) || 0;
     var waitAmount = parseFloat($container.find('.wait_amount').first().val()) || 0;
