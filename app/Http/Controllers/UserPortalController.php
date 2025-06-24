@@ -76,12 +76,13 @@ class UserPortalController extends Controller
     ->where('token', hash('sha256', $request->token))
     ->where('created_at', '>=', now()->subMinutes(60))
     ->first();
-
+ 
 if (!$record) {
     return redirect()->back()->withErrors(['token' => 'Invalid or expired token.']);
 }
         $password = $request->password;
         $con_password = $request->confirm_password;
+       
         if($password === $con_password){
             $user = Account::where('email', $record->email)->first();
             $user->password = Hash::make($request->password);
@@ -305,12 +306,14 @@ if (!$record) {
         $account = Account::where('account_id',$account_id)->first();
         if ($request->ajax()) {
 
-            $from = Carbon::createFromDate($request->from)->format('Y-m-d');
-            $to = Carbon::createFromDate($request->to)->format('Y-m-d');
+                 $from = $request->from ? Carbon::createFromFormat('Y-m-d', $request->from)->startOfDay() : null;
+               $to = $request->to ? Carbon::createFromFormat('Y-m-d', $request->to)->endOfDay() : null;
 
             $accounts = AccountPayment::where('account_id',$account->account_id)->where('status','!=',null)->whereNotNull('hash_id');
 //                ->whereDate('payment_date','>=',"$from")->whereDate('payment_date','<=',$to);
-
+         if ($from && $to) {
+        $accounts->whereBetween('payment_date', [$from, $to]);
+    }
             return Datatables::of($accounts)
 
                 ->addColumn('action', function ($row) {

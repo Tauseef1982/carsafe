@@ -20,6 +20,20 @@
 <div class="card total-users">
 
        <div class="container-fluid">
+           <div class="row mb-3 px-3">
+    <div class="col-md-3">
+        <label for="from_date">From Date</label>
+        <input type="date" id="from_date" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label for="to_date">To Date</label>
+        <input type="date" id="to_date" class="form-control" />
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+        <button class="btn btn-primary" id="filter">Filter</button>
+        <button class="btn btn-secondary ms-2" id="reset">Reset</button>
+    </div>
+</div>
         <div class="row">
              <!-- Zero Configuration  Starts-->
              <div class="col-sm-12">
@@ -112,9 +126,14 @@
 
 
 
-            $('#filter').on('click', function(){
+               $('#filter').on('click', function(){
                 accounts.ajax.reload();
             });
+             $('#reset').click(function () {
+        $('#from_date').val('');
+        $('#to_date').val('');
+        accounts.ajax.reload();
+    });
 
         });
 

@@ -210,7 +210,7 @@ class ApiController extends Controller
                                             'date' => $date,
                                             'time' => $time,
                                             'trip_cost' => !empty($trip['fx.trip_base']) && $trip['fx.trip_base'] != 0 ? $trip['fx.trip_base'] : $trip['estimatedPrice'],
-                                            'extra_charges' => !empty($trip['fx.trip_extras']) && $trip['fx.trip_extras'] != 0 ? $trip['fx.trip_extras'] : 0,
+                                            
                                             'driver_id' => $trip['driverId'],
                                             'account_number' => $trip['account.name'],
                                             'passenger_phone' => $trip['passenger.phone'].'',

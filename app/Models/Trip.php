@@ -93,7 +93,7 @@ class Trip extends Model
     public function getExtraDescriptionAttribute()
     {
 
-        $description = 'Stop =$'.$this->extra_stop_amount .',Stop Location ='.$this->stop_location. ',Wait =$'.$this->extra_wait_amount. ',Round Trip = $'.$this->extra_round_trip.' .';
+        $description = 'Stop =$'.$this->extra_stop_amount .',Stop Location ='.$this->stop_location. ',Wait =$'.$this->extra_wait_amount. ' .';
         return $description;
 
     }

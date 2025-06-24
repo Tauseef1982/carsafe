@@ -394,13 +394,17 @@ class TripController extends Controller
                         $trip->cube_pin_status = $request->account_pin;
                         $trip->extra_charges = $extraCharges;
 
-                        if (isset($request->stop_amount)) {
-                            $trip->extra_stop_amount = $request->stop_amount;
-                            $trip->stop_location = $request->stop_location;
-                        }
+                            $firstStopAmount = collect($request->stop_amount)->filter()->first();
+                            $firstStopLocation = collect($request->stop_location)->filter()->first();
+                              
+                            if ($firstStopAmount || $firstStopLocation) {
+                                $trip->extra_stop_amount = $firstStopAmount;
+                                $trip->stop_location = $firstStopLocation;
+                            }
 
                         if (isset($request->wait_amount)) {
-                            $trip->extra_wait_amount = $request->wait_amount;
+                            $firstwait_amount = collect($request->wait_amount)->filter()->first();
+                            $trip->wait_amount = $firstwait_amount;
                         }
                         if (isset($request->round_trip)) {
                             $trip->extra_round_trip = $request->round_trip;
@@ -480,14 +484,14 @@ class TripController extends Controller
 
 
                         if (isset($request->stop_amount)) {
-                            $extraStopCharges = '$' . $request->stop_amount;
-                            $stoplocation = $request->stop_location;
+                            $extraStopCharges = '$' . $firstStopAmount;
+                            $stoplocation = $firstStopLocation;
                             $extra_message .= "Extra Stop Charges: {$extraStopCharges}\nStop Location: {$stoplocation}. ";
 
                         }
 
                         if (isset($request->wait_amount)) {
-                            $extraWaitCharges = '$' . $request->wait_amount;
+                            $extraWaitCharges = '$' . $firstwait_amount;
                             $extra_message .= "Extra Wait Charges: {$extraWaitCharges}. ";
 
                         }
@@ -621,14 +625,17 @@ class TripController extends Controller
                         $trip->payment_method = 'account';
                         $trip->cube_pin_status = $request->account_pin;
                         $trip->extra_charges = $extraCharges;
-
+                         
+                            $firstStopAmount = collect($request->stop_amount)->filter()->first();
+                            $firstStopLocation = collect($request->stop_location)->filter()->first();
+                              $firstwait_amount = collect($request->wait_amount)->filter()->first();
                         if (isset($request->stop_amount)) {
-                            $trip->extra_stop_amount = $request->stop_amount;
-                            $trip->stop_location = $request->stop_location;
+                            $trip->extra_stop_amount = $firstStopAmount;
+                            $trip->stop_location = $firstStopLocation;
                         }
 
                         if (isset($request->wait_amount)) {
-                            $trip->extra_wait_amount = $request->wait_amount;
+                            $trip->extra_wait_amount = $firstwait_amount;
                         }
                         if (isset($request->round_trip)) {
                             $trip->extra_round_trip = $request->round_trip;
@@ -708,14 +715,14 @@ class TripController extends Controller
 
 
                         if (isset($request->stop_amount)) {
-                            $extraStopCharges = '$' . $request->stop_amount;
-                            $stoplocation = $request->stop_location;
+                            $extraStopCharges = '$' . $firstStopAmount;
+                            $stoplocation = $firstStopLocation;
                             $extra_message .= "Extra Stop Charges: {$extraStopCharges}\nStop Location: {$stoplocation}. ";
 
                         }
 
                         if (isset($request->wait_amount)) {
-                            $extraWaitCharges = '$' . $request->wait_amount;
+                            $extraWaitCharges = '$' . $firstwait_amount;
                             $extra_message .= "Extra Wait Charges: {$extraWaitCharges}. ";
 
                         }
@@ -825,11 +832,11 @@ class TripController extends Controller
 
         if ($request->payment_method == 'card') {
 
-
+        
             try {
 
                 if ($request->has('trip') && isset($trip)) {
-                    $originalAmount = $request->amount;
+                    $originalAmount = $request->amount + $request->extra_charges;
                 } else {
 
                     $originalAmount = $request->amount;
@@ -862,6 +869,24 @@ class TripController extends Controller
                     $data['gocab_paid'] = $originalAmount;
                     $data['payment_method'] = 'card';
                     $data['stripe_id'] = $charge['transaction_id'];
+                   $data['extra_charges'] = $request->extra_charges;
+                  
+
+                        if (isset($request->stop_amount)) {
+                               $firstStopAmount = collect($request->stop_amount)->filter()->first();
+                            $firstStopLocation = collect($request->stop_location)->filter()->first();
+                             
+                            $data['extra_stop_amount'] = $firstStopAmount;
+                            $data['stop_location'] = $firstStopLocation;
+                        }
+
+                        if (isset($request->wait_amount)) {
+                            $firstwait_amount = collect($request->wait_amount)->filter()->first();
+                            $data['extra_wait_amount'] =  $firstwait_amount;
+                        }
+                        if (isset($request->round_trip)) {
+                            $data['extra_round_trip'] = $request->round_trip;
+                        }
 
 
                     if (isset($request->complaint) && $request->complaint !== null) {
@@ -1289,14 +1314,87 @@ class TripController extends Controller
         //return redirect()->back()->with('success', 'Trip cost has updated successfully');
     }
 
-    public function update_account(Request $request)
+     public function update_account(Request $request)
     {
 
 
         $account = Account::where('account_id', $request->account)->first();
         $trip_id = $request->trip_id;
         $trip = Trip::where('trip_id', $trip_id)->first();
-        $oldaccount_nmber = $trip->account_number;
+
+        $old_account = $trip->account_number;
+        $oold_account = Account::where('account_id', $old_account)->first();
+       
+        if ($oold_account->account_type == 'postpaid') {
+
+          if($request->payment_method != 'cash'){
+          $from_date = Carbon::now()->subMonth()->format('Y-m-d');
+
+            $to_date = Carbon::now();
+            $trips_to_be_paid = $oold_account->trips->filter(function ($trip) use ($from_date, $to_date) {
+                return $trip->payment_method === 'account' &&
+                    strpos($trip->status, 'Cancelled') === false &&
+                    strpos($trip->status, 'canceled') === false &&
+                    $trip->is_delete == 0 &&
+                    $trip->date >= $from_date &&
+                    $trip->date <= $to_date;
+            });
+            $account_payment = new AccountPayment();
+            $account_payment->account_id = $oold_account->account_id;
+            $account_payment->account_type = $oold_account->account_type;
+            $account_payment->amount = $trip->trip_cost;
+            $account_payment->transaction_id = 11111111111;
+            $account_payment->payment_date = Carbon::today();
+            $account_payment->payment_type = 'credit';
+            $account_payment->save();
+            $batch_p = new BatchPayment();
+            $batch_p->account_id = $oold_account->account_id;
+            $batch_p->from = 'trips_paid_against_trip_account_changed';
+            $batch_p->amount = $trip->trip_cost;
+            $batch_p->save();
+            $total_payments = 0;
+            $to_refill = $trip->trip_cost;
+
+            foreach ($trips_to_be_paid as $paytrip) {
+
+                $already_paid = $paytrip->totalPaidAmountByCustomerFromAccountCard()->sum('amount');
+                $unpaid_amount = $paytrip->trip_cost - $already_paid;
+
+                // Only pay if unpaid amount is <= available to_refill
+                if ($unpaid_amount > 0 && $unpaid_amount <= $to_refill) {
+
+                    $old_account = $trip->account_number;
+                    $this->addpay_customer($paytrip, $old_account, $batch_p->id);
+
+                    $total_payments += $unpaid_amount;
+                    $to_refill -= $unpaid_amount; // update to_refill after payment
+                }
+            }
+
+
+            $account_payment->batch_id = $batch_p->id;
+            $account_payment->save();
+
+        }
+
+        } else {
+
+            $balance = $oold_account->balance + $trip->trip_cost;
+            $oold_account->balance = $balance;
+            $oold_account->save();
+        }
+        $payment = Payment::where('user_type', 'customer')
+            ->where('type', 'debit')
+            ->where('account_id', $old_account)
+            ->where('trip_id', $trip_id)
+            ->where('is_delete', 0)
+            ->first();
+
+        if ($payment) {
+            $payment->is_delete = 1;
+            $payment->save();
+        }
+
         $trip->reason = $request->reason . ' Updated by /' . Auth::guard('admin')->user()->name;
         $trip->payment_method = $request->payment_method;
         $trip->account_number = $request->account;
@@ -1305,23 +1403,32 @@ class TripController extends Controller
 
                 $trip->update();
                 $from_prepaid_deduction = $this->prepaidAccountDeduction($trip, $account);
-                $account->balance = $account->balance - $trip->trip_cost;
+               if($request->payment_method != 'cash'){
+                    $account->balance = $account->balance - $trip->trip_cost;
+               }
+                
                 $account->save();
-                $oldaccount = Account::where('account_id', $oldaccount_nmber)->first();
-                $oldaccount->balance = $oldaccount->balance + $trip->trip_cost;
-                $oldaccount->save();
             } else {
 
                 \App\Services\TwilioService::voicecall($account->phone, 'refill-need');
                 //                CubeContact::deleteAccount($account->account_id);
-                //CubeContact::updateCubeAccount($account->account_id, "Your Account Balance Is zero", "Inactive");
+                CubeContact::updateCubeAccount($account->account_id, "Your Account Balance Is zero", "Inactive");
+                return response()->json([
+            'success' => false,
+            'message' => 'Prepaid Account:Low Balance',
 
-                return redirect()->back()->with('error', 'Prepaid Account:Low Balance');
+        ]);
+               // return redirect()->back()->with('error', 'Prepaid Account:Low Balance');
 
 
             }
+
         }
+        $trip->cube_pin_status = "";
         $trip->save();
+
+
+
 
         return response()->json([
             'success' => true,
@@ -1329,6 +1436,7 @@ class TripController extends Controller
             'account' => $trip->account_number,
             'method' => $trip->payment_method,
             'trip_id' => $trip_id,
+            'pin' => $trip->cube_pin_status
 
         ]);
         //return redirect()->back()->with('success', 'Trip cost has updated successfully');
