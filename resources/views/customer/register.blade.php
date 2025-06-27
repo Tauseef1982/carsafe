@@ -6,6 +6,10 @@
             margin-top: -28px;
             margin-right: 20px;
         }
+        .icon svg {
+  fill: #FF6600; /* Replace with your desired color */
+}
+
         .second_step{
           display: none;
         }
@@ -18,37 +22,49 @@
  @section('content')
 
 
-  <div class="row m-0">
-  <div class="col-12 p-0">
-  <div class="login-card">
-  <div>
-  <div>
-  <a class="logo" href="">
-  <img class="img-fluid" src="{{asset('assets/images/logo/carsafe-logo.webp')}}" width="200px" alt="looginpage">
-  </a>
-  </div>
-  <div class="login-main">
-  @if (session('success'))
-  <div class="alert alert-success">
-  {{ session('success') }}
-  </div>
-  @endif
-  @if (session('error'))
-  <div class="alert alert-danger">
-  {{ session('error') }}
-  </div>
-  @endif
-  <form class="theme-form" id="addAccountForm" action="{{ url('add_account') }}" method="post">
+    <div class="row m-0">
+    <div class="col-12 p-0" style="background-image:linear-gradient(to bottom, #FEEEEA, #FFFFFF)">
+    <div class="login-card">
+    <div>
+
+    <div class="login-main">
+    @if (session('success'))
+    <div class="alert alert-success">
+    {{ session('success') }}
+    </div>
+    @endif
+    @if (session('error'))
+    <div class="alert alert-danger">
+    {{ session('error') }}
+    </div>
+    @endif
+    <div class="row mt-5" >
+    <div class="col-md-6 bg-orange-g left-radius sm-radius text-center d-flex align-items-center">
+      <div class="mx-auto">
+      <img src="{{ asset('assets/images/logo/carsafe-logo.webp') }}" style="height:220px; width: 220px;" alt="">
+      <h3 class="f-32 text-white font-inter">Welcome to SafeCar Portal</h3>
+      <p class="f-16 text-white font-inter">
+      Simple. Secure. Safe everything you need to <br> protect your drive.
+      </p>
+      </div>
+    </div>
+    <div class="col-md-6 px-5 py-5 right-radius">
+       <form class="theme-form" id="addAccountForm" action="{{ url('add_account') }}" method="post">
     @csrf
     <div class="first_step">
-    <h4>Please Register Here</h4>
+    <h4 class="font-inter f-32 fw-bold">Sign Up to Get Started</h4>
+    <p class="text-muted font-inter">
+      It only takes a moment to access your dashboard.
+    </p>
      <input type="hidden" name="account_type" value="prepaid">
      <div class="form-group">
-      <label class="col-form-label">Account Number</label>
+      <label class="col-form-label font-inter">Account Number</label>
       <div class="input-group">
-    <input type="number" class="form-control mb-3" required placeholder="Please enter an unique account number" name="account_id"
-      id="account_id" />
-      
+      <span class="input-group-text">
+        <img src="{{ asset('assets/images/account-circle-line.png') }}" alt="">
+      </span>
+        <input type="number" class="form-control" required placeholder="Please enter an unique account number" name="account_id" id="account_id" />
+
     <input type="hidden" name="password" value="{{ rand(10000000, 99999999) }}">
     </div>
     <div id="errorDiv" style="color: red;"></div>
@@ -57,30 +73,45 @@
     <div class="form-group">
     <label class="col-form-label">Name</label>
     <div class="input-group">
+       <span class="input-group-text">
+        <img src="{{ asset('assets/images/user-line.png') }}" alt="">
+      </span>
     <input class="form-control" type="text" name="f_name" placeholder="Enter Your Full Name">
     </div>
     </div>
     <div class="form-group">
     <label class="col-form-label">Company Name</label>
     <div class="input-group">
+      <span class="input-group-text">
+        <i class="fa fa-building-o" style="color:#ff6600"></i>
+      </span>
     <input class="form-control" type="text" name="company_name" placeholder="Enter Your Company Name">
     </div>
     </div>
     <div class="form-group">
     <label class="col-form-label">Email</label>
     <div class="input-group">
+      <span class="input-group-text">
+        <img src="{{ asset('assets/images/mail-line.png') }}" alt="">
+      </span>
     <input class="form-control" type="email" name="email" placeholder="Enter Your Email">
     </div>
     </div>
     <div class="form-group">
     <label class="col-form-label">Billing Email</label>
     <div class="input-group">
+       <span class="input-group-text">
+        <img src="{{ asset('assets/images/mail-send-line.png') }}" alt="">
+      </span>
     <input class="form-control" type="email" name="billing_email" placeholder="Enter Billing Email">
     </div>
     </div>
     <div class="form-group">
     <label class="col-form-label">Phone</label>
     <div class="input-group">
+       <span class="input-group-text">
+        <img src="{{ asset('assets/images/smartphone-line.png') }}" alt="">
+      </span>
     <input class="form-control" type="tel" name="phone" placeholder="Enter Your Phone Number">
     </div>
     </div>
@@ -88,21 +119,28 @@
     <div class="form-group">
     <label class="col-form-label">Address</label>
     <div class="input-group">
+      <span class="input-group-text">
+        <img src="{{ asset('assets/images/map-pin-2-line.png') }}" alt="">
+      </span>
     <input class="form-control" type="text" name="address" placeholder="Enter Your Address">
     </div>
     </div>
     <div class="form-group">
-     <label for="">How Would You Like to Get Trip Notifications?</label> <br>
-     <input type="radio" value="account_email" name="notification_setting" id="account_email_n">
-     <label for="account_email_n">Account Email </label>
-     <input type="radio" value="account_phone" name="notification_setting" id="account_phone_n">
-     <label for="account_phone_n">Account Phone Number</label>
-     <br>
-     <input type="radio" value="passenger_phone" name="notification_setting" id="passenger_phone_n">
-     <label for="passenger_phone_n">Passenger Phone Number</label>
-     <input type="radio" value="both_phone" name="notification_setting" id="both_phone_n">
-     <label for="both_phone_n">Both Phone Numbers</label>
-     <br>
+     <label for="">How Would You Like to Get Trip Notifications?</label>
+     <div class="input-group">
+      <span class="input-group-text">
+        <img src="{{ asset('assets/images/notification-3-line.png') }}" alt="">
+      </span>
+      <select name="notification_setting" class="form-select" id="">
+        <option value="">Please Select</option>
+        <option value="account_email">Account Email</option>
+        <option value="account_phone">Account Phone Number</option>
+        <option value="passenger_phone">Passenger Phone Number</option>
+        <option value="both_phone">Both Phone Numbers</option>
+      </select>
+     </div> 
+
+
     </div>
 
 
@@ -111,17 +149,17 @@
     <div class="form-group mb-3">
 
     <div class="text-end mt-3">
-    <button class="btn btn-primary btn-block w-100" id="next-2nd" disabled>Next</button>
+    <button class="btn bg-orange-g b-r-8 btn-block w-100 text-white" id="next-2nd" disabled>Continue</button>
     </div>
     </div>
-  </div>
-  <div class="second_step" >
+    </div>
+    <div class="second_step" >
      <span style="cursor: pointer;" id="go_first_step">
 
     <i class="fa fa-long-arrow-left"></i> Go Back
 
     </span>
-     <span  style="cursor: pointer;"id="addPinBtn" class="btn btn-primary float-end">Add More</span>
+     <span  style="cursor: pointer;"id="addPinBtn" class="btn bg-orange-g b-r-8 text-white float-end">Add More</span>
     <div class="form-group">
     <label class="col-form-label">Add Your Pin Numbers</label>
      <input type="hidden" class="form-control mb-3" id="pinsFinal" name="pins" />
@@ -134,12 +172,12 @@
     <div class="form-group mb-3">
 
     <div class="text-end mt-3">
-    <button class="btn btn-primary btn-block w-100" id="next-3rd" disabled >Next</button>
+    <button class="btn bg-orange-g b-r-8 w-100 mt-3 text-white" id="next-3rd" disabled >Next</button>
     </div>
     </div>
 
-  </div>
-  <div class="third_step">
+    </div>
+    <div class="third_step">
      <span style="cursor: pointer;" id="go_second_step">
 
     <i class="fa fa-long-arrow-left"></i> Go Back
@@ -160,14 +198,14 @@
     <div class="input-group">
     <input type="number"  class="form-control mb-2" name="first_refill" placeholder="Please enter your initial amount to be added to your account">
     <input type="hidden" id="on-autofill" name="autofill"  value="on">
-    
+
     </div>
     </div>
      <div class="form-group">
     <label for="">Please Enter your recharge amount</label>
-    <div class="input-group">
+    <div class="">
     <input type="number"  class="form-control mb-2" name="recharge" placeholder="Please enter your recharge amount">
-   
+
     <small class="text-danger">(Your card will be charged automatically when your balance falls below $20.)</small>
     </div>
     </div>
@@ -182,19 +220,29 @@
     </div>
 
 
-<button class="btn btn-primary w-100 mt-3" type="submit">Submit</button>
+    <button class="btn bg-orange-g b-r-8 w-100 mt-3 text-white" type="submit">Submit</button>
 
-  </div>
-     
+    </div>
 
-  </form>
 
-  <a href="{{ url('customer/login') }}">Please Login if registered already!</a>
-  </div>
-  </div>
-  </div>
-  </div>
-  </div>
+    </form>
+    <p class="mt-5 text-center text-muted">Already have an account?
+      <span> <a href="{{ url('customer/login') }}" class="">Log in</a></span>
+    </p>
+
+
+    </div>
+
+
+    </div>
+
+
+
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
   @endsection
 
       @section('js')

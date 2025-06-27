@@ -8,6 +8,9 @@
 
 -----------------------------------------------------------------------------------
  */
+ 
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
 :root {
   --theme-deafult: #f05829;
   --theme-secondary: #000000;
@@ -16,14 +19,17 @@
 /**=====================
      Reset css start
 ==========================**/
+.font-inter{
+  font-family: "Inter", sans-serif;
+}
 .font-roboto {
   font-family: Roboto, sans-serif;
 }
 
 .input-group-text{
-  background: transparent !important;
+  background: #fafafa !important;
   padding-right: 5px !important;
- 
+ border: 1px solid #efefef;
   border-right:none !important;
 }
 #amount-field{
@@ -5616,12 +5622,13 @@ table.dataTable.display tbody tr.odd > .sorting_1 {
 .theme-form textarea,
 .theme-form select {
   border-color: #efefef;
-  background-color: #fff;
-  font-size: 14px;
-  color: #898989;
-  padding: 12px 10px;
+  background-color: #fafafa ;
+  font-size: 16px;
+  color: #7F7F7F;
+  padding: 10px 10px;
   -webkit-box-shadow: none;
   box-shadow: none;
+  
 }
 .theme-form input[type=text]::-webkit-input-placeholder,
 .theme-form input[type=email]::-webkit-input-placeholder,
@@ -10298,6 +10305,15 @@ th {
   }
 }
 @media only screen and (max-width: 767px) {
+  .sm-radius{
+       border-radius: 15px !important;
+  }
+  .f-32 {
+    font-size: 25px !important;
+}
+.f-16{
+  font-size: 12px !important;
+}
   .bookmark-tabcontent .details-bookmark.list-bookmark .bookmark-card .details-website .title-bookmark p {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -20195,11 +20211,11 @@ ul.dot-group li {
 ==========================**/
 .login-card {
   min-height: 100vh;
-  display: flex;
+  
   align-items: center;
   justify-content: center;
   margin: 0 auto;
-  background: url("../images/login/login_bg.jpg");
+ 
   background-position: center;
   padding: 30px 12px;
 }
@@ -20220,9 +20236,23 @@ ul.dot-group li {
   height: 16px;
   vertical-align: bottom;
 }
+.bg-orange-g {
+  background-image: linear-gradient(to bottom, #F3744D, #F05829) !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+}
+.left-radius{
+  border-top-left-radius: 24px;
+  border-bottom-left-radius: 24px;
+}
+.right-radius{
+border-top-right-radius: 24px;
+border-bottom-right-radius: 24px ;
+}
 .login-card .login-main {
-  width: 450px;
-  padding: 40px;
+  width: 100%;
+  max-width: 1076px;
+  
   border-radius: 10px;
   box-shadow: 0 0 37px rgba(8, 21, 66, 0.05);
   margin: 0 auto;
@@ -20253,14 +20283,18 @@ ul.dot-group li {
   right: 0;
 }
 .login-card .login-main .theme-form input {
-  background-color: #f3f3ff;
+  background-color: #fafafa;
   transition: all 0.3s ease;
 }
+.login-card .login-main .theme-form input:hover {
+  border: 1px solid #efefef !important;
+}
 .login-card .login-main .theme-form input::-webkit-input-placeholder {
-  color: #999999;
+  color: rgba(0, 0, 0, 0.5);
 }
 .login-card .login-main .theme-form input:hover, .login-card .login-main .theme-form input:focus {
   border: 1px solid #b9c1cc;
+  border-left: none !important ;
   box-shadow: none !important;
   transition: all 0.3s ease;
 }
