@@ -264,6 +264,9 @@ Route::group(['prefix' => 'customer','as' => 'customer.'], function () {
     Route::get('/pins', [\App\Http\Controllers\UserPortalController::class, 'pins']);
     Route::post('/pins/update', [\App\Http\Controllers\UserPortalController::class, 'update_pins'] );
     Route::get('/complaints', [\App\Http\Controllers\UserPortalController::class, 'complaints']);
+   Route::get('/book-ride', function () {
+    return view('customer.book-ride');
+});
     });
 
 });

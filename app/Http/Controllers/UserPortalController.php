@@ -171,7 +171,7 @@ if (!$record) {
                     }
                     return $row->cube_pin_status;
                 }) ->addColumn('action', function ($row) {
-                    return '<button class="btn btn-sm btn-primary openTripModal" data-trip="' . $row->trip_id . '">Add Complaint</button>';
+                    return '<button class="btn bg-orange-g b-r-8 text-white bg openTripModal" data-trip="' . $row->trip_id . '">Add Complaint</button>';
                 })
                 ->rawColumns(['action'])
                 ->make(true);
