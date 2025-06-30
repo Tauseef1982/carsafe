@@ -225,7 +225,7 @@ $account = Account::where('account_id' , $user)->first();
                   <input type="text" placeholder="Search here...">
                   <div class="search-shortcut">⌘ K</div>
                 </div>
-              <li class="onhover-dropdown">
+              <!-- <li class="onhover-dropdown">
                 <div class="notification-box"><i data-feather="bell"> 
 
                 </i><span class="badge rounded-pill badge-danger">4 </span></div>
@@ -247,7 +247,7 @@ $account = Account::where('account_id' , $user)->first();
                     <li><a class="f-w-700" href="#">Check all</a></li>
                   </ul>
                 </div>
-              </li>
+              </li> -->
              
               <!-- <li>
                 <div class="mode"><i class="fa fa-moon-o"></i></div>
@@ -259,14 +259,14 @@ $account = Account::where('account_id' , $user)->first();
     transition: all 0.3s ease;
     cursor: pointer;
     width: 20px;
-    text-align: center;"><i class="fa fa-moon-o"></i></div>
+    text-align: center;"><i class="fa fa-moon-o mode"></i></div>
               </li>
            
               
               
               <li class="profile-nav onhover-dropdown p-0 me-0">
                 <div class="media profile-media">
-                    <img style="width: 40px; height: 40px; border-radius: 50%;" src="../assets/images/dashboard/profile.jpg" alt="">
+                    <img style="width: 40px; height: 40px; border-radius: 50%;" src="{{ asset('storage/'. $account->image) }}" alt="">
                   <div class="media-body ">
                     <span></span>
                     <p class="mb-0 font-roboto">{{ $account->f_name }} <i class="middle fa fa-angle-down"></i></p>
@@ -454,7 +454,7 @@ $account = Account::where('account_id' , $user)->first();
     <script src="{{asset('assets/js/sidebar-menu.js')}}"></script>
     {{--    <script src="{{asset('assets/js/chart/chartist/chartist.js')}}"></script>--}}
     {{--    <script src="{{asset('assets/js/chart/chartist/chartist-plugin-tooltip.js')}}"></script>--}}
-    {{--    <script src="{{asset('assets/js/chart/apex-chart/apex-chart.js')}}"></script>--}}
+        <script src="{{asset('assets/js/chart/apex-chart/apex-chart.js')}}"></script>
     {{--    <script src="{{asset('assets/js/chart/apex-chart/stock-prices.js')}}"></script>--}}
     <script src="{{asset('assets/js/prism/prism.min.js')}}"></script>
     {{--    <script src="{{asset('assets/js/clipboard/clipboard.min.js')}}"></script>--}}

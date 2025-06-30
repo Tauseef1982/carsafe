@@ -13,6 +13,12 @@
 #history thead tr:first-child th:last-child {
     border-top-right-radius: 12px;
 }
+   .even{
+    background-color: #FEEEEA !important;
+}
+.even > .sorting_1{
+    background-color: #FEEEEA!important;
+} 
 </style>
 
 @endsection
@@ -147,6 +153,8 @@
          $('#history_filter label').addClass('w-100');
          $('#history_length label').addClass('float-end');
          },
+       
+       
         columns: [
           {data: 'trip_id', name: 'trip_id'},
           {data: 'cube_status', name: 'cube_status'},
@@ -176,7 +184,7 @@
     $('#to_date').val(today);
      loadTrips(lastWeekStr, today);
 
-      $('#filter_btn').click(function () {
+      $('#to_date').change(function () {
       let from = $('#from_date').val();
       let to = $('#to_date').val();
       loadTrips(from, to);

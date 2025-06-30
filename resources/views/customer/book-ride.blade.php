@@ -55,8 +55,10 @@
                     </p>
                    
                     </div>
-                    <form action="" method="post">
+                    <form action="{{ url('customer/store_ride') }}" id="book_ride_form" method="POST">
                         @csrf
+
+                        <input type="hidden" name="account_id" value="{{$account->account_id}}">
                     <div class="d-flex">
                         <div class="green"></div>
 
@@ -69,7 +71,9 @@
                       <span class="input-group-text">
                             <img src="{{ asset('assets/images/map-pin-2-line.png') }}" alt="">
                           </span>
-                      <input class="form-control" type="text" name="pickup_location" placeholder="Please enter your full address. Address, City, State and Zip.">
+                      <input class="form-control" type="text" id="pickup_location" name="pickup_location" placeholder="Please enter your full address. Address, City, State and Zip.">
+                      <input type="hidden" name="pickup_lat" id="pickup_lat" >
+                      <input type="hidden" name="pickup_lng" id="pickup_lng" >
                     </div>
                   </div>
                     <div class="d-flex mt-5">
@@ -82,12 +86,14 @@
                       <span class="input-group-text">
                             <img src="{{ asset('assets/images/map-pin-2-line.png') }}" alt="">
                           </span>
-                      <input class="form-control" type="text" name="drop_location" placeholder="Please enter your full address. Address, City, State and Zip.">
+                      <input class="form-control" type="text" id="drop_location" name="drop_location" placeholder="Please enter your full address. Address, City, State and Zip.">
+                      <input type="hidden" name="drop_lat" id="drop_lat" placeholder="Drop Latitude">
+                     <input type="hidden" name="drop_lng" id="drop_lng" placeholder="Drop Longitude">
                     </div>
                   </div>
                   <div class="d-flex text-end">
-                    <button class="btn btn-light me-2 text-gray b-r-8 ms-auto">Cancel</button>
-                    <button class="btn bg-orange-g text-white b-r-8" type="submit">Countinue</button>
+                    <button class="btn btn-light me-2 text-gray b-r-8 ms-auto" id="cancel_btn">Cancel</button>
+                    <input class="btn bg-orange-g text-white b-r-8" type="submit" value="Countinue">
                      
                   </div>
                   </form>
@@ -103,6 +109,49 @@
 
 @endsection
 @section('js')
+<script>
+  function initAutocomplete() {
+    const pickupInput = document.getElementById('pickup_location');
+    const dropInput = document.getElementById('drop_location');
+
+    const pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, {
+      types: ['geocode']
+    });
+
+    const dropAutocomplete = new google.maps.places.Autocomplete(dropInput, {
+      types: ['geocode']
+    });
+
+    pickupAutocomplete.addListener('place_changed', function () {
+      const place = pickupAutocomplete.getPlace();
+      if (place.geometry) {
+        document.getElementById('pickup_lat').value = place.geometry.location.lat();
+        document.getElementById('pickup_lng').value = place.geometry.location.lng();
+      }
+    });
+
+    dropAutocomplete.addListener('place_changed', function () {
+      const place = dropAutocomplete.getPlace();
+      if (place.geometry) {
+        document.getElementById('drop_lat').value = place.geometry.location.lat();
+        document.getElementById('drop_lng').value = place.geometry.location.lng();
+      }
+    });
+  }
+</script>
+
+<!-- This line must be placed AFTER the function, and without async/defer -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5iwvhZmOVgCzqDOrKp_Q7SNYucsFDEd4&libraries=places&callback=initAutocomplete" async defer></script>
+<script>
+  $(document).ready(function () {
+
+    $('#cancel_btn').click(function(e) {
+      e.preventDefault();
+      $('#book_ride_form')[0].reset();
+    });
+    
+  });
+</script>
 
    
 

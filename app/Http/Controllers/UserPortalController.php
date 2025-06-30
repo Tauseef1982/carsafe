@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use Illuminate\View\View;
 use Yajra\DataTables\DataTables;
 use function Yajra\DataTables\Html\Editor\ajax;
 use Illuminate\Support\Facades\Mail;
@@ -145,11 +146,16 @@ if (!$record) {
                     'from_date' => 'nullable|date',
                     'to_date' => 'nullable|date',
                 ]);
+                  $data = AccountService::GetTrips($request);
+
 
                 $data = AccountService::AccountSummary($request);
                 return response()->json([
                     'total_trips' => $data['total_trips'],
                     'total_payments' => $data['total_payments'],
+                    'total_complaints' => $data['total_complaints'],
+                    'total_invoices'   => $data['total_invoices']
+                    
                 ]);
             }
 
@@ -356,8 +362,13 @@ if (!$record) {
     {
         $account_id = Auth::guard('customer')->user()->account_id;
         $account = Account::where('account_id',$account_id)->first();
-
         DB::beginTransaction();
+        
+         if ($request->hasFile('image')) {
+        $path = $request->file('image')->store('uploads', 'public');
+        $account->image = $path;
+        
+    }
 
         $account->recharge = $request->recharge;
         $account->autofill = $request->autofill;
@@ -376,7 +387,7 @@ if (!$record) {
 
         DB::commit();
 
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Account Updated Successfully!');
     }
 
     public function pins(){
@@ -695,6 +706,13 @@ if (!$record) {
         $new->save();
 
         return $new;
+    }
+
+    public function show_single_complaint($id){
+
+        $complaint = Account_Complaint::find($id);
+        return view('customer.show', compact('complaint'));
+
     }
 
 

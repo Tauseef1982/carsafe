@@ -1,71 +1,103 @@
 @extends('customer.layouts.yajra')
+@section('css')
+<style>   
+  #accounts {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+}
+  #accounts thead tr:first-child th:first-child {
+    border-top-left-radius: 12px;
+}
+#accounts thead tr:first-child th:last-child {
+    border-top-right-radius: 12px;
+}
 
+.page-wrapper .page-body-wrapper .page-title {
+    margin: 0 !important;
+    background-color: none !important;
+    border-bottom: 1px solid #D9D9E1 !important;
+    box-shadow: none !important;
+}
+   .even{
+    background-color: #FEEEEA !important;
+}
+.even > .sorting_1{
+    background-color: #FEEEEA!important;
+} 
+
+
+
+
+</style>
+@endsection
 @section('content')
-<div class="container-fluid">
-            <div class="page-title">
-              <div class="row">
-                <div class="col-6">
-                  <h3>Invoices</h3>
-                </div>
-                <div class="col-6">
-                  <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url('customer/index') }}">                                       <i data-feather="home"></i></a></li>
-                    <li class="breadcrumb-item text-primary">Invoices</li>
 
-                  </ol>
-                </div>
-              </div>
+  <div class="card total-users">
+
+       <div class="container-fluid mt-3">
+
+      <div class="row">
+         <!-- Zero Configuration  Starts-->
+         <div class="col-sm-12">
+          <div class="">
+
+            <div class="card-body">
+            <div class="page-title ">
+          <div class="row">
+          <div class="col-6">
+            <h3 class="f-28 fw-bold">Invoices</h3>
+          </div>
+          <div class="col-6">
+            <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url('customer/index') }}">                                       <i data-feather="home"></i></a></li>
+            <li class="breadcrumb-item text-primary">Invoices</li>
+
+            </ol>
+          </div>
+          </div>
+        </div>
+            <div class="row mb-5 mt-4 px-3">
+            <div class="col-md-4">
+              <label for="from_date">From Date</label>
+              <input type="date" id="from_date" class="form-control" />
+            </div>
+            <div class="col-md-4">
+              <label for="to_date">To Date</label>
+              <input type="date" id="to_date" class="form-control" />
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+              <button class="btn bg-orange-g text-white  " id="filter">Filter</button>
+              <button class="btn btn-light ms-2 text-primary" id="reset">Reset</button>
+            </div>
+            </div>
+            <div class="table-responsive">
+              <table class="display" id="accounts">
+              <thead class="table-header-light">
+                <tr class="">
+                <th>Ref No</th>
+                <th>Amount</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Status</th>
+                <th>Ref Id</th>
+                <th>Due Date</th>
+                <th>Action</th>
+
+                </tr>
+              </thead>
+              <tbody>
+
+              </tbody>
+
+              </table>
+            </div>
             </div>
           </div>
-<div class="card total-users">
-
-       <div class="container-fluid">
-           <div class="row mb-3 px-3">
-    <div class="col-md-3">
-        <label for="from_date">From Date</label>
-        <input type="date" id="from_date" class="form-control" />
-    </div>
-    <div class="col-md-3">
-        <label for="to_date">To Date</label>
-        <input type="date" id="to_date" class="form-control" />
-    </div>
-    <div class="col-md-3 d-flex align-items-end">
-        <button class="btn btn-primary" id="filter">Filter</button>
-        <button class="btn btn-secondary ms-2" id="reset">Reset</button>
-    </div>
-</div>
-        <div class="row">
-             <!-- Zero Configuration  Starts-->
-             <div class="col-sm-12">
-                <div class="">
-
-                  <div class="card-body">
-                    <div class="table-responsive">
-                      <table class="display" id="accounts">
-                        <thead class="bg-dark">
-                          <tr class="text-primary">
-                            <th>Ref No</th>
-                            <th>Amount</th>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>Status</th>
-                            <th>Ref Id</th>
-                            <th>Due Date</th>
-                            <th>Action</th>
-
-                          </tr>
-                        </thead>
-                        <tbody>
-
-                        </tbody>
-
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- Zero Configuration  Ends-->
-        </div>
+          </div>
+          <!-- Zero Configuration  Ends-->
+      </div>
        </div>
       </div>
 

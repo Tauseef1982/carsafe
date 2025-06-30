@@ -3,6 +3,8 @@
 namespace App\Services;
 use App\Models\Account;
 use App\Models\AccountPayment;
+use App\Models\Account_Complaint;
+use App\Models\Account_invoices;
 use App\Models\BatchPayment;
 use App\Models\Trip;
 use Illuminate\Support\Facades\DB;
@@ -62,9 +64,14 @@ class AccountService
             if($account->account_type == 'prepaid'){
                 $balance = $account->balance;
             }
+            $complaints= Account_Complaint::where('account_id' , $account->account_id)->count();
+            $invoices= AccountPayment::where('account_id',$account->account_id)->where('status','!=',null)->whereNotNull('hash_id')->count();
+
             return [
                 'total_trips' => $totalTrips,
                 'total_payments' => number_format($balance,2),
+                'total_complaints' => $complaints,
+                'total_invoices'  => $invoices,
             ];
 
     }

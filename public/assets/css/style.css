@@ -27519,7 +27519,7 @@ body[class*=dark-] .for-light {
      47. Footer CSS Start
 ==========================**/
 .footer {
-  background-color: #fff;
+  
   box-shadow: 0 0 20px rgba(89, 102, 122, 0.1);
   padding: 15px;
   bottom: 0;

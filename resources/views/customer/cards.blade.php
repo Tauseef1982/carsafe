@@ -1,35 +1,42 @@
 @extends('customer.layouts.yajra')
 @section('css')
     <style>
+            .page-wrapper .page-body-wrapper .page-title {
+    padding: 15px 9px !important;
+    margin: 0 !important;
+    
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
         .icon {
             float: right;
             margin-top: -28px;
             margin-right: 20px;
         }
+         #basic-1 {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+}
+  #basic-1 thead tr:first-child th:first-child {
+    border-top-left-radius: 12px;
+}
+#basic-1 thead tr:first-child th:last-child {
+    border-top-right-radius: 12px;
+}
+.even{
+    background-color: #FEEEEA !important;
+}
+.even > .sorting_1{
+    background-color: #FEEEEA!important;
+}
     </style>
 
 @endsection
 @section('content')
     <div class="container-fluid">
-        <div class="page-title">
-            <div class="row">
-                <div class="col-6">
-                    <h3>Payment Methods</h3>
-                </div>
-                <div class="col-6">
-                    <ol class="breadcrumb">
-                        <li class="me-2">
-                            <a class="btn btn-primary btn-air-primary" type="button" data-bs-toggle="modal"
-                               data-bs-target="#myModal"><i class="fa fa-plus me-2"></i>Add New Card</a>
-                        </li>
-                    <!-- <li class="breadcrumb-item"><a href="{{ url('customer-portal') }}">                                       <i data-feather="home"></i></a></li>
-        <li class="breadcrumb-item text-primary">Credit Cards</li> -->
 
-                    </ol>
-
-                </div>
-            </div>
-        </div>
     </div>
     <div class="card total-users">
 
@@ -40,10 +47,30 @@
                     <div class="">
 
                         <div class="card-body">
+                            <div class="page-title">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <h3>Payment Methods</h3>
+                                    </div>
+                                    <div class="col-6">
+                                        <ol class="breadcrumb">
+                                            <li class="me-2">
+                                                <a class="btn bg-orange-g text-white b-r-8 btn-air-primary" type="button" data-bs-toggle="modal"
+                                                    data-bs-target="#myModal"><i class="fa fa-plus me-2"></i>Add New Card</a>
+                                            </li>
+                                            <!-- <li class="breadcrumb-item"><a href="{{ url('customer-portal') }}">                                       <i data-feather="home"></i></a></li>
+                                    <li class="breadcrumb-item text-primary">Credit Cards</li> -->
+
+                                        </ol>
+
+                                    </div>
+                                </div>
+                            </div>
                             <div class="table-responsive">
-                                <table class="display" id="basic-1">
-                                    <thead class="bg-dark">
-                                    <tr class="text-primary">
+                               <table class="table  display "  id="basic-1">
+
+                                    <thead class="table-header-light">
+                                    <tr class="">
                                         <th>Card No</th>
                                         <th>Expiry</th>
                                         <th>Type</th>
@@ -52,14 +79,14 @@
 
                                     </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody class="credit-card-table">
                                     @foreach ($creditcards as $creditcard)
 
                                         <tr>
 
                                               @php
-                                                $cardNumber = $creditcard->card_number;
-                                                $masked = substr($cardNumber, 0, 2) . str_repeat('*', strlen($cardNumber) - 6) . substr($cardNumber, -4);
+    $cardNumber = $creditcard->card_number;
+    $masked = substr($cardNumber, 0, 2) . str_repeat('*', strlen($cardNumber) - 6) . substr($cardNumber, -4);
                                             @endphp
                                             <td>{{$masked}}</td>
                                             <td>{{$creditcard->expiry}}</td>
@@ -71,7 +98,7 @@
                                             @endif
                                             </td>
                                             <td>
-                                                <a href="{{ url('customer/editcard') }}/{{$creditcard->id}}" class="btn btn-xs btn-primary btn-air-primary">
+                                                <a href="{{ url('customer/editcard') }}/{{$creditcard->id}}" class="btn bg-orange-g text-white b-r-8 btn-air-primary">
                                                     <i class="fa fa-edit me-2"></i>Edit</a>
 
                                                 {{--                                                    <button class="btn btn-danger" data-bs-toggle="modal"--}}
@@ -148,6 +175,7 @@
                                         <th>Card No</th>
                                         <th>Expiry</th>
                                         <th>Type</th>
+                                        <th>Priority</th>
                                         <th>Action</th>
 
                                     </tr>
