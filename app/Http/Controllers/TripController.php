@@ -940,7 +940,7 @@ class TripController extends Controller
 
                     LogService::saveLog($logdata);
 
-                    return response()->json(['status' => false, 'msg' => 'Payment Failed Please Try Again']);
+                    return response()->json(['status' => false, 'msg' => $charge['message']]);
 
                 }
             } catch (\Exception $e) {
@@ -962,7 +962,7 @@ class TripController extends Controller
                 }
                 LogService::saveLog($logdata);
 
-                return response()->json(['status' => false, 'msg' => 'Payment Failed Please Try Again']);
+                return response()->json(['status' => false, 'msg' => $charge['message']]);
             }
         }
 
