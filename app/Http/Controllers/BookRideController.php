@@ -14,7 +14,7 @@ class BookRideController extends Controller{
          $user = Auth::guard('customer')->user()->account_id;
         $account = Account::where('account_id',$user)->first();
         return view('customer.book-ride', compact('account'));
-        
+
     }
 
 public function store(Request $request)
@@ -37,79 +37,110 @@ public function store(Request $request)
         $drop_lat = $request->drop_lat;
         $drop_lng = $request->drop_lng;
 
-        $token = TokenService::token(); 
+        $token = TokenService::token();
+
 
         $bookingData = [
-            'order' => [
-                'company_id' => 48647,
-                'provider_id' => 0,
-                'items' => [[
-                    '@type' => 'passengers',
-                    'seq' => 0,
-                    'passenger' => [
-                        'name' => $name,
-                        'email' => $email,
-                        'phone' => $phone,
-                    ],
-                    'client_id' => 0,
-                    'account' => ['id' => (int)$account_id],
-                    'require' => [
-                        'seats' => 1,
-                        'wc' => 0,
-                        'bags' => 1,
-                    ],
-                    'pay_info' => [
-                        '@t' => '0',
-                        'data' => json_decode('null'),
-                    ],
-                ]],
-                'route' => [
-                    'meta' => [
-                        'est_dur' => '0',
-                        'dist' => '0',
-                    ],
-                    'nodes' => [[
-                        'actions' => [[
-                            '@type' => 'client_action',
-                            'item_seq' => 0,
-                            'action' => 'in',
-                        ]],
-                        'location' => [
-                            'name' => $pickup_address,
-                            'coords' => [
-                                (int) ($pickup_lng * 1e6),
-                                (int) ($pickup_lat * 1e6),
-                            ],
+            "order" => [
+                "company_id" => 48647,
+                "provider_id" => 0,
+                "items" => [
+                    [
+                        "@type" => "passengers",
+                        "seq" => 0,
+                        "passenger" => [
+                            'name' => $name,
+                            'email' => $email,
+                            'phone' => $phone,
                         ],
-                        'times' => ['arrive' => ['target' => 0]],
-                        'info' => ['all' => ''],
-                        'seq' => 0,
-                    ], [
-                        'actions' => [[
-                            '@type' => 'client_action',
-                            'item_seq' => 0,
-                            'action' => 'out',
-                        ]],
-                        'location' => [
-                            'name' => $drop_location,
-                            'coords' => [
-                                (int) ($drop_lng * 1e6),
-                                (int) ($drop_lat * 1e6),
-                            ],
+                        "client_id" => 0,
+                        "account" => [
+                            "id" => 0,
+                            "extra" => null
                         ],
-                        'info' => ['all' => ''],
-                        'seq' => 1,
-                    ]],
-                    'legs' => [[
-                        'pts' => [],
-                        'meta' => [
-                            'est_dur' => '0',
-                            'dist' => '0',
+                        "require" => [
+                            "seats" => 1,
+                            "wc" => 0,
+                            "bags" => 1
                         ],
-                        'from_seq' => 0,
-                        'to_seq' => 1,
-                    ]],
+                        "pay_info" => [
+                            [
+                                "@t" => 0,
+                                "data" => null
+                            ]
+                        ],
+                        "custom_fields" => [
+                            "tag.driver.1" => "true",
+                            "tag.vehicle.1" => "true"
+                        ]
+                    ]
                 ],
+                "route" => [
+                    "nodes" => [
+                        [
+                            "actions" => [
+                                [
+                                    "@type" => "client_action",
+                                    "item_seq" => 0,
+                                    "action" => "in"
+                                ]
+                            ],
+                            'location' => [
+                                'name' => $pickup_address,
+                                'coords' => [
+                                    (int) ($pickup_lng * 1e6),
+                                    (int) ($pickup_lat * 1e6),
+                                ],
+                            ],
+                            "times" => [
+                                "arrive" => [
+                                    "target" => 0,
+                                    "latest" => 0
+                                ]
+                            ],
+                            "info" => [
+                                "all" => "Needs help with luggage"
+                            ],
+                            "seq" => 0
+                        ],
+                        [
+                            "actions" => [
+                                [
+                                    "@type" => "client_action",
+                                    "item_seq" => 0,
+                                    "action" => "out"
+                                ]
+                            ],
+                            'location' => [
+                                'name' => $drop_location,
+                                'coords' => [
+                                    (int) ($drop_lng * 1e6),
+                                    (int) ($drop_lat * 1e6),
+                                ],
+                            ],
+                            "times" => null,
+                            "info" => (object) [],
+                            "seq" => 1
+                        ]
+                    ],
+                    "legs" => [
+                        [
+                            "meta" => [
+                                "dist" => 50264,
+                                "est_dur" => 6683
+                            ],
+                            "pts" => [
+                                //15621480
+                            ],
+                            "from_seq" => 0,
+                            "to_seq" => 1
+                        ]
+                    ],
+                    "meta" => [
+                        "dist" => 50264,
+                        "est_dur" => 6683
+                    ]
+                ]
             ]
         ];
        // dd(json_encode($bookingData, JSON_PRETTY_PRINT));
@@ -119,13 +150,13 @@ public function store(Request $request)
     'Content-Type' => 'application/json',
       ])->post('https://api.taxicaller.net/api/v1/booker/order', $bookingData);
 
-        // dd($response);
+         dd($response->json());
         if ($response->successful()) {
             dd($response);
             $data = $response->json();
             $orderToken = $data['order_token'] ?? null;
             $orderId = $data['order']['order_id'] ?? null;
-      
+
             return back()->with([
                 'success' => 'Booking successful!',
                 'order_token' => $orderToken,
@@ -136,7 +167,7 @@ public function store(Request $request)
         return back()->with('error', 'API Error: ' . $response->body());
 
     } catch (\Throwable $e) {
-        
+
         return back()->with('error', 'Something went wrong: ' . $e->getMessage());
     }
 }
