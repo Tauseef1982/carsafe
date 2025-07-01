@@ -7,6 +7,7 @@ use App\Models\AccountPayment;
 use App\Models\BatchPayment;
 use App\Models\CreditCard;
 use App\Models\Driver;
+use App\Models\Trip;
 use App\Models\Account_Complaint;
 use App\Models\Payment;
 use App\Services\AccountService;
@@ -158,8 +159,46 @@ if (!$record) {
                     
                 ]);
             }
+                 $weeklyTripCounts = [];
+           $labels = ["1st Week", "2nd Week", "3rd Week", "4th Week", "Current Week"];
+           $weeklyComplaints = [];
+           $weeklyInvoices = [];
 
-        return view('customer.index',compact('account'));
+            $startOfThisWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY);
+
+          for ($i = 4; $i >= 0; $i--) {
+               $start = $startOfThisWeek->copy()->subWeeks($i);
+              $end = $start->copy()->endOfWeek(Carbon::SATURDAY)->endOfDay();
+
+               $count = Trip::where('account_number', $account->account_id)
+               ->whereBetween('created_at', [$start, $end])
+                   ->count();
+
+               $weeklyTripCounts[] = $count;
+           }
+
+            for ($i = 4; $i >= 0; $i--) {
+               $start = $startOfThisWeek->copy()->subWeeks($i);
+              $end = $start->copy()->endOfWeek(Carbon::SATURDAY)->endOfDay();
+
+              $complaints= Account_Complaint::where('account_id' , $account->account_id)
+              ->whereBetween('created_at', [$start, $end])->count();
+           
+
+               $weeklyComplaints[] = $complaints;
+           }
+            for ($i = 4; $i >= 0; $i--) {
+               $start = $startOfThisWeek->copy()->subWeeks($i);
+              $end = $start->copy()->endOfWeek(Carbon::SATURDAY)->endOfDay();
+
+
+            $invoices= AccountPayment::where('account_id',$account->account_id)->where('status','!=',null)->whereNotNull('hash_id')
+            ->whereBetween('created_at', [$start, $end])->count();
+
+               $weeklyInvoices[] = $invoices;
+           }
+
+        return view('customer.index',compact('account', 'labels' ,'weeklyTripCounts' ,'weeklyInvoices' ,'weeklyComplaints'));
 
     }
 

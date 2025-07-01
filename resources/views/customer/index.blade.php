@@ -121,7 +121,7 @@
                    </div>
                    <div class="d-flex justify-content-between">
                        <h3 class="f-32 f-w-700 text-primary" id="total_trips">0</h3>
-                        <div id="area-spaline"></div>
+                        <canvas id="myGraph" style="height: 100px; width: 100px;"></canvas>
                        
                    </div>
                   </div>
@@ -137,7 +137,7 @@
                    </div>
                    <div class="d-flex justify-content-between">
                        <h3 class="f-32 f-w-700 text-primary" id="account_complaints">0</h3>
-                        <div id="area-spaline1"></div>
+                         <canvas id="myGraph1" style="height: 100px; width: 100px;"></canvas>
                        
                    </div>
                   </div>
@@ -153,7 +153,7 @@
                    </div>
                    <div class="d-flex justify-content-between">
                        <h3 class="f-32 f-w-700 text-primary" id="account_invoices">0</h3>
-                        <div id="area-spaline2"></div>
+                         <canvas id="myGraph2" style="height: 100px; width: 100px;"></canvas>
                        
                    </div>
                   </div>
@@ -483,7 +483,7 @@
         });
 
     </script>
-    <script>
+    <!-- <script>
       var options1 = {
     chart: {
         height: 150,
@@ -660,7 +660,80 @@ var chart3 = new ApexCharts(
 );
 
 chart3.render();
-    </script>
+    </script> -->
    
-
+ <script src="{{asset('assets/js/chart/chartjs/chart.min.js')}}"></script>
+    <script>
+       var labels = @json($labels);
+       var weeklyTripCounts = @json($weeklyTripCounts);
+       var weeklyComplaints = @json($weeklyComplaints);
+       var weeklyInvoices = @json($weeklyInvoices);
+       var lineGraphData = {
+    labels: labels,
+    datasets: [{
+       
+        fillColor: "#FEEEEA",
+        strokeColor: "#ff6600" ,
+        pointColor: "#ff6600" ,
+        pointStrokeColor: "#fff",
+        pointHighlightFill: "#fff",
+        pointHighlightStroke: "#000",
+        data: weeklyTripCounts
+    }, ]
+};
+ var lineGraphData1 = {
+    labels: labels,
+    datasets: [{
+       
+        fillColor: "#FEEEEA",
+        strokeColor: "#ff6600" ,
+        pointColor: "#ff6600" ,
+        pointStrokeColor: "#fff",
+        pointHighlightFill: "#fff",
+        pointHighlightStroke: "#000",
+        data: weeklyComplaints
+    }, ]
+};
+ var lineGraphData2 = {
+    labels: labels,
+    datasets: [{
+       
+        fillColor: "#FEEEEA",
+        strokeColor: "#ff6600" ,
+        pointColor: "#ff6600" ,
+        pointStrokeColor: "#fff",
+        pointHighlightFill: "#fff",
+        pointHighlightStroke: "#000",
+        data: weeklyInvoices
+    }, ]
+};
+var lineGraphOptions = {
+    scaleShowGridLines: false,
+    scaleGridLineColor: "rgba(0,0,0,.05)",
+    scaleGridLineWidth: 1,
+    scaleShowHorizontalLines: false,
+    scaleShowVerticalLines: false,
+    scaleShowLabels: false,
+    scaleShowLine: false,          
+    scaleFontSize: 0,              
+    bezierCurve: true,
+    bezierCurveTension: 0.4,
+    pointDot: false,
+    pointDotRadius: 4,
+    pointDotStrokeWidth: 1,
+    pointHitDetectionRadius: 20,
+    datasetStroke: true,
+    datasetStrokeWidth: 4,
+    datasetFill: true,
+    showLegend: false,
+    showTooltips: false,
+    legendTemplate: "",
+};
+var lineCtx = document.getElementById("myGraph").getContext("2d");
+var lineCtx1 = document.getElementById("myGraph1").getContext("2d");
+var lineCtx2 = document.getElementById("myGraph2").getContext("2d");
+new Chart(lineCtx).Line(lineGraphData, lineGraphOptions);
+new Chart(lineCtx1).Line(lineGraphData1, lineGraphOptions);
+new Chart(lineCtx2).Line(lineGraphData2, lineGraphOptions);
+    </script>
 @endsection

@@ -52,15 +52,15 @@ public function store(Request $request)
                         'phone' => $phone,
                     ],
                     'client_id' => 0,
-                    'account' => ['id' => $account_id],
+                    'account' => ['id' => (int)$account_id],
                     'require' => [
                         'seats' => 1,
                         'wc' => 0,
                         'bags' => 1,
                     ],
                     'pay_info' => [
-                        '@t' => 0,
-                        'data' => null,
+                        '@t' => '0',
+                        'data' => json_decode('null'),
                     ],
                 ]],
                 'route' => [
@@ -112,21 +112,27 @@ public function store(Request $request)
                 ],
             ]
         ];
+       // dd(json_encode($bookingData, JSON_PRETTY_PRINT));
 
-        $response = Http::withToken($token)->post('https://api.taxicaller.net/api/v1/booker/order', $bookingData);
+        $response = Http::withHeaders([
+    'Authorization' => 'Bearer ' . $token,
+    'Content-Type' => 'application/json',
+      ])->post('https://api.taxicaller.net/api/v1/booker/order', $bookingData);
 
+        // dd($response);
         if ($response->successful()) {
+            dd($response);
             $data = $response->json();
             $orderToken = $data['order_token'] ?? null;
             $orderId = $data['order']['order_id'] ?? null;
-
+      
             return back()->with([
                 'success' => 'Booking successful!',
                 'order_token' => $orderToken,
                 'order_id' => $orderId,
             ]);
         }
-
+         dd($response->body());
         return back()->with('error', 'API Error: ' . $response->body());
 
     } catch (\Throwable $e) {
