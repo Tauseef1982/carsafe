@@ -113,7 +113,8 @@ $util = new \App\Utils\dateUtil();
                                     <span class="badge badge-primary pull-right digits btn" id="show-trip-div">Go Back</span>
                                 </h5>
 
-                                <div class="card" id="account-check">
+                              @if ($driver->accept_payment_setting == "account")
+                               <div class="card" id="account-check">
                                     <div class="media p-20">
                                         <div class="form-check radio radio-primary me-3">
                                             <input class="form-check-input" id="radio19" type="radio" name="payment_method"
@@ -124,7 +125,8 @@ $util = new \App\Utils\dateUtil();
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card" id="card-check">
+                                @elseif($driver->accept_payment_setting == "card")
+                                 <div class="card" id="card-check">
                                     <div class="media p-20">
                                         <div class="form-check radio radio-primary me-3">
                                             <input class="form-check-input" id="radio20" type="radio" name="payment_method"
@@ -133,6 +135,31 @@ $util = new \App\Utils\dateUtil();
                                         </div>
                                     </div>
                                 </div>
+                                @elseif($driver->accept_payment_setting == "both")
+                                 <div class="card" id="account-check">
+                                    <div class="media p-20">
+                                        <div class="form-check radio radio-primary me-3">
+                                            <input class="form-check-input" id="radio19" type="radio" name="payment_method"
+                                                   value="account" data-bs-original-title="" title="" />
+                                            <label class="form-check-label" for="radio19">
+                                                Account
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                 <div class="card" id="card-check">
+                                    <div class="media p-20">
+                                        <div class="form-check radio radio-primary me-3">
+                                            <input class="form-check-input" id="radio20" type="radio" name="payment_method"
+                                                   value="card" data-bs-original-title="" title="" />
+                                            <label class="form-check-label" for="radio20">Card</label>
+                                        </div>
+                                    </div>
+                                </div>
+                              
+                              @endif
+                               
+                               
 
                                 <div class="text-end mt-3">
                                     <button class="btn btn-primary btn-block w-100" type="button" id="show-amount-div">
@@ -482,13 +509,14 @@ $util = new \App\Utils\dateUtil();
         }
     });
 
-    // + Wait
+    
+     let driverWaitCharges = {{ $driver->wait_charges ?? 0.5 }};
     $('.add-wait').click(function (e) {
         e.preventDefault();
         var $container = $(this).closest('.extracharges-field-div');
         var $input = $container.find('.wait_amount').first();
         var current = parseFloat($input.val()) || 0;
-        $input.val((current + .5).toFixed(2)); // adjust per unit wait charge if needed
+        $input.val((current + driverWaitCharges).toFixed(2)); // adjust per unit wait charge if needed
         updateExtraCharges($container);
     });
 
@@ -499,7 +527,7 @@ $util = new \App\Utils\dateUtil();
         var $input = $container.find('.wait_amount').first();
         var current = parseFloat($input.val()) || 0;
         if (current >= 1) {
-            $input.val((current - .5).toFixed(2));
+            $input.val((current - driverWaitCharges).toFixed(2));
             updateExtraCharges($container);
         }
     });

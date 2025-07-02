@@ -313,10 +313,11 @@
 
 
                             <hr>
+                             <form action="{{ url('admin/driver_extra_settings') }}" method="post">
+                                @csrf
                             <div class="row">
                                 <div class="col-md-6">
-                                <form action="{{ url('admin/driver_extra_settings') }}" method="post">
-                                @csrf
+                               
                                 <input type="hidden" name="id" value="{{ $data->id }}">
                                 <label for="extras_setting">Extra Charges Setting</label>
                                 <select class="form-select mb-2" name="extras_setting" id="extras_setting">
@@ -326,10 +327,40 @@
                                   <option value="0">Can Not Accept Extra Charges</option>
                                 </select>
 
-                                 <input type="submit" class="btn btn-primary mb-3" value="Update">
-                            </form>
+                                 <input type="submit" class="btn btn-primary mb-3" value="Update Driver">
+                            
+                                </div>
+                                <div class="col-md-6">
+                               
+                                
+                                <label for="accept_payment_setting">Payment Method Setting</label>
+                                <select class="form-select mb-2" name="accept_payment_setting" id="accept_payment_setting">
+                                                                     
+                              <option value="{{ $data->accept_payment_setting }}" selected>{{ ucfirst($data->accept_payment_setting) }}</option>
+                                <option value="account">Account</option>
+                                <option value="card">Card</option>
+                                <option value="both">Both</option>
+                                </select>
+
+                                 
+                            
                                 </div>
                             </div>
+                            </form>
+                             <form action="{{ url('admin/wait_charges_settings') }}" method="post">
+                                @csrf
+                            <div class="row">
+                                <div class="col-md-6">
+                               
+                                <input type="hidden" name="id" value="{{ $data->id }}">
+                                <label for="">Wait Charges</label>
+                                <input type="number" name="wait_charges" step="0.01" class="form-control mb-3" value="{{ $data->wait_charges  }}">
+                                <input type="submit" class="btn btn-primary mb-3" value="Update Wait Charges">
+                            
+                                </div>
+                               
+                            </div>
+                            </form>
                            
                             <form method="POST" action="{{ url('admin/documents_store') }}" enctype="multipart/form-data">
                                 @csrf

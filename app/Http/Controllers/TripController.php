@@ -1464,6 +1464,7 @@ class TripController extends Controller
             $trip->extra_wait_amount = $request->wait;
             $trip->extra_round_trip = $request->round;
             $prev_extra = $trip->extra_charges;
+            $account = Account::where('account_id', $trip->account_number)->first();
 
             $add_histry = false;
             $comment = '';
@@ -1495,6 +1496,18 @@ class TripController extends Controller
 
                 $paid = $request_extra - $prev_extra;
 
+                
+
+                if($account){
+
+                    $balance = $account->balance;
+                    $newbalance =  $balance - $paid;
+                    $account->balance = $newbalance;
+                    $account->save();
+
+
+                }
+
                 $newp = new Payment();
                 $newp->driver_id = $trip->driver_id;
                 $newp->trip_id = $trip->trip_id;
@@ -1511,6 +1524,15 @@ class TripController extends Controller
             } elseif ($request_extra < $prev_extra) {
 
                 $paid = $prev_extra - $request_extra;
+                 if($account){
+
+                    $balance = $account->balance;
+                    $newbalance = $paid + $balance;
+                    $account->balance = $newbalance;
+                    $account->save();
+
+
+                }
 
 
                 $check_before = Payment::where('trip_id', $trip->trip_id)->where('user_type', 'driver')->where('type', 'credit')->first();

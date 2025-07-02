@@ -1781,8 +1781,19 @@ class AdminController extends Controller
         $id = $request->id;
        $driver = Driver::find($id);
        $driver->extras_setting = $request->extras_setting;
+        $driver->accept_payment_setting = $request->accept_payment_setting;
        $driver->save();
-       return redirect()->back()->with('success' , 'Extra charges setting is updated successfully!');
+       return redirect()->back()->with('success' , 'Driver setting is updated successfully!');
+
+     }
+
+     public function wait_charges_settings(Request $request){
+         $id = $request->id;
+       $driver = Driver::find($id);
+       $driver->wait_charges = $request->wait_charges;
+       
+       $driver->save();
+       return redirect()->back()->with('success' , 'Extra charges updated successfully!');
 
      }
 
