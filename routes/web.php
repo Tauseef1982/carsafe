@@ -43,6 +43,7 @@ Route::group(['middleware' => 'admin.auth'], function () {
 
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
         Route::get('/drivers', [AdminController::class, 'drivers'])->name('drivers.index');
+        Route::post('/driver_extra_settings', [AdminController::class, 'driver_extra_settings']);
         Route::post('/update-beta', [AdminController::class, 'updateBeta'])->name('updateBeta');
         Route::get('/download/drivers_sheet', [DriverController::class,'download_sheet']);
         Route::get('/inactive-drivers', [AdminController::class, 'inactivedrivers'])->name('drivers.inactive');

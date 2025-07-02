@@ -1776,6 +1776,17 @@ class AdminController extends Controller
         dd($duplicateDrivers);
 
     }
+     
+     public function driver_extra_settings(Request $request){
+        $id = $request->id;
+       $driver = Driver::find($id);
+       $driver->extras_setting = $request->extras_setting;
+       $driver->save();
+       return redirect()->back()->with('success' , 'Extra charges setting is updated successfully!');
+
+     }
+
+
 
     public function export()
     {

@@ -311,7 +311,26 @@
                                 </tr>
                             </table>
 
+
                             <hr>
+                            <div class="row">
+                                <div class="col-md-6">
+                                <form action="{{ url('admin/driver_extra_settings') }}" method="post">
+                                @csrf
+                                <input type="hidden" name="id" value="{{ $data->id }}">
+                                <label for="extras_setting">Extra Charges Setting</label>
+                                <select class="form-select mb-2" name="extras_setting" id="extras_setting">
+                                                                     
+                                <option value="">Please Select</option>
+                                 <option @if ($data->extras_setting == 1) selected @endif value="1">Can Accept Extra Charges</option>
+                                  <option value="0">Can Not Accept Extra Charges</option>
+                                </select>
+
+                                 <input type="submit" class="btn btn-primary mb-3" value="Update">
+                            </form>
+                                </div>
+                            </div>
+                           
                             <form method="POST" action="{{ url('admin/documents_store') }}" enctype="multipart/form-data">
                                 @csrf
 

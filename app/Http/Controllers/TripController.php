@@ -38,6 +38,7 @@ class TripController extends Controller
     {
 
         $driverId = Auth::guard('driver')->user()->driver_id;
+        $driver = Driver::where('driver_id', $driverId)->first();
 
         // Check if the request is AJAX
         if ($request->ajax()) {
@@ -78,7 +79,7 @@ class TripController extends Controller
         }
 
         // If not an AJAX request, return the full view
-        return view('driver.payment'); // Adjust this to your actual view file
+        return view('driver.payment', compact('driver')); // Adjust this to your actual view file
     }
 
 

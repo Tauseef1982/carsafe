@@ -1,6 +1,9 @@
 @php
 use Illuminate\Support\Carbon;
+use App\Models\Driver;
 $util = new \App\Utils\dateUtil();
+
+
 @endphp
 @extends('layout')
 
@@ -154,7 +157,12 @@ $util = new \App\Utils\dateUtil();
                                         </div>
 
                                     </div>
-                                    <span class="toggle-extra" data-target="2">Add Extras </span>
+                                    @if ($driver->extras_setting == 1)
+                                     <span class="toggle-extra" data-target="2">Add Extras </span>
+                                     @else
+                                     <span class="danger" >Admin has blocked you from adding extra </span>
+                                    @endif
+                                    
                                     <div class="  p-3 extracharges-field-div" data-id="2">
                                         <div class="mb-3">
                                             <div class="d-flex align-items-center mb-2">
@@ -265,7 +273,11 @@ $util = new \App\Utils\dateUtil();
                                         </div>
 
                                     </div>
-                                    <span class="toggle-extra" data-target="1">Add Extras</span>
+                                     @if ($driver->extras_setting == 1)
+                                     <span class="toggle-extra" data-target="1">Add Extras </span>
+                                     @else
+                                     <span class="danger" >Admin has blocked you from adding extra </span>
+                                    @endif
 
                                     <div class="  p-3 extracharges-field-div" data-id="1">
                                        <div class="mb-3">
