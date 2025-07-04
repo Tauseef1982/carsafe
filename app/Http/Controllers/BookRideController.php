@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\CustomerBooking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
@@ -126,8 +127,8 @@ public function store(Request $request)
                     "legs" => [
                         [
                             "meta" => [
-                                "dist" => 50264,
-                                "est_dur" => 6683
+                                "dist" => 0,
+                                "est_dur" => 0
                             ],
                             "pts" => [
                                 //15621480
@@ -137,8 +138,8 @@ public function store(Request $request)
                         ]
                     ],
                     "meta" => [
-                        "dist" => 50264,
-                        "est_dur" => 6683
+                        "dist" => 0,
+                        "est_dur" => 0
                     ]
                 ]
             ]
@@ -150,12 +151,18 @@ public function store(Request $request)
     'Content-Type' => 'application/json',
       ])->post('https://api.taxicaller.net/api/v1/booker/order', $bookingData);
 
-         dd($response->json());
+
         if ($response->successful()) {
-            dd($response);
+
             $data = $response->json();
             $orderToken = $data['order_token'] ?? null;
             $orderId = $data['order']['order_id'] ?? null;
+
+            $new = new CustomerBooking();
+            $new->order_id  = $orderId;
+            $new->account_id  = $account_id;
+            $new->data = json_encode($data);
+            $new->save();
 
             return back()->with([
                 'success' => 'Booking successful!',
@@ -163,7 +170,7 @@ public function store(Request $request)
                 'order_id' => $orderId,
             ]);
         }
-         dd($response->body());
+
         return back()->with('error', 'API Error: ' . $response->body());
 
     } catch (\Throwable $e) {
