@@ -340,7 +340,7 @@ if (!$record) {
 
 
         }
-        return view('customer.invoices');
+        return view('customer.invoices' , compact('account'));
     }
 
     public function settings()

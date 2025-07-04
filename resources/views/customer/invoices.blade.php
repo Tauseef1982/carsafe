@@ -30,8 +30,7 @@
         <input type="date" id="to_date" class="form-control" />
     </div>
     <div class="col-md-3 d-flex align-items-end">
-        <button class="btn btn-primary" id="filter">Filter</button>
-        <button class="btn btn-secondary ms-2" id="reset">Reset</button>
+        <button class="btn btn-primary" style="color:white !important;" onclick="download_invoice_link('{{ $account->id }}')">Get invoice</button>
     </div>
 </div>
         <div class="row">
@@ -138,7 +137,12 @@
         });
 
 
+function download_invoice_link(id) {
+            let from = $('#from_date').val();
+            let to = $('#to_date').val();
 
+            window.open("{{url('/')}}" + "/customer/invoice/preview?id=" + id + "&from_date=" + from + "&to_date=" + to, '_blank');
+        }
 
 
     </script>
