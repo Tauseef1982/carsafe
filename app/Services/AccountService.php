@@ -81,7 +81,7 @@ class AccountService
             }
         }
         // if ($request->type != 'all' && $request->type != 'extacost') {
-        $trips = $trips->where('trips.payment_method', '=', 'account');
+        $trips = $trips->where('trips.payment_method', '!=', 'cash');
         // }
         // dd($trips->get());
         $trips = $trips->select(

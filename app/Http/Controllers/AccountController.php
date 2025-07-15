@@ -581,7 +581,8 @@ class AccountController extends Controller
                     return redirect()->back()->with('error', 'No credit card details found for Account: ' . $account_id);
                 }
             }
-
+             $fee = $to_refill * 0.03;
+            $to_refill = $to_refill + $fee;
             $cardknoxToken = $cardDetails->cardnox_token;
             $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $to_refill, $account_id);
 
@@ -590,14 +591,14 @@ class AccountController extends Controller
                 $account_payment = new AccountPayment();
                 $account_payment->account_id = $uaccount->account_id;
                 $account_payment->account_type = $uaccount->account_type;
-                $account_payment->amount = $to_refill;
+                $account_payment->amount = $request->to_refill;
                 $account_payment->transaction_id = $cardknoxResponse['transaction_id'];
                 $account_payment->payment_date = Carbon::today();
                 $account_payment->payment_type = 'card';
                 $account_payment->save();
 
                 if ($uaccount) {
-                    $uaccount->balance += $to_refill;
+                    $uaccount->balance += $request->to_refill;
                     $uaccount->save();
 
 
@@ -621,7 +622,7 @@ class AccountController extends Controller
 
                 $logdata = [
                     'from' => 'customer',
-                    'payment' => $to_refill,
+                    'payment' => $request->to_refill,
                     'cardknox_response' => $cardknoxResponse,
                     'message' => 'Refill Payment added using Cardknox for Account#' . $account_id . ' Amount: ' . $to_refill
                 ];
