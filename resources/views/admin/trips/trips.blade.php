@@ -135,6 +135,7 @@ $util = new \App\Utils\dateUtil();
                                         <th>Time</th>
                                         <th>Complaint</th>
                                         <th>Update Reason</th>
+                                        <th>Pay Per Trip</th>
                                         <th>Status</th>
                                         <th>Accepted By</th>
                                     </tr>
@@ -215,6 +216,7 @@ $util = new \App\Utils\dateUtil();
                     {data: 'time', name: 'time'},
                     {data: 'complaint', name: 'complaint'},
                     {data: 'reason', name: 'reason'},
+                     {data: 'payper_trip', name: 'payper_trip'},
                     {data: 'status', name: 'status'},
                     {data: 'accepted_by', name: 'accepted_by'}
 

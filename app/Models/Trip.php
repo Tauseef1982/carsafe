@@ -51,7 +51,8 @@ class Trip extends Model
         'ts_delivered',
         'accepted_by',
         'icked_up',
-        'first_destination'
+        'first_destination',
+        'payper_trip'
 
     ];
 

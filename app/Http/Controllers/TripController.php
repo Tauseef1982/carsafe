@@ -305,7 +305,7 @@ class TripController extends Controller
                             break;
                         }
                     }
-
+                        //dd($charge);
                     if ($charge && $charge['status'] === 'approved') {
                         $data = [
                             'trip_cost' => $cost,
@@ -313,6 +313,7 @@ class TripController extends Controller
                             'payment_method' => 'card',
                             'account_number' => $account->account_id,
                             'stripe_id' => $charge['transaction_id'],
+                            'payper_trip' => 1,
                         ];
 
                         if (!empty($request->complaint)) {
@@ -405,7 +406,7 @@ class TripController extends Controller
 
                         if (isset($request->wait_amount)) {
                             $firstwait_amount = collect($request->wait_amount)->filter()->first();
-                            $trip->wait_amount = $firstwait_amount;
+                            $trip->extra_wait_amount = $firstwait_amount;
                         }
                         if (isset($request->round_trip)) {
                             $trip->extra_round_trip = $request->round_trip;

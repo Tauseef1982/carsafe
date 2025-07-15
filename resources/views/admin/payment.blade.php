@@ -6,6 +6,7 @@
 
     $util = new \App\Utils\dateUtil();
     use App\Models\Driver;
+    use App\Models\Trip;
 
 @endphp
 <div class="page-title">
@@ -67,6 +68,7 @@
                                                 <th>Driver Id</th>
                                                 <th>Driver Username</th>
                                                 <th>Trip Id</th>
+                                                <th>Pay Per Trip</th>
                                                 <th>Payment Type</th>
                                                 <th>Date</th>
                                                 <th>Time</th>
@@ -91,6 +93,14 @@
 
                                                                                             </td>
                                                                                             <td>{{$payment->trip_id}}</td>
+                                                                                              @php
+                                                                                                 $trip = Trip::where('trip_id', $payment->trip_id)->first();
+                                                                                                @endphp
+                                                                                                <td>
+                                                                                                     
+                                                                                                    {{ $trip && $trip->payper_trip ? 'Yes' : 'No' }}  
+                                                                                                    
+                                                                                                </td>
                                                                                             <td>
                                                                                                 @if($payment->user_type == 'admin' && $payment->type == 'credit')
                                                                                                     From Driver

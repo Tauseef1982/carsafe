@@ -811,7 +811,9 @@ class AdminController extends Controller
                     'trips.status',
                     'trips.accepted_by',
                     'trips.cube_pin',
-                    'trips.cube_pin_status'
+                    'trips.cube_pin_status',
+                    'trips.payper_trip'
+
                 );
 
             // Apply date filter
@@ -974,6 +976,14 @@ class AdminController extends Controller
                 ->editColumn('time', function ($row) use ($util) {
                     // Format time using utility class
                     return $util->time_format($row->time);
+                })
+                ->editColumn('payper_trip', function ($row) use ($util) {
+                   if($row->payper_trip == 1){
+                    return 'Yes';
+                   }else{
+                    return 'No';
+                   }
+                    
                 })
                 ->editColumn('cube_pin_status', function ($row) use ($util) {
                     // Format time using utility class

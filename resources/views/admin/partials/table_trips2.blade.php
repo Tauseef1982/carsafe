@@ -40,6 +40,7 @@
             <th>Time</th>
             <th>Account</th>
             <th>Payment Method</th>
+            <th>Pay Per Trip</th>
             <th>Cost</th>
             <th>Extra</th>
             <th>Extra Description</th>
@@ -73,7 +74,8 @@
                     @endif
                 </td>
                 <td>{{$trip->payment_method}}</td>
-
+              
+                <td>{{ $trip->payper_trip ? 'Yes' : 'No' }}</td>
                 <td class="cost-td">
                     {{number_format($trip->trip_cost - $trip->extra_charges, 2, '.', ',')}}
                     @if (Auth::guard('admin')->user()->role == 'admin')

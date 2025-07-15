@@ -188,10 +188,12 @@ class CardKnoxService
 
     public static function processPayment($cardknoxToken,$amount,$desc)
     {
-
+          $xAllowDuplicate = false;
         if(config('app.CARDKNOX_ENV_LIVE') == false){
 
             $amount = 10;
+            $cardknoxToken = '94352hph47hm7p855m8107q6310h215m';
+            $xAllowDuplicate = true;
 
         }
 
@@ -212,7 +214,7 @@ class CardKnoxService
                               "xSoftwareName": "' . env('APP_NAME') . '",
                               "xSoftwareVersion": "1.0.0",
                               "xCommand": "cc:sale",
-                              "xAllowDuplicate": "false",
+                              "xAllowDuplicate": '.$xAllowDuplicate.',
                               "xIP": "108.61.94.102",
                               "xAmount": "' .$amount. '",
                               "xCustom01": "'.$desc.'",

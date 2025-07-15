@@ -106,6 +106,7 @@ class AccountService
             'trips.cube_pin',
             'trips.cube_pin_status',
             'trips.accepted_by',
+            'trips.payper_trip',
             'trips.is_auto_paid_as_adjustment',
             \DB::raw("COALESCE(SUM(CASE WHEN payments.is_delete = 0 AND payments.type = 'debit' AND payments.user_type = 'customer' THEN payments.amount ELSE 0 END), 0) as total_paid")
         );
