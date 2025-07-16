@@ -224,7 +224,7 @@
                                             $cost = 0;
 
                                             $trips_to_be_paid = $account->trips->filter(function ($trip) use ($from_date, $to_date) {
-                                                    return $trip->payment_method === 'account' &&
+                                                    return $trip->payment_method !='cash' &&
                                                         strpos($trip->status, 'Cancelled') === false &&
                                                         strpos($trip->status, 'canceled') === false &&
                                                         $trip->is_delete == 0 &&
