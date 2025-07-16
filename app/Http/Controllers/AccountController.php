@@ -1071,7 +1071,7 @@ class AccountController extends Controller
 //                    $trips_to_be_paid = $account->trips->where('payment_method', '=', 'account')->where('date', '>=', $from_date)->where('date', '<=', $to_date);
 
                     $trips_to_be_paid = $account->trips->filter(function ($trip) use ($from_date, $to_date) {
-                        return in_array($trip->payment_method, ['account', 'card']) &&
+                        return $trip->payment_method != 'cash' &&
                             strpos($trip->status, 'Cancelled') === false &&
                             strpos($trip->status, 'canceled') === false &&
                             $trip->is_delete == 0 &&
