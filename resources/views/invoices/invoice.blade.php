@@ -350,7 +350,7 @@
                                         <div>
                                             <p class="legal"><strong>Thank you for your business!</strong> 
 
-                                            @if($paidd < $cost)
+                                           {{-- -  @if($paidd < $cost)
                                                 <div class="row no-print">
                                                     <div class="col-md-12">
 
@@ -422,7 +422,7 @@
 
                                                 </div>
 
-                                            @endif
+                                            @endif --}}
                                         </div>
                                     @php
                                         if($paidd == $cost){
