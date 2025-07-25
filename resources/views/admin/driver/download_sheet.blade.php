@@ -26,7 +26,7 @@ $util = new \App\Utils\dateUtil();
                 </div>
             @endif
             <div class="row">
-               
+
             </div>
         </div>
 
@@ -48,6 +48,8 @@ $util = new \App\Utils\dateUtil();
                     <th>ID</th>
                     <th>Name</th>
                     <th>Balance</th>
+                    <th>Deductions</th>
+
                 </tr>
             </thead>
         </table>
@@ -77,7 +79,7 @@ $util = new \App\Utils\dateUtil();
                 title: `Driver_Balances_${from}_to_${to}`, // 👈 filename includes date range
                 filename: `Driver_Balances_${from}_to_${to}`,
                 exportOptions: {
-                    columns: [0, 1, 2]
+                    columns: [0, 1, 2,3]
                 }
             },
             {
@@ -85,21 +87,23 @@ $util = new \App\Utils\dateUtil();
                 title: `Driver_Balances_${from}_to_${to}`,
                 filename: `Driver_Balances_${from}_to_${to}`,
                 exportOptions: {
-                    columns: [0, 1, 2]
+                    columns: [0, 1, 2,3]
                 }
             },
             {
                 extend: 'print',
                 title: `Driver Balances from ${from} to ${to}`, // 👈 shown in print header
                 exportOptions: {
-                    columns: [0, 1, 2]
+                    columns: [0, 1, 2,3]
                 }
             }
         ],
             columns: [
                 { data: 'driver_id', name: 'id' },
                 { data: 'username', name: 'name' },
-                { data: 'balance', name: 'balance' }
+                { data: 'balance', name: 'balance' },
+                { data: 'credit_history_total', name: 'credit_history_total' },
+
             ]
         });
     }

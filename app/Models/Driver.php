@@ -143,7 +143,7 @@ class Driver extends Authenticatable
         ->where('user_type', '!=', 'customer')
         ->where('driver_id', $this->driver_id)
         ->where('type', 'debit');
-        
+
 
     $adjustments = Adjustment::where('driver_id', $this->driver_id)
         ->where('type', 'debit_driver_balance');
@@ -157,7 +157,7 @@ class Driver extends Authenticatable
         $adjustments->whereBetween('created_at', [$from, $to]);
         $adjustments_debit->whereBetween('created_at', [$from, $to]);
     }
-      
+
     $balance = (float) $payments->sum('amount') - (float) $payments_debit->sum('amount');
     $balance -= (float) $adjustments->sum('amount');
     // $balance -= (float) $adjustments_debit->sum('amount');
@@ -188,5 +188,20 @@ public function documents()
 {
     return $this->hasMany(Document::class);
 }
+public function creditHistoryTotal($from = null, $to = null)
+{
+    $driver = Driver::find($this->id);
+    //dd($this->id);
+    return TripEditHistory::where('driver_id', $driver->driver_id)
+        ->where('type', 'credit')
+        ->when($from, function ($query) use ($from) {
+            $query->whereDate('date', '>=', $from);
+        })
+        ->when($to, function ($query) use ($to) {
+            $query->whereDate('date', '<=', $to);
+        })
+        ->sum('amount');
+}
+
 
 }

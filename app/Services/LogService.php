@@ -56,7 +56,8 @@ class LogService
 
         }else{
             $data = new TripEditHistory();
-            $data->amount = $data_c['amount'] ? $data_c['amount'] : $payment->amount;
+           $data->amount = $data_c['amount'] ?? $payment->amount;
+
             $data->trip_id = $trip->trip_id;
             $data->driver_id = $trip->driver_id;
             $data->date = now()->toDateString();

@@ -107,7 +107,7 @@ class DriverController extends Controller
             ->whereIn('payment_method', ['account', 'card'])
             ->whereNotIn('id',$tripsidnotinc)
             ->get(['trip_id', 'trip_cost']); // Get only trip_id and trip_cost
-           
+
 //        $totaltriplastWeek = count($lastweekbalance);
         $totalCost = $lastweekbalance->sum('trip_cost'); // Sum the trip costs
         $tripIdss = $lastweekbalance->pluck('trip_id')->toArray(); // Get trip_id array
@@ -277,10 +277,10 @@ class DriverController extends Controller
             if (!Str::startsWith($user_phone, '+1')) {
                 $user_phone = '+1' . $user_phone;
             }
-            
+
             $verify = $sendotp = TwilioService::sendotp($user_phone, $username);
             $response = $verify->getData();
-            
+
             if ($response->success == true) {
                 $user_phone = $driver->phone;
                 session(['user_phone' => $user_phone , 'username' => $username]);
@@ -384,16 +384,19 @@ class DriverController extends Controller
         if($request->ajax()){
              $from = $request->input('from');
               $to = $request->input('to');
-             
+
 
         $drivers = Driver::all()->filter(function ($driver) use ($from, $to) {
         return $driver->balance($from, $to) > 0;
     });
-           
+
         return DataTables::of($drivers)
             ->addColumn('balance', function ($driver) use ($from, $to) {
                 return number_format($driver->balance($from, $to), 2);
             })
+             ->addColumn('credit_history_total', function ($driver) use ($from, $to) {
+        return number_format($driver->creditHistoryTotal($from, $to), 2);
+    })
             ->make(true);
         }
         return view('admin.driver.download_sheet');

@@ -281,7 +281,7 @@ class TripController extends Controller
 
             if ($account) {
                 if ($account->paypertrip === 'on') {
-                
+
                     $cost = $trip->trip_cost > 0 ? (float) $trip->trip_cost : (float) $request->amount;
 
                     $extraCharges = $request->extra_charges > 0 ? (float) $request->extra_charges : (float) $trip->extra_charges ;
@@ -357,9 +357,9 @@ class TripController extends Controller
                             return view('driver.success', compact('trip_id', 'paid_cost'));
                         }
                     }else{
-                        
+
                          if ($account->status == 1) {
-                            
+
                             $account->status = 0;
                             $account->save();
                             \App\Services\TwilioService::voicecall($account->phone, 'paypertrip-declined');
@@ -398,7 +398,7 @@ class TripController extends Controller
 
                             $firstStopAmount = collect($request->stop_amount)->filter()->first();
                             $firstStopLocation = collect($request->stop_location)->filter()->first();
-                              
+
                             if ($firstStopAmount || $firstStopLocation) {
                                 $trip->extra_stop_amount = $firstStopAmount;
                                 $trip->stop_location = $firstStopLocation;
@@ -444,7 +444,7 @@ class TripController extends Controller
                             } else {
 
                                 \App\Services\TwilioService::voicecall($account->phone, 'refill-need');
-                                //                           
+                                //
 
                                 return redirect()->back()->with('error', 'Prepaid Account:Low Balance');
 
@@ -627,7 +627,7 @@ class TripController extends Controller
                         $trip->payment_method = 'account';
                         $trip->cube_pin_status = $request->account_pin;
                         $trip->extra_charges = $extraCharges;
-                         
+
                             $firstStopAmount = collect($request->stop_amount)->filter()->first();
                             $firstStopLocation = collect($request->stop_location)->filter()->first();
                               $firstwait_amount = collect($request->wait_amount)->filter()->first();
@@ -675,7 +675,7 @@ class TripController extends Controller
                             } else {
 
                                 \App\Services\TwilioService::voicecall($account->phone, 'refill-need');
-                                //                           
+                                //
 
                                 return redirect()->back()->with('error', 'Prepaid Account:Low Balance');
 
@@ -834,7 +834,7 @@ class TripController extends Controller
 
         if ($request->payment_method == 'card') {
 
-        
+
             try {
 
                 if ($request->has('trip') && isset($trip)) {
@@ -872,12 +872,12 @@ class TripController extends Controller
                     $data['payment_method'] = 'card';
                     $data['stripe_id'] = $charge['transaction_id'];
                    $data['extra_charges'] = $request->extra_charges;
-                  
+
 
                         if (isset($request->stop_amount)) {
                                $firstStopAmount = collect($request->stop_amount)->filter()->first();
                             $firstStopLocation = collect($request->stop_location)->filter()->first();
-                             
+
                             $data['extra_stop_amount'] = $firstStopAmount;
                             $data['stop_location'] = $firstStopLocation;
                         }
@@ -1196,7 +1196,7 @@ class TripController extends Controller
         $trip_old = Trip::where('trip_id', $request->trip_id)->first();
         ;
 
-        $add_histry = false;
+        $add_histry = true;
         $comment = '';
         //check if any admin payment before
         if ($trip->paidAgianstTripByAdminQuery()->count() > 0) {
@@ -1326,7 +1326,7 @@ class TripController extends Controller
 
         $old_account = $trip->account_number;
         $oold_account = Account::where('account_id', $old_account)->first();
-       
+
         if ($oold_account->account_type == 'postpaid') {
 
           if($request->payment_method != 'cash'){
@@ -1408,7 +1408,7 @@ class TripController extends Controller
                if($request->payment_method != 'cash'){
                     $account->balance = $account->balance - $trip->trip_cost;
                }
-                
+
                 $account->save();
             } else {
 
@@ -1467,7 +1467,7 @@ class TripController extends Controller
             $prev_extra = $trip->extra_charges;
             $account = Account::where('account_id', $trip->account_number)->first();
 
-            $add_histry = false;
+            $add_histry = true;
             $comment = '';
 
             //check if any admin payment before
@@ -1497,7 +1497,7 @@ class TripController extends Controller
 
                 $paid = $request_extra - $prev_extra;
 
-                
+
 
                 if($account){
 
@@ -1570,8 +1570,8 @@ class TripController extends Controller
 
             }
 
-            if (isset($newp) && $add_histry == true) {
-                $data['payment'] = $newp;
+            if (isset($check_before) && $add_histry == true) {
+                $data['payment'] = $check_before;
                 $data['trip'] = $trip;
                 $data['diff'] = "";
                 $data['type'] = "";
