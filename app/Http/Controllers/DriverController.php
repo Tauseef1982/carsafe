@@ -317,6 +317,7 @@ class DriverController extends Controller
         if (!Str::startsWith($user_phone, '+1')) {
             $user_phone = '+1' . $user_phone;
         }
+        Log::info('driver phone is ' .$user_phone );
         $otp = $request->otp;
         $verify = $sendotp = TwilioService::verifyOtp($user_phone, $otp);
         $response = $verify->getData();

@@ -14,13 +14,13 @@
             <div class="alert alert-danger">
                 {{ session('error') }}
             </div>
-        @endif 
+        @endif
                 <form class="theme-form" action="{{url('verify-otp')}}" method="post">
                   @csrf
                   <h4>CarSafe Login Code</h4>
                    @php
-                 
-$masked_phone = substr($user_phone, -4); 
+
+$masked_phone = substr($user_phone, -4);
 $masked_phone = str_repeat('*', strlen($user_phone) - 4) . $masked_phone;
                    @endphp
                   <div class="form-group">
@@ -30,14 +30,14 @@ $masked_phone = str_repeat('*', strlen($user_phone) - 4) . $masked_phone;
                     </div>
 
                   <div class="form-group mb-0">
-
+                <input hidden name="phone" value="{{$user_phone}}">
+                <input hidden name="username" value="{{$username}}"
                     <div class="text-end mt-3">
                       <button class="btn btn-primary btn-block w-100" type="submit">Send</button>
                     </div>
                   </div>
 
-                <input hidden name="phone" value="{{$user_phone}}">
-                <input hidden name="username" value="{{$username}}">
+>
                 </form>
               </div>
             </div>
