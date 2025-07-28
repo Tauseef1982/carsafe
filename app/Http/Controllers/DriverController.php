@@ -321,7 +321,7 @@ class DriverController extends Controller
         $otp = $request->otp;
         $verify = $sendotp = TwilioService::verifyOtp($user_phone, $otp);
         $response = $verify->getData();
-        //Log::info('the response is  ' .$response );
+        Log::info('the response is  ' . $response->message );
         if ($response->success == true) {
             $user_phone = $request->phone;
             $driver = Driver::where('phone', $user_phone)->where('username',$request->username)->first();
