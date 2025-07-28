@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::post('/testwebhook', [TripController::class, 'cubePayment']);
-Route::post('/webhook-store-trip', [\App\Http\Controllers\ApiController::class, 'getWebHookTrip']);
+Route::any('/webhook-store-trip', [\App\Http\Controllers\ApiController::class, 'getWebHookTrip']);
 Route::post('/voice/call', [\App\Http\Controllers\ApiController::class, 'voiceCall']);
 Route::post('/try-charge', [\App\Http\Controllers\ApiController::class, 'tryrecharge']);
 Route::post('/try-charge2', [\App\Http\Controllers\ApiController::class, 'tryrechargefinal']);

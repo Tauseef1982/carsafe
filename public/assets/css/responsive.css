@@ -617,12 +617,12 @@
 }
 @media only screen and (max-width: 1366px) and (min-width: 1200px) {
   .page-wrapper.compact-wrapper .left-header {
-    flex: 0 0 34%;
-    max-width: 34%;
+    flex: 0 0 25%;
+    max-width: 25%;
   }
   .page-wrapper.compact-wrapper .page-header .header-wrapper .nav-right {
-    flex: 0 0 64%;
-    max-width: 64%;
+    flex: 0 0 75%;
+    max-width: 75%;
   }
   .page-wrapper.horizontal-wrapper .left-header {
     flex: 0 0 32%;
@@ -2472,9 +2472,9 @@
   }
 }
 @media only screen and (max-width: 710px) {
-  .page-wrapper.compact-wrapper .nav-right .nav-menus {
+  /* .page-wrapper.compact-wrapper .nav-right .nav-menus {
     margin-right: 47px;
-  }
+  } */
 }
 @media only screen and (max-width: 630px) {
   .left-header .level-menu .nav-link svg {
@@ -2700,7 +2700,7 @@
     padding: 8px 30px;
   }
   .page-wrapper.compact-wrapper .page-body-wrapper .page-body {
-    margin-top: 60px;
+    margin-top: 150px;
   }
   .page-wrapper.compact-wrapper .page-body-wrapper.sidebar-wrapper .sidebar-main .sidebar-links {
     height: calc(100vh - 79px);

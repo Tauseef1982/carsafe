@@ -1,6 +1,10 @@
 @php
 use Carbon\Carbon;
 $currentYear = Carbon::now()->year;
+use App\Models\Account;
+$user = Auth::guard('customer')->user()->account_id;
+$account = Account::where('account_id' , $user)->first();
+
 @endphp
 
     <!DOCTYPE html>
@@ -101,6 +105,74 @@ $currentYear = Carbon::now()->year;
             color: rgba(255, 255, 255, 0.6);
         }
 
+        .time-display {
+      display: flex;
+      align-items: center;
+      color: #F3744D;
+      font-weight: 600px;
+      font-size: 14px;
+    }
+       .search-bar {
+      display: flex;
+      align-items: center;
+      background-color: #f5f6f7;
+      border-radius: 10px;
+      padding: 4px 13px;
+    }
+    .search-bar i {
+      color: #888;
+      margin-right: 8px;
+    }
+    .search-bar input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 14px;
+      flex: 1;
+    }
+    .search-shortcut {
+      background: white;
+      padding: 4px 7px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #555;
+      border: 1px solid #ddd;
+    }
+    .page-wrapper .page-header .header-wrapper {
+    width: 100%;
+    display: flex
+;
+    align-items: center;
+    padding: 11px 16px;
+    position: relative;
+}
+.menu-item{
+    background: transparent;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.menu-item:hover{
+    background: #F3744D;
+    color: #fff;
+}
+.menu-item-active{
+    background: #F3744D;
+    color: #fff;
+}
+.menu-item:hover i,
+.menu-item:hover svg {
+    stroke: #fff; 
+}
+.menu-item.menu-item-active i,
+.menu-item.menu-item-active svg {
+    stroke: #fff; 
+}
+
+
     </style>
 </head>
 <body>
@@ -119,36 +191,96 @@ $currentYear = Carbon::now()->year;
             <div class="header-logo-wrapper col-auto p-0">
                 <div class="logo-wrapper">
                     <a href="{{url('customer/index')}}">
-                        <img class="img-fluid" src="{{asset('assets/images/logo/carsafe-logo.webp')}}" alt="">
+                        <img class="img-fluid" src="{{asset('assets/images/logo/logo-safe.png')}}" alt="">
                     </a>
                 </div>
-                <div class="toggle-sidebar"><i class="status_toggle middle sidebar-toggle"
-                                               data-feather="align-center"></i></div>
+                <div class="toggle-sidebar">
+                    <i class="status_toggle middle sidebar-toggle" data-feather="align-center"></i>
+                </div> 
 
             </div>
             <div class="left-header col horizontal-wrapper ps-0">
-
+                <ul class="horizontal-menu">
+              <li > 
+                <div class="greeting">
+                    <span id="greeting"></span>, <strong>{{ $account->f_name }}!</strong>
+                </div>
+                
+              </li>
+           
+            </ul>
             </div>
-            <div class="nav-right col-8 pull-right right-header p-0">
+            <div class="nav-right col-md-8 pull-right right-header p-0">
                 <ul class="nav-menus">
+              <li>
+                <div class="time-display" >
+                  <i class="me-1" data-feather="clock"></i>
+                  <span id="txt"></span>
+                  
+                </div>
+              </li>
+              <li>                           
+                <div class="search-bar">
+                  <i class="fa fa-search"></i>
+                  <input type="text" placeholder="Search here...">
+                  <div class="search-shortcut">⌘ K</div>
+                </div>
+              <!-- <li class="onhover-dropdown">
+                <div class="notification-box"><i data-feather="bell"> 
 
-                    <li>
-                        <div class="mode"><i class="fa fa-moon-o"></i></div>
+                </i><span class="badge rounded-pill badge-danger">4 </span></div>
+                <div class="onhover-show-div notification-dropdown">
+                  <h6 class="f-18 mb-0 dropdown-title">Notitications                               </h6>
+                  <ul>
+                    <li class="b-l-primary border-4">
+                      <p>Delivery processing <span class="font-danger">10 min.</span></p>
                     </li>
-
-
-                    <li class="profile-nav onhover-dropdown p-0 me-0">
-                        <div class="media profile-media">
-                            <div class="media-body"><span>{{ Auth::guard('customer')->user()->f_name }}</span>
-
-                            </div>
-                        </div>
-                        <ul class="profile-dropdown onhover-show-div">
-
-                            <li><a href="{{url('customer/logout')}}"><i data-feather="log-in"> </i><span>LogOut</span></a></li>
-                        </ul>
+                    <li class="b-l-success border-4">
+                      <p>Order Complete<span class="font-success">1 hr</span></p>
                     </li>
-                </ul>
+                    <li class="b-l-info border-4">
+                      <p>Tickets Generated<span class="font-info">3 hr</span></p>
+                    </li>
+                    <li class="b-l-warning border-4">
+                      <p>Delivery Complete<span class="font-warning">6 hr</span></p>
+                    </li>
+                    <li><a class="f-w-700" href="#">Check all</a></li>
+                  </ul>
+                </div>
+              </li> -->
+             
+              <!-- <li>
+                <div class="mode"><i class="fa fa-moon-o"></i></div>
+              </li> -->
+            <li>
+                <div style="font-size: 18px;
+    font-weight: 600;
+    -webkit-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    width: 20px;
+    text-align: center;"><i class="fa fa-moon-o mode"></i></div>
+              </li>
+           
+              
+              
+              <li class="profile-nav onhover-dropdown p-0 me-0">
+                <div class="media profile-media">
+                    <img style="width: 40px; height: 40px; border-radius: 50%;" src="{{ asset('storage/'. $account->image) }}" alt="">
+                  <div class="media-body ">
+                    <span></span>
+                    <p class="mb-0 font-roboto">{{ $account->f_name }} <i class="middle fa fa-angle-down"></i></p>
+                  </div>
+                </div>
+                <!-- <ul class="profile-dropdown onhover-show-div">
+                  <li><a href="#"><i data-feather="user"></i><span>Account </span></a></li>
+                  <li><a href="#"><i data-feather="mail"></i><span>Inbox</span></a></li>
+                  <li><a href="#"><i data-feather="file-text"></i><span>Taskboard</span></a></li>
+                  <li><a href="#"><i data-feather="settings"></i><span>Settings</span></a></li>
+                  <li><a href="#"><i data-feather="log-in"> </i><span>Log in</span></a></li>
+                </ul> -->
+              </li>
+            </ul>
             </div>
 
 
@@ -160,12 +292,11 @@ $currentYear = Carbon::now()->year;
         <!-- Page Sidebar Start-->
         <div class="sidebar-wrapper">
             <div>
-                <div class="logo-wrapper"><a href="{{url('customer/index')}}"><img class="img-fluid for-light"
-                                                                              src="{{asset('assets/images/logo/carsafe-logo.webp')}}"
-                                                                              width="50px" alt=""></a>
+                <div class="logo-wrapper"><a href="{{url('customer/index')}}">
+                    <img class="img-fluid for-light" src="{{asset('assets/images/logo/logo-safe.png')}}" width="124px" alt=""></a>
                     <div class="back-btn"><i class="fa fa-angle-left"></i></div>
-                    <div class="toggle-sidebar"><i class="status_toggle middle sidebar-toggle" data-feather="grid"> </i>
-                    </div>
+                    <!-- <div class="toggle-sidebar"><i class="status_toggle middle sidebar-toggle" data-feather="grid"> </i>
+                    </div> -->
                 </div>
                 <div class="logo-icon-wrapper"><a href="{{url('customer/index')}}"><img class="img-fluid"
                                                                                    src="{{asset('assets/images/logo/carsafe-logo.webp')}}"
@@ -183,7 +314,8 @@ $currentYear = Carbon::now()->year;
                             <li class="sidebar-main-title">
 
                                 <a href="{{url('customer/index')}}">
-                                    <div>
+                                    <div class="menu-item {{ request()->is('customer/index') ? 'menu-item-active' : '' }}">
+                                        <i class="" data-feather="grid"></i>
                                         Dashboard
                                     </div>
                                 </a>
@@ -193,7 +325,8 @@ $currentYear = Carbon::now()->year;
                             <li class=" sidebar-main-title ">
 
                                 <a href="{{url('customer/trips')}}">
-                                    <div>
+                                    <div class="menu-item {{ request()->is('customer/trips') ? 'menu-item-active' : '' }}">
+                                        <i class="fa fa-history" aria-hidden="true"></i>
                                         Trip History
                                     </div>
                                 </a>
@@ -204,7 +337,8 @@ $currentYear = Carbon::now()->year;
                             <li class="sidebar-main-title">
 
                                 <a href="{{url('customer/cards')}}">
-                                    <div>
+                                    <div class="menu-item {{ request()->is('customer/cards') ? 'menu-item-active' : '' }}">
+                                        <i data-feather="credit-card"></i>
                                         Payment Methods
                                     </div>
                                 </a>
@@ -213,8 +347,10 @@ $currentYear = Carbon::now()->year;
                             <li class="sidebar-main-title">
 
                                 <a href="{{url('customer/payments')}}">
-                                    <div>
-                                        Payments
+                                    <div class="menu-item {{ request()->is('customer/payments') ? 'menu-item-active' : '' }}">
+                                        
+                                    <i class="fa fa-usd" ></i>
+                                    Payments
                                     </div>
                                 </a>
 
@@ -223,7 +359,8 @@ $currentYear = Carbon::now()->year;
                             <li class="sidebar-main-title">
                             
                                 <a href="{{url('customer/pins')}}">
-                                    <div>
+                                    <div class="menu-item {{ request()->is('customer/pins') ? 'menu-item-active' : '' }}"> 
+                                        <i data-feather="map-pin"></i>
                                         Account Pins
                                     </div>
                                 </a>
@@ -232,7 +369,8 @@ $currentYear = Carbon::now()->year;
                             <li class="sidebar-main-title">
                             
                             <a href="{{url('customer/complaints')}}">
-                                <div>
+                                <div class="menu-item {{ request()->is('customer/complaints') ? 'menu-item-active' : '' }}">
+                                    <i data-feather="alert-circle"></i>
                                     Complaints
                                 </div>
                             </a>
@@ -242,7 +380,8 @@ $currentYear = Carbon::now()->year;
                             <li class="sidebar-main-title">
 
                                 <a href="{{url('customer/invoices')}}">
-                                    <div>
+                                    <div class="menu-item {{ request()->is('customer/invoices') ? 'menu-item-active' : '' }}">
+                                        <i data-feather="file-text"></i>
                                         Invoices
                                     </div>
                                 </a>
@@ -251,7 +390,8 @@ $currentYear = Carbon::now()->year;
                             <li class="sidebar-main-title">
 
                                 <a href="{{url('customer/settings')}}">
-                                    <div>
+                                    <div class="menu-item {{ request()->is('customer/settings') ? 'menu-item-active' : '' }}">
+                                        <i data-feather="settings"></i>
                                         Account Settings
                                     </div>
                                 </a>
@@ -262,7 +402,8 @@ $currentYear = Carbon::now()->year;
                             <li class="sidebar-main-title">
 
                                 <a href="{{url('customer/logout')}}">
-                                    <div>
+                                    <div style="color:#FF4141 !important;">
+                                        <i data-feather="log-out" style="color:#FF4141;"></i>
                                         Logout
                                     </div>
                                 </a>
@@ -313,7 +454,7 @@ $currentYear = Carbon::now()->year;
     <script src="{{asset('assets/js/sidebar-menu.js')}}"></script>
     {{--    <script src="{{asset('assets/js/chart/chartist/chartist.js')}}"></script>--}}
     {{--    <script src="{{asset('assets/js/chart/chartist/chartist-plugin-tooltip.js')}}"></script>--}}
-    {{--    <script src="{{asset('assets/js/chart/apex-chart/apex-chart.js')}}"></script>--}}
+        <script src="{{asset('assets/js/chart/apex-chart/apex-chart.js')}}"></script>
     {{--    <script src="{{asset('assets/js/chart/apex-chart/stock-prices.js')}}"></script>--}}
     <script src="{{asset('assets/js/prism/prism.min.js')}}"></script>
     {{--    <script src="{{asset('assets/js/clipboard/clipboard.min.js')}}"></script>--}}
@@ -365,5 +506,52 @@ $currentYear = Carbon::now()->year;
     </script>
 
 @yield('js')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    feather.replace();
+});
+
+</script>
+ <script>
+        // greeting
+        var todate = new Date()
+        var curHr = todate.getHours()
+
+        if (curHr >= 0 && curHr < 4) {
+            document.getElementById("greeting").innerHTML = 'Good Night';
+        } else if (curHr >= 4 && curHr < 12) {
+            document.getElementById("greeting").innerHTML = 'Good Morning';
+        } else if (curHr >= 12 && curHr < 16) {
+            document.getElementById("greeting").innerHTML = 'Good Afternoon';
+        } else {
+            document.getElementById("greeting").innerHTML = 'Good Evening';
+        }
+
+        // time
+        function startTime() {
+            var todate = new Date();
+            var h = todate.getHours();
+            var m = todate.getMinutes();
+            // var s = todate.getSeconds();
+            var ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12;
+            h = h ? h : 12;
+            m = checkTime(m);
+            // s = checkTime(s);
+            document.getElementById('txt').innerHTML =
+                h + ":" + m + ' ' + ampm;
+            var t = setTimeout(startTime, 500);
+        }
+
+        function checkTime(i) {
+            if (i < 10) {
+                i = "0" + i
+            }
+            ;  // add zero in front of numbers < 10
+            return i;
+        }
+        startTime();
+
+    </script>
 </body>
 </html>

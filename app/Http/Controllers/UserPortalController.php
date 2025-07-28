@@ -7,6 +7,7 @@ use App\Models\AccountPayment;
 use App\Models\BatchPayment;
 use App\Models\CreditCard;
 use App\Models\Driver;
+use App\Models\Trip;
 use App\Models\Account_Complaint;
 use App\Models\Payment;
 use App\Services\AccountService;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use Illuminate\View\View;
 use Yajra\DataTables\DataTables;
 use function Yajra\DataTables\Html\Editor\ajax;
 use Illuminate\Support\Facades\Mail;
@@ -145,15 +147,58 @@ if (!$record) {
                     'from_date' => 'nullable|date',
                     'to_date' => 'nullable|date',
                 ]);
+                  $data = AccountService::GetTrips($request);
+
 
                 $data = AccountService::AccountSummary($request);
                 return response()->json([
                     'total_trips' => $data['total_trips'],
                     'total_payments' => $data['total_payments'],
+                    'total_complaints' => $data['total_complaints'],
+                    'total_invoices'   => $data['total_invoices']
+                    
                 ]);
             }
+                 $weeklyTripCounts = [];
+           $labels = ["1st Week", "2nd Week", "3rd Week", "4th Week", "Current Week"];
+           $weeklyComplaints = [];
+           $weeklyInvoices = [];
 
-        return view('customer.index',compact('account'));
+            $startOfThisWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY);
+
+          for ($i = 4; $i >= 0; $i--) {
+               $start = $startOfThisWeek->copy()->subWeeks($i);
+              $end = $start->copy()->endOfWeek(Carbon::SATURDAY)->endOfDay();
+
+               $count = Trip::where('account_number', $account->account_id)
+               ->whereBetween('created_at', [$start, $end])
+                   ->count();
+
+               $weeklyTripCounts[] = $count;
+           }
+
+            for ($i = 4; $i >= 0; $i--) {
+               $start = $startOfThisWeek->copy()->subWeeks($i);
+              $end = $start->copy()->endOfWeek(Carbon::SATURDAY)->endOfDay();
+
+              $complaints= Account_Complaint::where('account_id' , $account->account_id)
+              ->whereBetween('created_at', [$start, $end])->count();
+           
+
+               $weeklyComplaints[] = $complaints;
+           }
+            for ($i = 4; $i >= 0; $i--) {
+               $start = $startOfThisWeek->copy()->subWeeks($i);
+              $end = $start->copy()->endOfWeek(Carbon::SATURDAY)->endOfDay();
+
+
+            $invoices= AccountPayment::where('account_id',$account->account_id)->where('status','!=',null)->whereNotNull('hash_id')
+            ->whereBetween('created_at', [$start, $end])->count();
+
+               $weeklyInvoices[] = $invoices;
+           }
+
+        return view('customer.index',compact('account', 'labels' ,'weeklyTripCounts' ,'weeklyInvoices' ,'weeklyComplaints'));
 
     }
 
@@ -171,7 +216,7 @@ if (!$record) {
                     }
                     return $row->cube_pin_status;
                 }) ->addColumn('action', function ($row) {
-                    return '<button class="btn btn-sm btn-primary openTripModal" data-trip="' . $row->trip_id . '">Add Complaint</button>';
+                    return '<button class="btn bg-orange-g b-r-8 text-white bg openTripModal" data-trip="' . $row->trip_id . '">Add Complaint</button>';
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -356,8 +401,13 @@ if (!$record) {
     {
         $account_id = Auth::guard('customer')->user()->account_id;
         $account = Account::where('account_id',$account_id)->first();
-
         DB::beginTransaction();
+        
+         if ($request->hasFile('image')) {
+        $path = $request->file('image')->store('uploads', 'public');
+        $account->image = $path;
+        
+    }
 
         $account->recharge = $request->recharge;
         $account->autofill = $request->autofill;
@@ -376,7 +426,7 @@ if (!$record) {
 
         DB::commit();
 
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Account Updated Successfully!');
     }
 
     public function pins(){
@@ -695,6 +745,13 @@ if (!$record) {
         $new->save();
 
         return $new;
+    }
+
+    public function show_single_complaint($id){
+
+        $complaint = Account_Complaint::find($id);
+        return view('customer.show', compact('complaint'));
+
     }
 
 

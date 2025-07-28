@@ -107,7 +107,7 @@ Route::group(['middleware' => 'admin.auth'], function () {
         Route::get('/accounts/payments', [AccountController::class, 'accountPayments']);
         Route::post('/pay-to-gocab', [AccountController::class, 'paymentToGocab'])->name('pay-to-gocab');
         Route::post('/update_account_restriction', [AccountController::class, 'account_restriction']);
-       
+
         Route::delete('/account/allowed-addresses/{id}', [AccountController::class, 'deleteAllowedAddress'])->name('allowed-addresses.delete');
 
         Route::post('/pay-to-refill', [AccountController::class, 'paymentToRefill']);
@@ -266,10 +266,10 @@ Route::group(['prefix' => 'customer','as' => 'customer.'], function () {
     Route::get('/pins', [\App\Http\Controllers\UserPortalController::class, 'pins']);
     Route::post('/pins/update', [\App\Http\Controllers\UserPortalController::class, 'update_pins'] );
     Route::get('/complaints', [\App\Http\Controllers\UserPortalController::class, 'complaints']);
-        Route::any('/invoice/preview' , [AccountController::class, 'show_invoice']);
-
-});
-
+   Route::get('/book-ride', [\App\Http\Controllers\BookRideController::class, 'index']);
+    Route::get('/complaint/{id}', [\App\Http\Controllers\UserPortalController::class, 'show_single_complaint'])->name('complaints.show');});
+   Route::post('/store_ride', [\App\Http\Controllers\BookRideController::class, 'store']);
+    Route::any('/invoice/preview' , [AccountController::class, 'show_invoice']);
 });
 
 include('tests.php');
