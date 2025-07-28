@@ -31,13 +31,13 @@ $masked_phone = str_repeat('*', strlen($user_phone) - 4) . $masked_phone;
 
                   <div class="form-group mb-0">
                 <input hidden name="phone" value="{{$user_phone}}">
-                <input hidden name="username" value="{{$username}}"
+                <input hidden name="username" value="{{$username}}">
                     <div class="text-end mt-3">
                       <button class="btn btn-primary btn-block w-100" type="submit">Send</button>
                     </div>
                   </div>
 
->
+
                 </form>
               </div>
             </div>
