@@ -315,7 +315,7 @@ class DriverController extends Controller
 
         $user_phone = $request->phone;
         if (!Str::startsWith($user_phone, '+1')) {
-            $user_phone = '+1' . $user_phone;
+            $user_phone = '+1'.' '.$user_phone;
         }
         Log::info('driver phone is ' .$user_phone );
         $otp = $request->otp;
