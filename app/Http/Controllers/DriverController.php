@@ -324,7 +324,7 @@ class DriverController extends Controller
         Log::info('the response is  ' . $response->success );
         if ($response->success == true) {
             $user_phone = $request->phone;
-            $driver = Driver::where('phone', $user_phone)->where('username',$request->username)->first();
+            $driver = Driver::where('username',$request->username)->first();
 
             if ($driver) {
                 // Log in the driver using the custom guard
