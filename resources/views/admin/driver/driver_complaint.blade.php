@@ -74,10 +74,13 @@ $util = new \App\Utils\dateUtil();
                                                                     @endphp
                                                                     <td>{{ $date  }}</td>
                                                                     <td>
-                                                                        <button class="btn btn-primary">Edit</button>
+                                                                        <button class="btn btn-primary editBtn" data-bs-toggle="modal"
+                                                                        data-bs-target="#editModal" data-id="{{ $complaint->id }}"
+                                                                        data-status="{{ $complaint->status }}"
+                                                                        data-note="{{ $complaint->admin_note }}">Edit</button>
                                                                     </td>
                                                                   </tr>
-                                      @endforeach 
+                                      @endforeach
 
 
 
@@ -143,10 +146,54 @@ $util = new \App\Utils\dateUtil();
         </div>
       </div>
     </div>
+    <!--edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">Change Stauts</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+      <form action="{{ url('admin/update/driver_complaint') }}" method="post">
+        @csrf
+        <input type="hidden" name="id" id="edit-id" >
+        <label for="">Status</label>
+        <select name="status" class="form-select" id="edit-status">
+          <option value="Pending">Pending</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Resolved">Resolved</option>
+
+        </select>
+        <label for="">Note</label>
+        <textarea name="admin_note" id="edit-note" class="form-control" id=""></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Update Stauts</button>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
 
 
 @endsection
 
 @section('js')
+<script>
+    $(document).ready(function(){
+          $('.editBtn').on('click', function() {
+      let id = $(this).data('id');
+      let status = $(this).data('status');
+      let note = $(this).data('note');
+
+      $('#edit-id').val(id);
+      $('#edit-status').val(status);
+      $('#edit-note').val(note);
+});
+    });
+
+</script>
 
 @endsection

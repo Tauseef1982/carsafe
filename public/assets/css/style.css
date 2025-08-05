@@ -19,6 +19,9 @@
 /**=====================
      Reset css start
 ==========================**/
+*{
+   font-family: "Inter", sans-serif;
+}
 .font-inter{
   font-family: "Inter", sans-serif;
 }
@@ -20241,6 +20244,13 @@ ul.dot-group li {
   background-repeat: no-repeat !important;
   background-size: cover !important;
 }
+
+.table-header-light{
+  background-color: #F7F8FA;
+  color: #484848 !important;
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
+}
 .left-radius{
   border-top-left-radius: 24px;
   border-bottom-left-radius: 24px;
@@ -27509,7 +27519,7 @@ body[class*=dark-] .for-light {
      47. Footer CSS Start
 ==========================**/
 .footer {
-  background-color: #fff;
+  
   box-shadow: 0 0 20px rgba(89, 102, 122, 0.1);
   padding: 15px;
   bottom: 0;
@@ -28402,13 +28412,14 @@ body[class*=dark-] .for-light {
   cursor: pointer;
 }
 .page-wrapper .page-header .header-wrapper .nav-right.right-header ul li .profile-media .media-body {
-  margin-left: 15px;
+  margin-left: 7px;
+  margin-top: 10px;
 }
 .page-wrapper .page-header .header-wrapper .nav-right.right-header ul li .profile-media .media-body span {
   font-weight: 500;
 }
 .page-wrapper .page-header .header-wrapper .nav-right.right-header ul li .profile-media .media-body p {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1;
   color: rgba(43, 43, 43, 0.7);
 }
@@ -29173,8 +29184,8 @@ body[class*=dark-] .for-light {
   box-shadow: 0 0 20px rgba(115, 102, 255, 0.1);
 }
 .page-wrapper .sidebar-main-title > a > div{
-  background-color: rgba(115, 102, 255, 0.06);
-  padding: 15px 17px;
+  /* background-color: rgba(115, 102, 255, 0.06); */
+  padding: 5px 7px;
   border-radius: 10px;
   white-space: nowrap;
   overflow: hidden;
@@ -29224,7 +29235,7 @@ body[class*=dark-] .for-light {
 }
 .page-wrapper.compact-wrapper .page-body-wrapper div.sidebar-wrapper .logo-wrapper,
 .page-wrapper.compact-wrapper .page-body-wrapper div.sidebar-wrapper .logo-icon-wrapper {
-  padding: 27px 30px;
+  padding: 14px 30px;
   box-shadow: -9px 0 20px rgba(89, 102, 122, 0.1);
 }
 .page-wrapper.compact-wrapper .page-body-wrapper div.sidebar-wrapper .logo-icon-wrapper {

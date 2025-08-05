@@ -6,7 +6,11 @@ use App\Models\Account;
 use App\Models\AccountPayment;
 use App\Models\BatchPayment;
 use App\Models\CreditCard;
+
 use App\Models\Discount;
+
+use App\Models\CustomerBooking;
+
 use App\Models\Driver;
 use App\Models\Payment;
 use App\Models\Trip;
@@ -178,7 +182,6 @@ class ApiController extends Controller
          Log::info($tripContent);
         $trip = json_decode( $tripContent, true);
 
-
         // Check if 'start' is valid
                 if ($trip['start'] != '-' && $trip['start'] != '') {
 
@@ -192,11 +195,16 @@ class ApiController extends Controller
 
                             $existingTrip = Trip::where('trip_id', $trip['id'])->first();
 
-
-                                $to_location = $trip['route.drop_off_text'];
-
-
-
+                            $to_location = $trip['route.drop_off_text'];
+                            $order_id = null;
+                            if(isset($trip['OrderId'])){
+                                $customer_order = CustomerBooking::where('order_id',$trip['OrderId'])->first();
+                                if($customer_order){
+                                    $customer_order->status = 'web_hook_recieved';
+                                    $customer_order->save();
+                                    $order_id = $customer_order->order_id;
+                                }
+                            }
 
                             if ($existingTrip) {
                                 // Check if the payment method is cash
@@ -221,6 +229,7 @@ class ApiController extends Controller
                                             'status' => $trip['event'],
                                             'ts_delivered' => $tsDelivered,
                                             'icked_up' => $ickedup,
+                                            'order_id' => $order_id,
 
                                         ]);
                                         return response()->json('updated');
@@ -249,6 +258,8 @@ class ApiController extends Controller
                                     'status' => $trip['event'],
                                     'ts_delivered' => $tsDelivered,
                                     'icked_up' => $ickedup,
+                                    'order_id' => $order_id,
+
 
                                 ]);
 
@@ -266,6 +277,7 @@ class ApiController extends Controller
 
 
    public function voiceCall(Request $request){
+
 
         Log::info($request->all());
 
@@ -506,7 +518,6 @@ class ApiController extends Controller
         ]);
 
         }
-
 
 
     }

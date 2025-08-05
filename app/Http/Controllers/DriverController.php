@@ -315,15 +315,16 @@ class DriverController extends Controller
 
         $user_phone = $request->phone;
         if (!Str::startsWith($user_phone, '+1')) {
-            $user_phone = '+1' . $user_phone;
+            $user_phone = '+1'.$user_phone;
         }
+       // Log::info('driver phone is ' .$user_phone );
         $otp = $request->otp;
         $verify = $sendotp = TwilioService::verifyOtp($user_phone, $otp);
         $response = $verify->getData();
-
+        Log::info('the response is  ' . $response->success );
         if ($response->success == true) {
             $user_phone = $request->phone;
-            $driver = Driver::where('phone', $user_phone)->where('username',$request->username)->first();
+            $driver = Driver::where('username',$request->username)->first();
 
             if ($driver) {
                 // Log in the driver using the custom guard

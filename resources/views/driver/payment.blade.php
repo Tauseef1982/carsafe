@@ -11,12 +11,12 @@ $util = new \App\Utils\dateUtil();
 <style>
 .extracharges-field-div{
  display: none;
-  } 
+  }
   .toggle-extra{
     cursor: pointer;
   }
 </style>
-   
+
 
 @endsection
 
@@ -283,7 +283,7 @@ $util = new \App\Utils\dateUtil();
                             </div>
                             <div class="card-body pt-0 hide" id="gocab-account-div">
                                 <h5>
-                                    Account Number
+                                    Account
                                     <span class="badge badge-primary pull-right digits btn  show-method-div">Go Back</span>
                                 </h5>
                                 <div class="card">
@@ -334,7 +334,7 @@ $util = new \App\Utils\dateUtil();
                                         <div class="input-group mb-3">
 
                                             <span class="input-group-text">$</span>
-                                            <input class="form-control me-2 stop_amount" type="tel" readonly name="stop_amount[]" 
+                                            <input class="form-control me-2 stop_amount" type="tel" readonly name="stop_amount[]"
                                                    placeholder="00.00" />
 
                                         </div>
@@ -409,7 +409,7 @@ $util = new \App\Utils\dateUtil();
                         $('#trips-container').html('<p>Loading trips...</p>');
                     },
                     success: function (response) {
-                        console.log(response); 
+                        console.log(response);
                         let tripsHtml = '';
 
                         if (response.trips && response.trips.length > 0) {
@@ -422,13 +422,13 @@ $util = new \App\Utils\dateUtil();
                         <div class="form-check radio radio-primary me-3">
                             <input class="form-check-input trip-radio" id="radio${trip.trip_id}"
                                    type="radio" name="trip"
-                                   value="${trip.trip_id}" data-trip-cost="${parseFloat(trip.trip_cost) + parseFloat(trip.extra_charges ?? 0)}" />
+                                   value="${trip.trip_id}" data-order_id="${trip.order_id}" data-trip-cost="${parseFloat(trip.trip_cost) + parseFloat(trip.extra_charges ?? 0)}" />
                             <label class="form-check-label" for="radio${trip.trip_id}">
                                 <div class="media-body">
                                     <h6 class="mt-0 mega-title-badge">
                                         ${trip.location_from} to ${trip.location_to}
                                         <span class="badge badge-primary pull-right digits">
-                                         $${trip.trip_cost} 
+                                         $${trip.trip_cost}
                                         </span>
                                     </h6>
                                     <p class="notranslate">
@@ -455,7 +455,7 @@ $util = new \App\Utils\dateUtil();
                 });
             }
 
-            
+
             loadLatestTrips();
         });
     </script>
@@ -548,11 +548,11 @@ $util = new \App\Utils\dateUtil();
 
         if (amountVal > 0 && (!stopLocation || stopLocation.trim() === '')) {
             shouldDisable = false;
-            return false; 
+            return false;
         }
     });
 
-    
+
     $('#sb-btn-acc, #next-step-btn').prop('disabled', shouldDisable);
 }
 
@@ -566,7 +566,20 @@ $(document).on('input', 'input[name="stop_amount[]"], input[name="stop_location[
 
                     $("#show-method-div").click();
                     selectedTripCost = $(this).data('trip-cost');
+                    let order_id = $(this).data('order_id');
                     //console.log(selectedTripCost);
+
+                    if(order_id != null) {
+                        $("#gocab-account-div").show();
+                        $("#method-div").hide();
+                        $("#amount-div").hide();
+                        $("#extra-div").hide();
+                        $("#acc-field").hide();
+                        $("#account_pin_masked").hide();
+                        $("#sb-btn-acc").prop('disabled',false);
+
+                    }
+
                 } else {
 
                     $("#show-method-div").prop("disabled", false);
@@ -720,7 +733,7 @@ $('.round_trip').each(function () {
 
             $('.stop_amount, .wait_amount, .round_trip').on('input', function () {
                 calculateExtraCharges();
-                
+
             });
             $("#show-amount-div").click(function () {
                 let selectedValue = $('input[name="payment_method"]:checked').val();
@@ -788,13 +801,13 @@ $('.round_trip').each(function () {
         $('#card-check').click(function () {
           $('#radio20').prop('checked', true);
             $("#show-amount-div").click();
-            
-           
+
+
         });
 
 
         });
-       
+
 
         function toggleButton() {
 
@@ -927,7 +940,7 @@ $('.round_trip').each(function () {
                                     url: form.attr('action'),
                                     method: 'POST',
                                     data: form.serialize(),
-                                   
+
                                     success: function (response2) {
 
                                         console.log(response2.status + " this is response");
@@ -1030,7 +1043,7 @@ $('#account_pin_masked').on('input', function(e) {
             }
         });
     </script>
-   
+
 
 
 
