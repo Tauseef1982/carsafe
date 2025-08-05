@@ -6,13 +6,19 @@ use App\Models\Account;
 use App\Models\AccountPayment;
 use App\Models\BatchPayment;
 use App\Models\CreditCard;
+
+use App\Models\Discount;
+
 use App\Models\CustomerBooking;
+
 use App\Models\Driver;
 use App\Models\Payment;
 use App\Models\Trip;
 use App\Services\CardKnoxService;
 use App\Services\CubeContact;
+use App\Services\EmailService;
 use App\Services\LogService;
+use App\Services\PaymentSaveService;
 use App\Services\TokenService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -172,7 +178,6 @@ class ApiController extends Controller
     public function getWebHookTrip(Request $request){
 
 
-
         $tripContent = $request->getContent();
          Log::info($tripContent);
         $trip = json_decode( $tripContent, true);
@@ -270,7 +275,9 @@ class ApiController extends Controller
                 }
             }
 
-    public function voiceCall(Request $request){
+
+   public function voiceCall(Request $request){
+
 
         Log::info($request->all());
 
@@ -472,18 +479,11 @@ class ApiController extends Controller
             $creditCard->card_number = $maskedCard;
             $creditCard->cvc = $request->cvc;
             // Process expiry date
-            $expiry = $request->input('expiry');
 
-            if(isset($request->month) && isset($request->year)){
-                $month = $request->month;
-                $year = $request->year;
+                $month = $request->expiry_month;
+                $year = $request->expiry_year;
                 $expiryWithoutSlash = $month.$year;
 
-            }else{
-                list($month, $year) = explode('/', $expiry);
-                $expiryWithoutSlash = str_replace('/', '', $expiry);
-
-            }
 
             $fullYear = '20' . $year;
             $expiryDate = \Carbon\Carbon::createFromDate($fullYear, $month, 1)->toDateString();
@@ -520,8 +520,732 @@ class ApiController extends Controller
         }
 
 
+    }
+
+    public function driverByVehicle(Request $request)
+    {
+        Log::info($request->all());
+
+        $current_time = Carbon::now();
+        $vehicle_number = $request->v_number;
+
+        // Find driver by last name pattern
+        $driver = Driver::where('last_name', 'LIKE', '%' . $vehicle_number . '%')->first();
+
+        if ($driver) {
+            $driver_v_number = explode('-', $driver->last_name);
+
+            if (isset($driver_v_number[1]) && $driver_v_number[1] == $vehicle_number) {
+
+                $trip = Trip::where('trips.is_delete', 0)
+                    ->where('trips.driver_id', $driver->driver_id)
+                    ->where('trips.date', '>', now()->subDays(3))
+                    ->where('trips.payment_method', 'cash')
+                    ->where('status', 'NOT LIKE', '%Cancelled%')
+                    ->where('status', 'NOT LIKE', '%Client canceled%')
+                    ->whereNotNull('picked_up') // Fixed typo
+                    ->where('picked_up', '!=', '')
+                    ->where(function ($query) {
+                        $query->whereNull('ts_delivered')
+                            ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
+                            ->orWhereBetween('ts_delivered', [
+                                now()->subMinutes(15)->format('Y-m-d H:i:s'),
+                                now()->format('Y-m-d H:i:s')
+                            ]);
+                    })
+                    ->whereNotExists(function ($query) {
+                        $query->select(DB::raw(1))
+                            ->from('trips as future_trips')
+                            ->whereColumn('future_trips.driver_id', 'trips.driver_id')
+                            ->where('future_trips.picked_up', '>', DB::raw('trips.picked_up'));
+                    })
+                    ->select('trips.*')
+                    ->orderBy('trips.date', 'desc')
+                    ->orderBy('trips.time', 'desc')
+                    ->limit(1)
+                    ->first();
+
+                if ($trip) {
+                    $trip_time = Carbon::parse($trip->time);
+
+                    $diffInMinutes = $trip_time->diffInMinutes($current_time, false); // false = signed diff
+
+                    if ($diffInMinutes >= -30 && $diffInMinutes <= 30) {
+                        return response()->json([
+                            'valid' => true,
+                            'trip_id' => $trip->trip_id,
+                            'driver_id' => $driver->driver_id
+                        ]);
+                    }
+                }
+            }
+        }
+
+        return response()->json([
+            'valid' => false,
+            'trip_id' => 0,
+            'driver_id' => 0
+        ]);
+    }
+
+
+    public function payTripAccount(Request $request)
+    {
+
+        $account_number = $request->account_number;
+        $account_pin = $request->account_pin;
+        $trip_id = $request->trip_id;
+
+        $account = Account::where('account_id',$account_number)->first();
+        if(!$account){
+            return response()->json([
+                'move_to' => 2,
+                'msg' => ''
+            ]);
+        }
+        if($account->status == 0){
+
+            return response()->json([
+                'move_to' => 4,
+                'msg' => ''
+            ]);
+
+        }
+
+        $pins = explode(',',$account->pins);
+        if(!in_array($account_pin,$pins)){
+            return response()->json([
+                'move_to' => 3,
+                'msg' => ''
+            ]);
+        }
+
+
+             $trip = Trip::where('trip_id',$trip_id)->first();
+
+//            if($account->address_restriction){
+//                $allowed = $account->allowedAddresses->pluck('address')->map(fn($a) => strtolower(trim($a)));
+//                $from = strtolower(trim($trip->location_from));
+//                $to = strtolower(trim($trip->location_to));
+//                $first_drop = strtolower(trim($trip->first_destination));
+//
+//                if (!$allowed->contains($from) && !$allowed->contains($to) && !$allowed->contains($first_drop)) {
+//                    return redirect()->back()->with('error', 'Trip is not allowed based on your account address restriction.');
+//                }
+//
+//            }
+
+            if ($account) {
+                if ($account->paypertrip === 'on') {
+
+                    $cost = $trip->trip_cost;
+
+                    $extraCharges = 0;
+                    $cost += $extraCharges;
+                    $fee = ($cost * 0.03333333333) + 0.30;
+                    $cardknoxAmount = $cost + $fee;
+                    $cardknoxTokens = $account->cards()
+                        ->where('is_deleted', 0)
+                        ->orderBy('charge_priority')
+                        ->pluck('cardnox_token');
+
+                    $desc = 'Twilio:Carsafe Payment Trip#' . $trip->trip_id .
+                        ' driver#' . $trip->trip_id .
+                        ' Total Amount=' . $cardknoxAmount .
+                        ' , without Fee=' . $cost;
+
+                    $charge = null;
+                    foreach ($cardknoxTokens as $token) {
+                        $charge = CardKnoxService::processPayment($token, $cardknoxAmount, $desc);
+                        if ($charge['status'] === 'approved') {
+                            break;
+                        }
+                    }
+                    //dd($charge);
+                    if ($charge && $charge['status'] === 'approved') {
+                        $data = [
+                            'trip_cost' => $cost,
+                            'gocab_paid' => $cost,
+                            'payment_method' => 'card',
+                            'account_number' => $account->account_id,
+                            'stripe_id' => $charge['transaction_id'],
+                            'payper_trip' => 1,
+                        ];
+
+                        if (!empty($request->complaint)) {
+                            $data['complaint'] = $request->complaint;
+                            $data['is_complaint'] = '1';
+                        }
+
+                        $trip->update($data);
+                        $pay_data = $this->addpay($trip, $request);
+
+                        $logMessage = 'Trip Payment Added By Driver Using Method Card#' .
+                            $charge['transaction_id'] .
+                            ' Trip#' . $trip->trip_id .
+                            ' Amount ' . $pay_data->amount;
+
+                        $logdata = [
+                            'from' => 'driver',
+                            'payment' => $pay_data,
+                            'trip' => $trip,
+                            'strip' => $charge,
+                            'message' => isset($request->is_admin)
+                                ? 'Admin: ' . $logMessage
+                                : $logMessage
+                        ];
+
+                        LogService::saveLog($logdata);
+
+                        $this->ifBalanceMinusAutoPaidAsAdmin($trip);
+                        $trip->temp_data = null;
+                        $trip->save();
+
+                        DB::commit();
+
+                        $trip_id = $trip->trip_id;
+                        $paid_cost = $trip->trip_cost;
+
+                        if (isset($request->is_admin)) {
+                            $id = $trip->driver->id;
+                            return view('admin.success', compact('id', 'trip_id', 'paid_cost'));
+                        } else {
+                            return view('driver.success', compact('trip_id', 'paid_cost'));
+                        }
+                    }else{
+
+                        if ($account->status == 1) {
+
+                            $account->status = 0;
+                            $account->save();
+                            \App\Services\TwilioService::voicecall($account->phone, 'paypertrip-declined');
+                            if ($trip->trip_cost == 0) {
+                                $cost = (float) $request->amount;
+                            } else {
+                                $cost = (float) $trip->trip_cost;
+                            }
+
+
+                            $extraCharges = $request->extra_charges > 0 ? $request->extra_charges : $trip->extra_charges;
+                            $cost = $cost + (float) $extraCharges;
+
+                            $discount = Discount::select('discounts.*')
+                                ->join('discount_client', 'discounts.id', '=', 'discount_client.discount_id')
+                                ->where('discount_client.account_id', $account->id)
+                                ->where('discounts.start_date', '<=', now())
+                                ->where('discounts.end_date', '>=', now())
+                                ->where('discounts.status', 1)
+                                ->orderBy('discounts.created_at', 'desc')
+                                ->first();
+
+
+                            if ($discount) {
+                                $disc_amount = $cost * ($discount->percentage / 100);
+                                $trip->discount_perc = $discount;
+                                $trip->discount_amount = $disc_amount;
+                            }
+
+                            $trip_cost = $cost;
+                            $trip->trip_cost = $trip_cost;
+                            $trip->gocab_paid = $trip_cost;
+                            $trip->payment_method = 'account';
+                            $trip->cube_pin_status = $account_pin;
+                            $trip->extra_charges = $extraCharges;
+
+                            $firstStopAmount = collect($request->stop_amount)->filter()->first();
+                            $firstStopLocation = collect($request->stop_location)->filter()->first();
+
+                            if ($firstStopAmount || $firstStopLocation) {
+                                $trip->extra_stop_amount = $firstStopAmount;
+                                $trip->stop_location = $firstStopLocation;
+                            }
+
+                            if (isset($request->wait_amount)) {
+                                $firstwait_amount = collect($request->wait_amount)->filter()->first();
+                                $trip->extra_wait_amount = $firstwait_amount;
+                            }
+                            if (isset($request->round_trip)) {
+                                $trip->extra_round_trip = $request->round_trip;
+                            }
+
+
+                            $trip->account_number = $request->account;
+                            if (isset($request->complaint)) {
+                                $trip->complaint = $request->complaint;
+                                $trip->is_complaint = '1';
+                            }
+
+
+                            if ($account->account_type == 'prepaid') {
+
+                                if ($account->balance < 20) {
+//                                    if ($account->autofill == "on") {
+//
+//                                        $account_responce = PaymentSaveService::prepPaidRefill($account, "single");
+//
+//                                        if ($account_responce != false) {
+//                                            $account = $account_responce;
+//                                            Log::info("prepaid refill suddenly");
+//
+//
+//                                        }
+//                                    }
+                                }
+                                if ($account->balance >= $cost) {
+
+                                    $trip->update();
+                                    $this->prepaidAccountDeduction($trip, $account);
+                                    $account->balance = $account->balance - $cost;
+                                    $account->save();
+                                } else {
+
+//                                    \App\Services\TwilioService::voicecall($account->phone, 'refill-need');
+                                    //
+
+//                                    return redirect()->back()->with('error', 'Prepaid Account:Low Balance');
+                                    return response()->json([
+                                        'move_to' => 5,
+                                        'msg' => ''
+                                    ]);
+
+                                }
+                            }
+
+                            if ($account->account_type == 'postpaid') {
+                                if ($account->balance >= $cost) {
+
+                                    $paymentDataBulk[] = [
+                                        'driver_id' => $trip->driver_id,
+                                        'trip_id' => $trip->trip_id,
+                                        'payment_date' => now()->toDateString(),
+                                        'amount' => $cost,
+                                        'user_id' => auth()->user()->id,
+                                        'user_type' => 'customer',
+                                        'type' => 'debit',
+                                        'description' => 'Paying from PostPaid balance:customer_pay_to_account' . $account->account_id,
+                                        'account_id' => $trip->account_number,
+                                    ];
+                                    $paymentDataSend = [
+                                        'payments' => $paymentDataBulk,
+                                    ];
+                                    PaymentSaveService::save($paymentDataSend);
+
+                                    $account->balance = $account->balance - $cost;
+                                    $account->save();
+                                }
+
+                            }
+
+
+                            $trip->update();
+                            $pay_data = $this->addpay($trip, $request);
+                            $tripId = $trip->trip_id;
+                            $driverId = $trip->driver_id;
+                            $extra_message = null;
+
+
+                            if (isset($request->stop_amount)) {
+                                $extraStopCharges = '$' . $firstStopAmount;
+                                $stoplocation = $firstStopLocation;
+                                $extra_message .= "Extra Stop Charges: {$extraStopCharges}\nStop Location: {$stoplocation}. ";
+
+                            }
+
+                            if (isset($request->wait_amount)) {
+                                $extraWaitCharges = '$' . $firstwait_amount;
+                                $extra_message .= "Extra Wait Charges: {$extraWaitCharges}. ";
+
+                            }
+                            if (isset($request->round_trip)) {
+                                $extraRoundCharges = '$' . $request->round_trip;
+                                $extra_message .= "Extra Round Trip: {$extraRoundCharges}. ";
+                            }
+
+
+
+                            $logdata = array();
+                            $logdata['from'] = 'driver';
+                            $logdata['payment'] = $pay_data;
+                            $logdata['trip'] = $trip;
+
+//                            if (isset($request->is_admin)) {
+//                                $logdata['message'] = 'Admin:Trip Payment Added By Driver Using Method Account#' . $request->account . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
+//
+//                            } elseif (isset($request->is_driver)) {
+//                                $logdata['message'] = 'Trip Payment Added By Driver Using Method Account#' . $request->account . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
+//
+//                            } else {
+//                                $logdata['message'] = 'Trip Payment Added By Driver Using Method Account#' . $request->account . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
+//
+//                            }
+//
+//                            LogService::saveLog($logdata);
+                            //$this->ifBalanceMinusAutoPaidAsAdmin($trip);
+
+                            DB::commit();
+//                            if (isset($request->is_admin)) {
+//                                $id = $trip->driver->id;
+//                                $trip_id = $trip->trip_id;
+//                                $paid_cost = $trip->trip_cost;
+//                                return view('admin.success', compact('id', 'trip_id', 'paid_cost'));
+//
+//                            } else {
+//                                $trip_id = $trip->trip_id;
+//                                $paid_cost = $trip->trip_cost;
+//                                return view('driver.success', compact('trip_id', 'paid_cost'));
+//
+//                            }
+
+                        } else {
+
+
+                            DB::rollBack();
+
+                        }
+
+                    }
+                } else {
+                    if ($account->status == 1) {
+
+                            $cost = (float) $trip->trip_cost;
+
+
+                        $discount = Discount::select('discounts.*')
+                            ->join('discount_client', 'discounts.id', '=', 'discount_client.discount_id')
+                            ->where('discount_client.account_id', $account->id)
+                            ->where('discounts.start_date', '<=', now())
+                            ->where('discounts.end_date', '>=', now())
+                            ->where('discounts.status', 1)
+                            ->orderBy('discounts.created_at', 'desc')
+                            ->first();
+
+
+                        if ($discount) {
+                            $disc_amount = $cost * ($discount->percentage / 100);
+                            $trip->discount_perc = $discount;
+                            $trip->discount_amount = $disc_amount;
+                        }
+
+                        $trip_cost = $cost;
+                        $trip->trip_cost = $trip_cost;
+                        $trip->gocab_paid = $trip_cost;
+                        $trip->payment_method = 'account';
+                        $trip->cube_pin_status = $request->account_pin;
+                        $trip->extra_charges = 0;
+
+//                        $firstStopAmount = collect($request->stop_amount)->filter()->first();
+//                        $firstStopLocation = collect($request->stop_location)->filter()->first();
+//                        $firstwait_amount = collect($request->wait_amount)->filter()->first();
+//                        if (isset($request->stop_amount)) {
+//                            $trip->extra_stop_amount = $firstStopAmount;
+//                            $trip->stop_location = $firstStopLocation;
+//                        }
+//
+//                        if (isset($request->wait_amount)) {
+//                            $trip->extra_wait_amount = $firstwait_amount;
+//                        }
+//                        if (isset($request->round_trip)) {
+//                            $trip->extra_round_trip = $request->round_trip;
+//                        }
+
+
+                        $trip->account_number = $account_number;
+//                        if (isset($request->complaint)) {
+//                            $trip->complaint = $request->complaint;
+//                            $trip->is_complaint = '1';
+//                        }
+
+
+                        if ($account->account_type == 'prepaid') {
+
+//                            if ($account->balance < 20) {
+//                                if ($account->autofill == "on") {
+//
+//                                    $account_responce = PaymentSaveService::prepPaidRefill($account, "single");
+//
+//                                    if ($account_responce != false) {
+//                                        $account = $account_responce;
+//                                        Log::info("prepaid refill suddenly");
+//
+//
+//                                    }
+//                                }
+//                            }
+                            if ($account->balance >= $cost) {
+
+                                $trip->update();
+                                $this->prepaidAccountDeduction($trip, $account);
+                                $account->balance = $account->balance - $cost;
+                                $account->save();
+                            } else {
+
+                                return response()->json([
+                                    'move_to' => 5,
+                                    'msg' => ''
+                                ]);
+
+                            }
+                        }
+
+                        if ($account->account_type == 'postpaid') {
+                            if ($account->balance >= $cost) {
+
+                                $paymentDataBulk[] = [
+                                    'driver_id' => $trip->driver_id,
+                                    'trip_id' => $trip->trip_id,
+                                    'payment_date' => now()->toDateString(),
+                                    'amount' => $cost,
+                                    'user_id' => auth()->user()->id,
+                                    'user_type' => 'customer',
+                                    'type' => 'debit',
+                                    'description' => 'Paying from PostPaid balance:customer_pay_to_account' . $account->account_id,
+                                    'account_id' => $trip->account_number,
+                                ];
+                                $paymentDataSend = [
+                                    'payments' => $paymentDataBulk,
+                                ];
+                                PaymentSaveService::save($paymentDataSend);
+
+                                $account->balance = $account->balance - $cost;
+                                $account->save();
+                            }
+
+                        }
+
+
+                        $trip->update();
+                        $pay_data = $this->addpay($trip, $request);
+                        $tripId = $trip->trip_id;
+                        $driverId = $trip->driver_id;
+                        $extra_message = null;
+
+
+//                        if (isset($request->stop_amount)) {
+//                            $extraStopCharges = '$' . $firstStopAmount;
+//                            $stoplocation = $firstStopLocation;
+//                            $extra_message .= "Extra Stop Charges: {$extraStopCharges}\nStop Location: {$stoplocation}. ";
+//
+//                        }
+//
+//                        if (isset($request->wait_amount)) {
+//                            $extraWaitCharges = '$' . $firstwait_amount;
+//                            $extra_message .= "Extra Wait Charges: {$extraWaitCharges}. ";
+//
+//                        }
+//                        if (isset($request->round_trip)) {
+//                            $extraRoundCharges = '$' . $request->round_trip;
+//                            $extra_message .= "Extra Round Trip: {$extraRoundCharges}. ";
+//                        }
+
+
+//                        if (isset($request->is_driver)) {
+//
+//
+//                            if ($account->notification_setting == null) {
+//                                $phone = preg_replace('/[^0-9]/', '', $trip->passenger_phone);
+//                                $this->sendNotif($phone, $cost, $extraCharges, $tripId, $driverId, $extra_message);
+//
+//                            } elseif ($account->notification_setting == 'account_email') {
+//
+//                                EmailService::send($account->email, $cost, $extraCharges, $extra_message);
+//
+//                            } elseif ($account->notification_setting == 'passenger_phone') {
+//
+//                                $phone = preg_replace('/[^0-9]/', '', $trip->passenger_phone);
+//                                $this->sendNotif($phone, $cost, $extraCharges, $tripId, $driverId, $extra_message);
+//
+//
+//                            } elseif ($account->notification_setting == 'account_phone') {
+//                                $phone = preg_replace('/[^0-9]/', '', $account->phone);
+//                                $this->sendNotif($phone, $cost, $extraCharges, $tripId, $driverId, $extra_message);
+//
+//                            } else {
+//
+//                                $phone = preg_replace('/[^0-9]/', '', $account->phone);
+//                                $this->sendNotif($phone, $cost, $extraCharges, $trip->trip_id, $trip->driver_id, $extra_message);
+//                                $phone = preg_replace('/[^0-9]/', '', $trip->passenger_phone);
+//                                $this->sendNotif($phone, $cost, $extraCharges, $trip->trip_id, $trip->driver_id, $extra_message);
+//
+//                            }
+//
+//
+//                        }
+
+                        $logdata = array();
+                        $logdata['from'] = 'driver';
+                        $logdata['payment'] = $pay_data;
+                        $logdata['trip'] = $trip;
+
+//                        if (isset($request->is_admin)) {
+//                            $logdata['message'] = 'Admin:Trip Payment Added By Driver Using Method Account#' . $request->account . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
+//
+//                        } elseif (isset($request->is_driver)) {
+//                            $logdata['message'] = 'Trip Payment Added By Driver Using Method Account#' . $request->account . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
+//
+//                        } else {
+//                            $logdata['message'] = 'Trip Payment Added By Driver Using Method Account#' . $request->account . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
+//
+//                        }
+
+                        LogService::saveLog($logdata);
+//                        $this->ifBalanceMinusAutoPaidAsAdmin($trip);
+
+                        DB::commit();
+//                        if (isset($request->is_admin)) {
+//                            $id = $trip->driver->id;
+//                            $trip_id = $trip->trip_id;
+//                            $paid_cost = $trip->trip_cost;
+//                            return view('admin.success', compact('id', 'trip_id', 'paid_cost'));
+//
+//                        } else {
+//                            $trip_id = $trip->trip_id;
+//                            $paid_cost = $trip->trip_cost;
+//                            return view('driver.success', compact('trip_id', 'paid_cost'));
+//
+//                        }
+
+                    } else {
+
+
+                        DB::rollBack();
+                    }
+                }
+            }
+
+
 
     }
 
+    public function payTripCard(Request $request)
+    {
+
+        Log::info($request->all());
+
+        $month = $request->expiry_month;
+        $year = $request->expiry_year;
+        $expiryWithoutSlash = $month.$year;
+
+        // Remove the slash from expiry for CardKnoxService
+
+        // Call CardKnoxService to save the card
+        $cardResponse = CardKnoxService::saveCard(
+            $request->account_id,
+            'credit',
+            $request->card_number,
+            $expiryWithoutSlash,
+            $request->card_zip
+        );
+        if ($cardResponse['status']) {
+
+            return response()->json([
+                'valid' => true,
+                'tokenn' => base64_encode($cardResponse['data']['xToken'])
+            ]);
+
+        } else {
+
+            return response()->json([
+                'valid' => false,
+                'message' => 'Error in proccessing please try again'
+            ]);
+
+        }
+
+
+    }
+
+    public function payTripCard2(Request $request)
+    {
+
+        $trip_id = $request->trip_id;
+        $cardknoxToken = base64_decode($request->tokenn);
+
+        $trip = Trip::where('trip_id', $trip_id)->first();
+
+
+        $originalAmount = $trip->trip_cost;
+//                    $trip = new Trip;
+//                    $trip->is_manuall = 1;
+//                    $trip->payment_method = 'card';
+//                    $trip->date = now()->toDateString();
+//                    $trip->time = now()->toTimeString();
+
+
+//                    do {
+//                        $randomTripId = random_int(1000000000, 9999999999);
+//                    } while (Trip::where('trip_id', $randomTripId)->exists());
+//                    $trip->trip_id = $trip_id;
+//                    $trip->save();
+
+
+        $fee = ((float)$originalAmount * 0.03333333333) + .3;
+        $cardknoxAmount = $originalAmount + $fee;
+
+        $desc = 'Carsafe Payment Trip#' . $trip->trip_id . ' driver#' . $trip->trip_id . ' Total Amount=' . $cardknoxAmount . ' , without Fee' . $originalAmount;
+        $charge = CardKnoxService::processPayment($cardknoxToken, $cardknoxAmount, $desc);
+
+        if ($charge['status'] == 'approved') {
+
+            $data['trip_cost'] = $originalAmount;
+            $data['gocab_paid'] = $originalAmount;
+            $data['payment_method'] = 'card';
+            $data['stripe_id'] = $charge['transaction_id'];
+//                    $data['extra_charges'] = $request->extra_charges;
+
+
+//                    if (isset($request->stop_amount)) {
+//                        $firstStopAmount = collect($request->stop_amount)->filter()->first();
+//                        $firstStopLocation = collect($request->stop_location)->filter()->first();
+//
+//                        $data['extra_stop_amount'] = $firstStopAmount;
+//                        $data['stop_location'] = $firstStopLocation;
+//                    }
+//
+//                    if (isset($request->wait_amount)) {
+//                        $firstwait_amount = collect($request->wait_amount)->filter()->first();
+//                        $data['extra_wait_amount'] =  $firstwait_amount;
+//                    }
+//                    if (isset($request->round_trip)) {
+//                        $data['extra_round_trip'] = $request->round_trip;
+//                    }
+//
+//
+//                    if (isset($request->complaint) && $request->complaint !== null) {
+//                        $data['complaint'] = $request->complaint;
+//                        $data['is_complaint'] = '1';
+//                    }
+
+            $trip->update($data);
+
+            $pay_data = $this->addpay($trip, $request);
+
+            $logdata = array();
+            $logdata['from'] = 'driver';
+            $logdata['payment'] = $pay_data;
+            $logdata['trip'] = $trip;
+            $logdata['strip'] = $charge;
+
+
+//                    $logdata['message'] = 'Trip Payment Added By Driver Using Method Card#' . $charge['transaction_id'] . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
+
+
+            LogService::saveLog($logdata);
+            // $this->ifBalanceMinusAutoPaidAsAdmin($trip);
+            DB::commit();
+            return response()->json([
+                'valid' => true,
+                'message' => ''
+            ]);
+
+        } else {
+
+            DB::rollBack();
+            return response()->json([
+                'valid' => false,
+                'message' => 'Card Decline'
+            ]);
+
+        }
+    }
 
 }
