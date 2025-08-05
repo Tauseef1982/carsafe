@@ -242,6 +242,10 @@ class TripController extends Controller
             $trip->accepted_by = $request->accept_by;
         }
 
+        if(!empty($trip->order_id)){
+            $request->payment_method = 'card';
+        }
+
         if ($request->has('trip') && $request->payment_method == 'account') {
 
 
@@ -942,7 +946,7 @@ class TripController extends Controller
 
                     LogService::saveLog($logdata);
 
-                    return response()->json(['status' => false, 'msg' => 'Payment Failed Please Try Again']);
+                    return response()->json(['status' => false, 'msg' => $charge['message']]);
 
                 }
             } catch (\Exception $e) {
@@ -964,7 +968,7 @@ class TripController extends Controller
                 }
                 LogService::saveLog($logdata);
 
-                return response()->json(['status' => false, 'msg' => 'Payment Failed Please Try Again']);
+                return response()->json(['status' => false, 'msg' => $charge['message']]);
             }
         }
 

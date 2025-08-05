@@ -60,16 +60,23 @@ class DriverComplaintController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, driverComplaint $driverComplaint)
+     public function update(Request $request, driverComplaint $driverComplaint)
     {
-        //
+        $driverComplaint = driverComplaint:: where('id' , $request->id)->first();
+        $driverComplaint->status = $request->status;
+        $driverComplaint->admin_note = $request->admin_note;
+        $driverComplaint->save();
+        return redirect()->back()->with('success','Complaint status is updated');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(driverComplaint $driverComplaint)
-    {
-        //
-    }
+    public function destroy($id)
+{
+    $complaint = driverComplaint::findOrFail($id);
+    $complaint->delete();
+
+    return response()->json(['success' => true]);
+}
 }
