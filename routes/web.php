@@ -160,6 +160,8 @@ Route::group(['middleware' => 'admin.auth'], function () {
 
         Route::get('/driver_complaints', [DriverComplaintController::class, 'index']);
         Route::post('/add_complaint' , [DriverComplaintController::class, 'store']);
+         Route::post('/update/driver_complaint', [DriverComplaintController::class, 'update']) ;
+        Route::delete('/complaints/{id}', [DriverComplaintController::class, 'destroy'])->name('complaints.destroy');
     // driver documnets routes
     Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
 Route::post('/documents_store', [DocumentController::class, 'create'])->name('documents.store');
