@@ -179,7 +179,13 @@ class ApiController extends Controller
 
 
         $tripContent = $request->getContent();
-         Log::info($tripContent);
+          $data = [
+            'from' => 'taxicaller',
+            'message' => 'Webhook received from taxicaller -' . $request->comments,
+            'data' => $tripContent,
+        ];
+
+        LogService::saveLog($data);
         $trip = json_decode( $tripContent, true);
 
         // Check if 'start' is valid
