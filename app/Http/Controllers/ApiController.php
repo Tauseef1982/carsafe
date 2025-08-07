@@ -187,6 +187,7 @@ class ApiController extends Controller
 
         LogService::saveLog($data);
         $trip = json_decode( $tripContent, true);
+        try {
 
         // Check if 'start' is valid
                 if ($trip['start'] != '-' && $trip['start'] != '') {
@@ -279,6 +280,14 @@ class ApiController extends Controller
                     }
 
                 }
+        } catch (\Exception $e) {
+
+
+            Log::Info('trip-web-hook-error');
+        }
+
+
+
             }
 
 
