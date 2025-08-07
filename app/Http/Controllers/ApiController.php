@@ -606,7 +606,7 @@ class ApiController extends Controller
 
     public function payTripAccount(Request $request)
     {
-
+        Log::info($request);
         $account_number = $request->account_number;
         $account_pin = $request->account_pin;
         $trip_id = $request->trip_id;
@@ -637,7 +637,7 @@ class ApiController extends Controller
 
 
              $trip = Trip::where('trip_id',$trip_id)->first();
-
+        Log::info('found'.$trip->id);
 //            if($account->address_restriction){
 //                $allowed = $account->allowedAddresses->pluck('address')->map(fn($a) => strtolower(trim($a)));
 //                $from = strtolower(trim($trip->location_from));
