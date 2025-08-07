@@ -294,8 +294,6 @@ class ApiController extends Controller
    public function voiceCall(Request $request){
 
 
-        Log::info($request->all());
-
         $account = Account::where('account_id',$request->account)->first();
         if($account){
             return response()->json([
@@ -539,7 +537,9 @@ class ApiController extends Controller
 
     public function driverByVehicle(Request $request)
     {
-        Log::info($request->all());
+
+        Log::info('finddriver');
+        Log::info($request);
 
         $current_time = Carbon::now();
         $vehicle_number = $request->v_number;
