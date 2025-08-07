@@ -558,8 +558,8 @@ class ApiController extends Controller
                     ->where('trips.payment_method', 'cash')
                     ->where('status', 'NOT LIKE', '%Cancelled%')
                     ->where('status', 'NOT LIKE', '%Client canceled%')
-                    ->whereNotNull('picked_up') // Fixed typo
-                    ->where('picked_up', '!=', '')
+                    ->whereNotNull('icked_up') // Fixed typo
+                    ->where('icked_up', '!=', '')
                     ->where(function ($query) {
                         $query->whereNull('ts_delivered')
                             ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
@@ -572,7 +572,7 @@ class ApiController extends Controller
                         $query->select(DB::raw(1))
                             ->from('trips as future_trips')
                             ->whereColumn('future_trips.driver_id', 'trips.driver_id')
-                            ->where('future_trips.picked_up', '>', DB::raw('trips.picked_up'));
+                            ->where('future_trips.icked_up', '>', DB::raw('trips.icked_up'));
                     })
                     ->select('trips.*')
                     ->orderBy('trips.date', 'desc')
