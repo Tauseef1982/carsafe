@@ -697,6 +697,7 @@ class ApiController extends Controller
                         $logdata['from'] = 'driver';
                         $logdata['payment'] = $pay_data;
                         $logdata['trip'] = $trip;
+                        $logdata['message'] = 'from twillio call';
 
 
                         LogService::saveLog($logdata);
