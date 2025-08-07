@@ -640,8 +640,12 @@ class ApiController extends Controller
 //                }
 //
 //            }
-
+        return response()->json([
+            'move_to' => 1,
+            'msg' => ''
+        ]);
             if ($account) {
+
 //                if ($account->paypertrip === 'on') {
 //
 //                    $cost = $trip->trip_cost;
