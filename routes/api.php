@@ -25,4 +25,7 @@ Route::post('/voice/call', [\App\Http\Controllers\ApiController::class, 'voiceCa
 Route::post('/try-charge', [\App\Http\Controllers\ApiController::class, 'tryrecharge']);
 Route::post('/try-charge2', [\App\Http\Controllers\ApiController::class, 'tryrechargefinal']);
 Route::post('/add-card', [\App\Http\Controllers\ApiController::class, 'addcard']);
+Route::post('/twilio/findvehicle', [\App\Http\Controllers\ApiController::class, 'driverByVehicle']);
+Route::post('/twilio/payTripAccount', [\App\Http\Controllers\ApiController::class, 'payTripAccount']);
+Route::post('/twilio/payTripCard', [\App\Http\Controllers\ApiController::class, 'payTripCard']);
 
