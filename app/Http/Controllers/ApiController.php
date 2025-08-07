@@ -719,6 +719,46 @@ class ApiController extends Controller
 
     }
 
+    public function prepaidAccountDeduction($trip, $account)
+    {
+        $new = new Payment();
+        $new->driver_id = $trip->driver_id;
+        $new->trip_id = $trip->trip_id;
+        $new->payment_date = now()->toDateString();
+        $new->amount = (float) $trip->trip_cost - $trip->discount_amount;
+        $new->user_id = $account->id;
+        $new->user_type = 'customer';
+        $new->type = 'debit';
+        $new->description = 'deduct_from_customer_prepaid_account_against_trip';
+        $new->account_id = $account->account_id;
+        $new->save();
+
+        return $new;
+    }
+    public function addpay($trip, $request)
+    {
+
+        $new = new Payment();
+        $new->driver_id = $trip->driver_id;
+        $new->trip_id = $trip->trip_id;
+        $new->payment_date = now()->toDateString();
+        $new->amount = (float) $trip->gocab_paid;
+        $new->user_id = $trip->driver_id;
+        $new->user_type = 'driver';
+        $new->type = 'credit';
+        if (isset($request->is_admin)) {
+            $new->description = 'admin_acceptt';
+        } elseif (isset($request->is_driver)) {
+            $new->description = 'driver_acceptt';
+        } else {
+            $new->description = 'no_auth';
+        }
+
+        $new->save();
+
+        return $new;
+    }
+
     public function payTripCard(Request $request)
     {
 
