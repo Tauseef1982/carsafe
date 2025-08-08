@@ -635,7 +635,7 @@ class ApiController extends Controller
             ]);
         }
 
-
+        DB::beginTransaction();
         $trip = Trip::where('trip_id',$trip_id)->first();
 
         try {
@@ -720,6 +720,103 @@ class ApiController extends Controller
 
     }
 
+
+    public function payTripCard(Request $request)
+    {
+
+        Log::info($request);
+
+        $month = $request->expiry_month;
+        $year = $request->expiry_year;
+        $expiryWithoutSlash = $month.$year;
+
+        // Remove the slash from expiry for CardKnoxService
+        // Call CardKnoxService to save the card
+        $cardResponse = CardKnoxService::saveCard(
+            $request->account_id,
+            'credit',
+            $request->card_number,
+            $expiryWithoutSlash,
+            $request->card_zip
+        );
+        if ($cardResponse['status']) {
+
+            return response()->json([
+                'valid' => true,
+                'tokenn' => base64_encode($cardResponse['data']['xToken'])
+            ]);
+
+        } else {
+
+            return response()->json([
+                'valid' => false,
+                'message' => 'Error in proccessing please try again'
+            ]);
+
+        }
+
+
+    }
+
+    public function payTripCard2(Request $request)
+    {
+
+        Log::info($request);
+
+        $trip_id = $request->trip_id;
+//        $trip_id = '277151862';
+//        $request->tokenn = 'MzU3cTM3Z20ybTA1OXE2OTkzODI2Mm01N3FxMzg5NTI=';
+        $cardknoxToken = base64_decode($request->tokenn);
+
+        DB::beginTransaction();
+        $trip = Trip::where('trip_id', $trip_id)->first();
+
+        $originalAmount = $trip->trip_cost;
+
+        $fee = ((float)$originalAmount * 0.03333333333) + .3;
+        $cardknoxAmount = $originalAmount + $fee;
+
+        $desc = 'Twilio:Carsafe Payment Trip#' . $trip->trip_id . ' driver#' . $trip->trip_id . ' Total Amount=' . $cardknoxAmount . ' , without Fee' . $originalAmount;
+        $charge = CardKnoxService::processPayment($cardknoxToken, $cardknoxAmount, $desc);
+
+        if ($charge['status'] == 'approved') {
+
+            $data['trip_cost'] = $originalAmount;
+            $data['gocab_paid'] = $originalAmount;
+            $data['payment_method'] = 'card';
+            $data['stripe_id'] = $charge['transaction_id'];
+
+            $trip->update($data);
+
+            $pay_data = $this->addpay($trip, $request);
+
+            $logdata = array();
+            $logdata['from'] = 'driver';
+            $logdata['payment'] = $pay_data;
+            $logdata['trip'] = $trip;
+            $logdata['strip'] = $charge;
+
+            $logdata['message'] = 'Twillio:Trip Payment Added By Driver Using Method Card#' . $charge['transaction_id'] . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
+
+            LogService::saveLog($logdata);
+            // $this->ifBalanceMinusAutoPaidAsAdmin($trip);
+            DB::commit();
+
+            return response()->json([
+                'valid' => true,
+                'message' => ''
+            ]);
+
+        } else {
+
+            DB::rollBack();
+            return response()->json([
+                'valid' => false,
+                'message' => 'Card Decline'
+            ]);
+
+        }
+    }
     public function prepaidAccountDeduction($trip, $account)
     {
         $new = new Payment();
@@ -760,136 +857,5 @@ class ApiController extends Controller
         return $new;
     }
 
-    public function payTripCard(Request $request)
-    {
-
-        Log::info($request->all());
-
-        $month = $request->expiry_month;
-        $year = $request->expiry_year;
-        $expiryWithoutSlash = $month.$year;
-
-        // Remove the slash from expiry for CardKnoxService
-
-        // Call CardKnoxService to save the card
-        $cardResponse = CardKnoxService::saveCard(
-            $request->account_id,
-            'credit',
-            $request->card_number,
-            $expiryWithoutSlash,
-            $request->card_zip
-        );
-        if ($cardResponse['status']) {
-
-            return response()->json([
-                'valid' => true,
-                'tokenn' => base64_encode($cardResponse['data']['xToken'])
-            ]);
-
-        } else {
-
-            return response()->json([
-                'valid' => false,
-                'message' => 'Error in proccessing please try again'
-            ]);
-
-        }
-
-
-    }
-
-    public function payTripCard2(Request $request)
-    {
-
-        $trip_id = $request->trip_id;
-        $cardknoxToken = base64_decode($request->tokenn);
-
-        $trip = Trip::where('trip_id', $trip_id)->first();
-
-
-        $originalAmount = $trip->trip_cost;
-//                    $trip = new Trip;
-//                    $trip->is_manuall = 1;
-//                    $trip->payment_method = 'card';
-//                    $trip->date = now()->toDateString();
-//                    $trip->time = now()->toTimeString();
-
-
-//                    do {
-//                        $randomTripId = random_int(1000000000, 9999999999);
-//                    } while (Trip::where('trip_id', $randomTripId)->exists());
-//                    $trip->trip_id = $trip_id;
-//                    $trip->save();
-
-
-        $fee = ((float)$originalAmount * 0.03333333333) + .3;
-        $cardknoxAmount = $originalAmount + $fee;
-
-        $desc = 'Carsafe Payment Trip#' . $trip->trip_id . ' driver#' . $trip->trip_id . ' Total Amount=' . $cardknoxAmount . ' , without Fee' . $originalAmount;
-        $charge = CardKnoxService::processPayment($cardknoxToken, $cardknoxAmount, $desc);
-
-        if ($charge['status'] == 'approved') {
-
-            $data['trip_cost'] = $originalAmount;
-            $data['gocab_paid'] = $originalAmount;
-            $data['payment_method'] = 'card';
-            $data['stripe_id'] = $charge['transaction_id'];
-//                    $data['extra_charges'] = $request->extra_charges;
-
-
-//                    if (isset($request->stop_amount)) {
-//                        $firstStopAmount = collect($request->stop_amount)->filter()->first();
-//                        $firstStopLocation = collect($request->stop_location)->filter()->first();
-//
-//                        $data['extra_stop_amount'] = $firstStopAmount;
-//                        $data['stop_location'] = $firstStopLocation;
-//                    }
-//
-//                    if (isset($request->wait_amount)) {
-//                        $firstwait_amount = collect($request->wait_amount)->filter()->first();
-//                        $data['extra_wait_amount'] =  $firstwait_amount;
-//                    }
-//                    if (isset($request->round_trip)) {
-//                        $data['extra_round_trip'] = $request->round_trip;
-//                    }
-//
-//
-//                    if (isset($request->complaint) && $request->complaint !== null) {
-//                        $data['complaint'] = $request->complaint;
-//                        $data['is_complaint'] = '1';
-//                    }
-
-            $trip->update($data);
-
-            $pay_data = $this->addpay($trip, $request);
-
-            $logdata = array();
-            $logdata['from'] = 'driver';
-            $logdata['payment'] = $pay_data;
-            $logdata['trip'] = $trip;
-            $logdata['strip'] = $charge;
-
-
-//                    $logdata['message'] = 'Trip Payment Added By Driver Using Method Card#' . $charge['transaction_id'] . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
-
-
-            LogService::saveLog($logdata);
-            // $this->ifBalanceMinusAutoPaidAsAdmin($trip);
-            DB::commit();
-            return response()->json([
-                'valid' => true,
-                'message' => ''
-            ]);
-
-        } else {
-
-            DB::rollBack();
-            return response()->json([
-                'valid' => false,
-                'message' => 'Card Decline'
-            ]);
-
-        }
-    }
 
 }
