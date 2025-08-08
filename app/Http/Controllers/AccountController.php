@@ -1988,6 +1988,19 @@ public function checkAccountId(Request $request){
     return response()->json(['exists' => $exists]);
 }
 
+public function checkAccountStops(Request $request)
+{
+    $account = Account::where('account_id', $request->account)->first();
+
+    if (!$account) {
+        return response()->json(['disable_stops' => true, 'error' => 'Account not found']);
+    }
+
+    return response()->json([
+        'disable_stops' => (bool) $account->disable_stops
+    ]);
+}
+
 
 
 

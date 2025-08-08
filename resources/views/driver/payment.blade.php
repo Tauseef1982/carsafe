@@ -156,10 +156,10 @@ $util = new \App\Utils\dateUtil();
                                         </div>
                                     </div>
                                 </div>
-                              
+
                               @endif
-                               
-                               
+
+
 
                                 <div class="text-end mt-3">
                                     <button class="btn btn-primary btn-block w-100" type="button" id="show-amount-div">
@@ -189,19 +189,19 @@ $util = new \App\Utils\dateUtil();
                                      @else
                                      <span class="danger" >Admin has blocked you from adding extra </span>
                                     @endif
-                                    
+
                                     <div class="  p-3 extracharges-field-div" data-id="2">
                                         <div class="mb-3">
                                             <div class="d-flex align-items-center mb-2">
-                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-4">−</button>
+                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-4 ">−</button>
                                                 <span class="mx-2 fw-bold">$4 Stop</span>
-                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-4">+</button>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-4 ">+</button>
                                             </div>
 
                                             <div class="d-flex align-items-center mb-2">
-                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-5">−</button>
+                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-5 ">−</button>
                                                 <span class="mx-2 fw-bold">$5 Stop</span>
-                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-5">+</button>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-5 ">+</button>
                                             </div>
 
                                             <div class="d-flex align-items-center">
@@ -309,15 +309,15 @@ $util = new \App\Utils\dateUtil();
                                     <div class="  p-3 extracharges-field-div" data-id="1">
                                        <div class="mb-3">
                                             <div class="d-flex align-items-center mb-2">
-                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-4">−</button>
+                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-4 stops">−</button>
                                                 <span class="mx-2 fw-bold">$4 Stop</span>
-                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-4">+</button>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-4 stops">+</button>
                                             </div>
 
                                             <div class="d-flex align-items-center mb-2">
-                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-5">−</button>
+                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-5 stops">−</button>
                                                 <span class="mx-2 fw-bold">$5 Stop</span>
-                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-5">+</button>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-5 stops">+</button>
                                             </div>
 
                                             <div class="d-flex align-items-center">
@@ -465,51 +465,86 @@ $util = new \App\Utils\dateUtil();
         var targetId = $(this).data('target');
         $('.extracharges-field-div[data-id="' + targetId + '"]').toggle();
     });
-        // + $4 Stop
-    $('.add-stop-4').click(function (e) {
-        e.preventDefault();
-        var $container = $(this).closest('.extracharges-field-div');
-        var $input = $container.find('.stop_amount').first();
-        var current = parseFloat($input.val()) || 0;
+   $(document).on('click', '.stops', function (e) {
+    e.preventDefault();
+
+    let $btn = $(this);
+    let accountId = $('#acc-field').val().trim();
+
+    if (!accountId) {
+        alert('Please enter an account number first.');
+        return;
+    }
+
+
+    $.ajax({
+        url: '/check-account-stops',
+        type: 'POST',
+        data: {
+            account: accountId,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (res) {
+            if (res.disable_stops) {
+                alert('This account  stops are disabled by admin.');
+                return;
+            }
+
+            // If stops are allowed, run the original logic
+            let $container = $btn.closest('.extracharges-field-div');
+            let $input = $container.find('.stop_amount').first();
+            let current = parseFloat($input.val()) || 0;
+
+            if ($btn.hasClass('add-stop-4')) {
+                $input.val((current + 4).toFixed(2));
+            }
+            else if ($btn.hasClass('remove-stop-4')) {
+                if (current >= 4) $input.val((current - 4).toFixed(2));
+            }
+            else if ($btn.hasClass('add-stop-5')) {
+                $input.val((current + 5).toFixed(2));
+            }
+            else if ($btn.hasClass('remove-stop-5')) {
+                if (current >= 5) $input.val((current - 5).toFixed(2));
+            }
+
+            updateExtraCharges($container);
+        }
+    });
+});
+
+$(document).on('click', '.add-stop-4, .remove-stop-4, .add-stop-5, .remove-stop-5', function (e) {
+    e.preventDefault();
+
+    // Check if payment method is card
+    if ($('input[name="payment_method"]:checked').val() !== 'card') {
+        alert('Stops can only be added for Card payments.');
+        return;
+    }
+
+    var $container = $(this).closest('.extracharges-field-div');
+    var $input = $container.find('.stop_amount').first();
+    var current = parseFloat($input.val()) || 0;
+
+    if ($(this).hasClass('add-stop-4')) {
         $input.val((current + 4).toFixed(2));
-        updateExtraCharges($container);
-    });
-
-    // − $4 Stop
-    $('.remove-stop-4').click(function (e) {
-        e.preventDefault();
-        var $container = $(this).closest('.extracharges-field-div');
-        var $input = $container.find('.stop_amount').first();
-        var current = parseFloat($input.val()) || 0;
-        if (current >= 4) {
-            $input.val((current - 4).toFixed(2));
-            updateExtraCharges($container);
-        }
-    });
-
-    // + $5 Stop
-    $('.add-stop-5').click(function (e) {
-        e.preventDefault();
-        var $container = $(this).closest('.extracharges-field-div');
-        var $input = $container.find('.stop_amount').first();
-        var current = parseFloat($input.val()) || 0;
+    }
+    else if ($(this).hasClass('remove-stop-4') && current >= 4) {
+        $input.val((current - 4).toFixed(2));
+    }
+    else if ($(this).hasClass('add-stop-5')) {
         $input.val((current + 5).toFixed(2));
-        updateExtraCharges($container);
-    });
+    }
+    else if ($(this).hasClass('remove-stop-5') && current >= 5) {
+        $input.val((current - 5).toFixed(2));
+    }
 
-    // − $5 Stop
-    $('.remove-stop-5').click(function (e) {
-        e.preventDefault();
-        var $container = $(this).closest('.extracharges-field-div');
-        var $input = $container.find('.stop_amount').first();
-        var current = parseFloat($input.val()) || 0;
-        if (current >= 5) {
-            $input.val((current - 5).toFixed(2));
-            updateExtraCharges($container);
-        }
-    });
+    updateExtraCharges($container);
+});
 
-    
+
+
+
      let driverWaitCharges = {{ $driver->wait_charges ?? 0.5 }};
     $('.add-wait').click(function (e) {
         e.preventDefault();
