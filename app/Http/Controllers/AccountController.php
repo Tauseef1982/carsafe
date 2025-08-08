@@ -1948,6 +1948,18 @@ class AccountController extends Controller
         return back()->with('success', 'Account stops are updated.');
 
       }
+       public function disable_account_payment(Request $request){
+
+        $id = $request->account_id;
+        $account = Account::find($id);
+
+        $account->disable_account_payment = $request->has('disable_account_payment');
+
+        $account->save();
+       
+        return back()->with('success', 'Account payment method is updated.');
+
+      }
     public function account_restriction(Request $request){
         $id = $request->account_id;
         $account = Account::find($id);

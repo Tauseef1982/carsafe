@@ -122,7 +122,9 @@
                                         </div>
                                         <button type="submit" class="btn btn-primary mt-3">Save</button>
                                              </form>
-                                             <form action="{{ url('admin/disable_stops') }}" method="post" class="mt-4">
+                                             <div class="row">
+                                                <div class="col-md-6">
+                                                     <form action="{{ url('admin/disable_stops') }}" method="post" class="mt-4">
                                                  @csrf
                                          <input type="hidden" value="{{ $account->id }}" name="account_id">
                                          <label>
@@ -131,6 +133,20 @@
                                         </label> <br>
                                         <button type="submit" class="btn btn-primary mt-3">Save</button>
                                              </form>
+                                                </div>
+                                                 <div class="col-md-6">
+                                                     <form action="{{ url('admin/disable_account_payment') }}" method="post" class="mt-4">
+                                                 @csrf
+                                         <input type="hidden" value="{{ $account->id }}" name="account_id">
+                                         <label>
+                                            <input type="checkbox" name="disable_account_payment" id="disable_account_paymnet" {{ $account->disable_account_payment ? 'checked' : '' }}>
+                                            Disable Account Payments
+                                        </label> <br>
+                                        <button type="submit" class="btn btn-primary mt-3">Save</button>
+                                             </form>
+                                                </div>
+                                             </div>
+
 
 
                                         <div class="card-header-right">
