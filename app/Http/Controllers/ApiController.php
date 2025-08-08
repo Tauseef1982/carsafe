@@ -298,7 +298,7 @@ class ApiController extends Controller
         if($account){
             return response()->json([
                 'valid' => true,
-                'balance' => 25.75
+                'balance' => $account->balance
             ]);
         }else{
             return response()->json([
