@@ -50,20 +50,20 @@ class TripController extends Controller
                 ->where('trips.payment_method', 'cash')
                 ->where('status', 'NOT LIKE', '%Cancelled%')
                 ->where('status', 'NOT LIKE', '%Client canceled%')
-                ->whereNotNull('icked_up')
-                ->where('icked_up', '!=', '')
-                ->where(function ($query) {
-                    $query->whereNull('ts_delivered')
-                        ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
-                        ->orWhereBetween('ts_delivered', [now()->subMinutes(15)->format('Y-m-d H:i:s'), now()->format('Y-m-d H:i:s')]);
-                })
-                ->whereNotExists(function ($query) use ($driverId) {
-                    $query->select(DB::raw(1))
-                        ->from('trips as future_trips')
-                        ->whereColumn('future_trips.driver_id', 'trips.driver_id')
-                        ->where('future_trips.icked_up', '>', DB::raw('trips.icked_up'));
+                // ->whereNotNull('icked_up')
+                // ->where('icked_up', '!=', '')
+                // ->where(function ($query) {
+                //     $query->whereNull('ts_delivered')
+                //         ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
+                //         ->orWhereBetween('ts_delivered', [now()->subMinutes(15)->format('Y-m-d H:i:s'), now()->format('Y-m-d H:i:s')]);
+                // })
+                // ->whereNotExists(function ($query) use ($driverId) {
+                //     $query->select(DB::raw(1))
+                //         ->from('trips as future_trips')
+                //         ->whereColumn('future_trips.driver_id', 'trips.driver_id')
+                //         ->where('future_trips.icked_up', '>', DB::raw('trips.icked_up'));
 
-                })
+                // })
                 ->select('trips.*')
                 ->orderBy('trips.date', 'desc')
                 ->orderBy('trips.time', 'desc')
@@ -224,7 +224,6 @@ class TripController extends Controller
     {
 
 
-
         DB::beginTransaction();
         if ($request->has('trip')) {
 
@@ -289,6 +288,15 @@ class TripController extends Controller
                     $cost = $trip->trip_cost > 0 ? (float) $trip->trip_cost : (float) $request->amount;
 
                     $extraCharges = $request->extra_charges > 0 ? (float) $request->extra_charges : (float) $trip->extra_charges ;
+                    if ($account->disable_stops == 1) {
+                        $stop_amounts = $request->stop_amount ?? [];
+
+                        $stop_amount_0 = isset($stop_amounts[0]) ? (float) $stop_amounts[0] : 0;
+                        $stop_amount_1 = isset($stop_amounts[1]) ? (float) $stop_amounts[1] : 0;
+
+                        $stop = $stop_amount_0 + $stop_amount_1;
+                        $extraCharges -= $stop;
+                    }
                     $cost += $extraCharges;
                     $fee = ($cost * 0.03333333333) + 0.30;
                     $cardknoxAmount = $cost + $fee;
@@ -375,6 +383,15 @@ class TripController extends Controller
 
 
                         $extraCharges = $request->extra_charges > 0 ? $request->extra_charges : $trip->extra_charges;
+                        if ($account->disable_stops == 1) {
+                        $stop_amounts = $request->stop_amount ?? [];
+
+                        $stop_amount_0 = isset($stop_amounts[0]) ? (float) $stop_amounts[0] : 0;
+                        $stop_amount_1 = isset($stop_amounts[1]) ? (float) $stop_amounts[1] : 0;
+
+                        $stop = $stop_amount_0 + $stop_amount_1;
+                        $extraCharges -= $stop;
+                    }
                         $cost = $cost + (float) $extraCharges;
 
                         $discount = Discount::select('discounts.*')
@@ -607,6 +624,15 @@ class TripController extends Controller
 
 
                         $extraCharges = $request->extra_charges > 0 ? (float)$request->extra_charges : (float)$trip->extra_charges ;
+                            if ($account->disable_stops == 1) {
+                        $stop_amounts = $request->stop_amount ?? [];
+
+                        $stop_amount_0 = isset($stop_amounts[0]) ? (float) $stop_amounts[0] : 0;
+                        $stop_amount_1 = isset($stop_amounts[1]) ? (float) $stop_amounts[1] : 0;
+
+                        $stop = $stop_amount_0 + $stop_amount_1;
+                        $extraCharges -= $stop;
+                    }
                         $cost = $cost + (float) $extraCharges;
 
                         $discount = Discount::select('discounts.*')
@@ -631,14 +657,16 @@ class TripController extends Controller
                         $trip->payment_method = 'account';
                         $trip->cube_pin_status = $request->account_pin;
                         $trip->extra_charges = $extraCharges;
-
+                           if($account->disable_stops == 0){
                             $firstStopAmount = collect($request->stop_amount)->filter()->first();
                             $firstStopLocation = collect($request->stop_location)->filter()->first();
+                           }
+
                               $firstwait_amount = collect($request->wait_amount)->filter()->first();
-                        if (isset($request->stop_amount)) {
-                            $trip->extra_stop_amount = $firstStopAmount;
-                            $trip->stop_location = $firstStopLocation;
-                        }
+                        // if (isset($request->stop_amount)) {
+                        //     $trip->extra_stop_amount = $firstStopAmount;
+                        //     $trip->stop_location = $firstStopLocation;
+                        // }
 
                         if (isset($request->wait_amount)) {
                             $trip->extra_wait_amount = $firstwait_amount;
@@ -842,6 +870,7 @@ class TripController extends Controller
             try {
 
                 if ($request->has('trip') && isset($trip)) {
+                    
                     $originalAmount = $request->amount + $request->extra_charges;
                 } else {
 

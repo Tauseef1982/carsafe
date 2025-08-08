@@ -331,7 +331,7 @@ class AccountController extends Controller
     $data['password'] = $request->password;
     Mail::to($request->email)->send(new CustomerLogins($data));
 
-    
+
 
     // Save payment
     $account_payment = new AccountPayment();
@@ -403,13 +403,13 @@ class AccountController extends Controller
         return redirect()->back()->with('error', 'Account not found.');
     }
 
-   
+
     if ($request->status == 1) {
         $account->last_activated_at = now();
-       
+
     } else {
         $account->last_inactive_at = now();
-        
+
     }
 
     $account->status = $request->status;
@@ -418,7 +418,7 @@ class AccountController extends Controller
 
     $account->save();
 
-    
+
 
     return redirect()->back()->with('success', 'Account status is changed successfully.');
 }
@@ -512,7 +512,7 @@ class AccountController extends Controller
 
             }
 
-               
+
 
 
         DB::commit();
@@ -1940,14 +1940,21 @@ class AccountController extends Controller
     $account_payment = AccountPayment::where('hash_id',$id)->first();
     return view('account_complaint', compact('account_payment'));
     }
+      public function disable_stops(Request $request){
+        $id = $request->account_id;
+        $account = Account::find($id);
+        $account->disable_stops = $request->has('disable_stops');
+        $account->save();
+        return back()->with('success', 'Account stops are updated.');
 
+      }
     public function account_restriction(Request $request){
         $id = $request->account_id;
         $account = Account::find($id);
         $account->address_restriction = $request->has('address_restriction');
         $account->save();
 
-        
+
 
         if ($account->address_restriction && $request->filled('addresses')) {
         foreach ($request->addresses as $address) {
@@ -1961,7 +1968,7 @@ class AccountController extends Controller
     }
 
     public function deleteAllowedAddress($id){
-         
+
 
     $address = AllowedAddress::where('id', $id)->first();
 

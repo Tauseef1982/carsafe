@@ -107,7 +107,7 @@ Route::group(['middleware' => 'admin.auth'], function () {
         Route::get('/accounts/payments', [AccountController::class, 'accountPayments']);
         Route::post('/pay-to-gocab', [AccountController::class, 'paymentToGocab'])->name('pay-to-gocab');
         Route::post('/update_account_restriction', [AccountController::class, 'account_restriction']);
-
+        Route::post('/disable_stops', [AccountController::class, 'disable_stops']);
         Route::delete('/account/allowed-addresses/{id}', [AccountController::class, 'deleteAllowedAddress'])->name('allowed-addresses.delete');
 
         Route::post('/pay-to-refill', [AccountController::class, 'paymentToRefill']);
