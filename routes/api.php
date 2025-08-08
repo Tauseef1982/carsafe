@@ -28,4 +28,5 @@ Route::post('/add-card', [\App\Http\Controllers\ApiController::class, 'addcard']
 Route::post('/twilio/findvehicle', [\App\Http\Controllers\ApiController::class, 'driverByVehicle']);
 Route::post('/twilio/payTripAccount', [\App\Http\Controllers\ApiController::class, 'payTripAccount']);
 Route::post('/twilio/payTripCard', [\App\Http\Controllers\ApiController::class, 'payTripCard']);
+Route::post('/twilio/payTripCard2', [\App\Http\Controllers\ApiController::class, 'payTripCard2']);
 
