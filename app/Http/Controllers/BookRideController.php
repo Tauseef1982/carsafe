@@ -30,7 +30,7 @@ public function store(Request $request)
         $account_id = $account->account_id;
         $name = $account->f_name;
         $email = $account->email;
-        $phone = $account->phone;
+        $phone = $request->phone_number;
         $pickup_address = $request->pickup_location;
         $pickup_lat = $request->pickup_lat;
         $pickup_lng = $request->pickup_lng;
@@ -45,6 +45,7 @@ public function store(Request $request)
             "order" => [
                 "company_id" => 48647,
                 "provider_id" => 0,
+                "auto_assign" => true,
                 "items" => [
                     [
                         "@type" => "passengers",
