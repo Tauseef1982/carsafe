@@ -1956,7 +1956,7 @@ class AccountController extends Controller
         $account->disable_account_payment = $request->has('disable_account_payment');
 
         $account->save();
-       
+
         return back()->with('success', 'Account payment method is updated.');
 
       }
@@ -2014,6 +2014,18 @@ public function checkAccountStops(Request $request)
 }
 
 
+public function checkAccountPaymnetMethod(Request $request)
+{
+    $account = Account::where('account_id', $request->account)->first();
+
+    if (!$account) {
+        return response()->json(['disable_account_payment' => true, 'error' => 'Account not found']);
+    }
+
+    return response()->json([
+        'disable_account_payment' => (bool) $account->disable_account_payment
+    ]);
+}
 
 
 }

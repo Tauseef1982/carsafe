@@ -241,9 +241,9 @@ class TripController extends Controller
             $trip->accepted_by = $request->accept_by;
         }
 
-        if(!empty($trip->order_id)){
-            $request->payment_method = 'card';
-        }
+        // if(!empty($trip->order_id)){
+        //     $request->payment_method = 'card';
+        // }
 
         if ($request->has('trip') && $request->payment_method == 'account') {
 

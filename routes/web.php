@@ -221,7 +221,7 @@ Route::group(['middleware' => 'driver.auth','as' => 'driver.'], function () {
 
     });
     Route::post('/check-account-stops', [AccountController::class, 'checkAccountStops']);
-
+    Route::post('/check-disable-account-payment',[AccountController::class, 'checkAccountPaymnetMethod']);
 
 });
 
