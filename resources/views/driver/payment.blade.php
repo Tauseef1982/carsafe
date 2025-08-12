@@ -616,7 +616,7 @@ $(document).on('input', 'input[name="stop_amount[]"], input[name="stop_location[
                     // }
 
                 }
-                  console.log(order_id);
+                  
                  if (order_id == null) {
     $('#acc-field').on('change', function () {
         let accountId = $('#acc-field').val().trim();
@@ -626,6 +626,7 @@ $(document).on('input', 'input[name="stop_amount[]"], input[name="stop_location[
             type: 'POST',
             data: {
                 account: accountId,
+
                 _token: $('meta[name="csrf-token"]').attr('content')
             },
             success: function (res) {

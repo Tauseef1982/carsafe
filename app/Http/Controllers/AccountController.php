@@ -11,6 +11,7 @@ use App\Models\Payment;
 use App\Models\Trip;
 use App\Models\Discount;
 use App\Models\AllowedAddress;
+use App\Models\CustomerBooking;
 use App\Services\AccountService;
 use App\Services\CardKnoxService;
 use App\Services\CubeContact;
@@ -2016,15 +2017,36 @@ public function checkAccountStops(Request $request)
 
 public function checkAccountPaymnetMethod(Request $request)
 {
-    $account = Account::where('account_id', $request->account)->first();
+   $account = Account::where('account_id', $request->account)->first();
 
-    if (!$account) {
-        return response()->json(['disable_account_payment' => true, 'error' => 'Account not found']);
-    }
-
+if (!$account) {
     return response()->json([
-        'disable_account_payment' => (bool) $account->disable_account_payment
+        'disable_account_payment' => true,
+        'error' => 'Account not found'
     ]);
+}
+
+if ($account->disable_account_payment) {
+    $order = CustomerBooking::where('account_id', $request->account)
+        ->where('order_id', $account->order_id)
+        ->first();
+
+
+   if ($order) {
+        return response()->json([
+            'disable_account_payment' => false
+        ]);
+    }else{
+        return response()->json([
+        'disable_account_payment' => true
+    ]);
+    }
+}
+
+return response()->json([
+    'disable_account_payment' => (bool) $account->disable_account_payment
+]);
+
 }
 
 
