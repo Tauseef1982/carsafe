@@ -24,15 +24,15 @@
                         <div class="card-body">
                             <form method="post" action="{{url('admin/edit_complaint')}}/{{$complaint->id}}">
                                 @csrf
-                                
+
                                 <div class="row">
                                     <div class="col-12">
                                         <label for="">Username</label>
                                         <input type="text" class="form-control" name="username"
                                                value="{{$complaint->username}}">
                                     </div>
-                                   
-                                   
+
+
                                     <div class="col-12">
                                         <label for="">Status</label>
                                         <select class="form-select" name="status">
@@ -43,6 +43,11 @@
                                                 Solve
                                             </option>
                                         </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="">Complaint</label>
+                                        <textarea class="form-control" name="complaint">{{$complaint->complaint}}</textarea>
+
                                     </div>
                                     <div class="col-12">
                                         <label for="">Note</label>

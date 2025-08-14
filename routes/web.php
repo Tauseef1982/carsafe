@@ -93,6 +93,7 @@ Route::group(['middleware' => 'admin.auth'], function () {
         Route::post('accounts/cron-postpaid', [AccountComplaintController::class, 'cronPostpaidSubmit']);
         Route::get('update_complaint_status/{id}', [AccountComplaintController::class, 'edit']);
         Route::post('edit_complaint/{id}', [AccountComplaintController::class, 'update']);
+         Route::get('delete_complaint_account/{id}', [AccountComplaintController::class, 'destroy']);
         Route::get('trip/pay/{id}',[AdminController::class, 'payingTripAccountMethod']);
         Route::get('/logs', [AdminController::class, 'logs'])->name('logs');
 
@@ -162,7 +163,7 @@ Route::group(['middleware' => 'admin.auth'], function () {
         Route::get('/driver_complaints', [DriverComplaintController::class, 'index']);
         Route::post('/add_complaint' , [DriverComplaintController::class, 'store']);
          Route::post('/update/driver_complaint', [DriverComplaintController::class, 'update']) ;
-        Route::delete('/complaints/{id}', [DriverComplaintController::class, 'destroy'])->name('complaints.destroy');
+        Route::get('delete/complaint/{id}', [DriverComplaintController::class, 'destroy'])->name('complaints.destroy');
     // driver documnets routes
     Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
 Route::post('/documents_store', [DocumentController::class, 'create'])->name('documents.store');

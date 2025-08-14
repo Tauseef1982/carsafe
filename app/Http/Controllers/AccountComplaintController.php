@@ -120,6 +120,7 @@ class AccountComplaintController extends Controller
         $complaint->status = $request->status;
         $complaint->username = $request->username;
         $complaint->note = $request->note;
+        $complaint->complaint = $request->complaint;
         $complaint->save();
         $account = Account::where('account_id',$complaint->account_id)->first();
 
@@ -142,8 +143,11 @@ class AccountComplaintController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Account_Complaint $account_Complaint)
+    public function destroy($id)
     {
-        //
+         $complaint = Account_Complaint::find($id);
+          $complaint->delete();
+
+    return redirect()->back()->with('success', 'Complaint is deleted successfully!');
     }
 }
