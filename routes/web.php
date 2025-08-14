@@ -205,6 +205,7 @@ Route::group(['middleware' => 'driver.auth','as' => 'driver.'], function () {
     Route::get('/trip_history', [TripController::class, 'alltrips'])->middleware('throttle:20,1');
     Route::post('/add-payment', [TripController::class, 'update'])->middleware('throttle:20,1');
     Route::post('/add-payment-new', [TripController::class, 'updateNew'])->middleware('throttle:20,1');
+    Route::get('/update_price', [TripController::class, 'get_new_price']);
 
     Route::post('register-complaint', [TripController::class,'register_complaint']);
     Route::get('/success', function () { return view('driver.success'); });

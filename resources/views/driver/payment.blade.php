@@ -55,7 +55,7 @@ $util = new \App\Utils\dateUtil();
                                     {{ session('error') }}
                                 </div>
                             @endif
-                            <a href="{{ url('payment') }}" class="btn btn-primary float-end">Get updated Price</a>
+                            <a href="{{ url('update_price') }}" class="btn btn-primary float-end">Get updated Price</a>
                         </div>
                         <form action="{{url('add-payment')}}" method="post" id="payment_form" onsubmit="disableButton()">
                             @csrf
@@ -616,7 +616,7 @@ $(document).on('input', 'input[name="stop_amount[]"], input[name="stop_location[
                     // }
 
                 }
-                  
+
                  if (order_id == null) {
     $('#acc-field').on('change', function () {
         let accountId = $('#acc-field').val().trim();

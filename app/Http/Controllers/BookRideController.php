@@ -71,10 +71,7 @@ public function store(Request $request)
                                 "data" => null
                             ]
                         ],
-                        "custom_fields" => [
-                            "tag.driver.1" => "true",
-                            "tag.vehicle.1" => "true"
-                        ]
+                       
                     ]
                 ],
                 "route" => [

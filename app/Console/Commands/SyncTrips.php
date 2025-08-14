@@ -76,13 +76,13 @@ class SyncTrips extends Command
 
         $response = curl_exec($curl);
         curl_close($curl);
-        
+
         $response = json_decode($response);
         $trips = $response->rows;
 
 
         foreach ($trips as $trip) {
-          // dd($trip);
+         
 
             // Check if 'start' is valid
             if ($trip->{'start'} != '-' && $trip->{'start'} != '') {
