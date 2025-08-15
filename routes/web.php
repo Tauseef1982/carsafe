@@ -93,6 +93,7 @@ Route::group(['middleware' => 'admin.auth'], function () {
         Route::post('accounts/cron-postpaid', [AccountComplaintController::class, 'cronPostpaidSubmit']);
         Route::get('update_complaint_status/{id}', [AccountComplaintController::class, 'edit']);
         Route::post('edit_complaint/{id}', [AccountComplaintController::class, 'update']);
+         Route::get('delete_complaint_account/{id}', [AccountComplaintController::class, 'destroy']);
         Route::get('trip/pay/{id}',[AdminController::class, 'payingTripAccountMethod']);
         Route::get('/logs', [AdminController::class, 'logs'])->name('logs');
 
@@ -108,6 +109,7 @@ Route::group(['middleware' => 'admin.auth'], function () {
         Route::post('/pay-to-gocab', [AccountController::class, 'paymentToGocab'])->name('pay-to-gocab');
         Route::post('/update_account_restriction', [AccountController::class, 'account_restriction']);
         Route::post('/disable_stops', [AccountController::class, 'disable_stops']);
+         Route::post('/disable_account_payment', [AccountController::class, 'disable_account_payment']);
         Route::delete('/account/allowed-addresses/{id}', [AccountController::class, 'deleteAllowedAddress'])->name('allowed-addresses.delete');
 
         Route::post('/pay-to-refill', [AccountController::class, 'paymentToRefill']);
@@ -161,7 +163,7 @@ Route::group(['middleware' => 'admin.auth'], function () {
         Route::get('/driver_complaints', [DriverComplaintController::class, 'index']);
         Route::post('/add_complaint' , [DriverComplaintController::class, 'store']);
          Route::post('/update/driver_complaint', [DriverComplaintController::class, 'update']) ;
-        Route::delete('/complaints/{id}', [DriverComplaintController::class, 'destroy'])->name('complaints.destroy');
+        Route::get('delete/complaint/{id}', [DriverComplaintController::class, 'destroy'])->name('complaints.destroy');
     // driver documnets routes
     Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
 Route::post('/documents_store', [DocumentController::class, 'create'])->name('documents.store');
@@ -204,6 +206,7 @@ Route::group(['middleware' => 'driver.auth','as' => 'driver.'], function () {
     Route::get('/trip_history', [TripController::class, 'alltrips'])->middleware('throttle:20,1');
     Route::post('/add-payment', [TripController::class, 'update'])->middleware('throttle:20,1');
     Route::post('/add-payment-new', [TripController::class, 'updateNew'])->middleware('throttle:20,1');
+    Route::get('/update_price', [TripController::class, 'get_new_price']);
 
     Route::post('register-complaint', [TripController::class,'register_complaint']);
     Route::get('/success', function () { return view('driver.success'); });
@@ -220,7 +223,7 @@ Route::group(['middleware' => 'driver.auth','as' => 'driver.'], function () {
 
     });
     Route::post('/check-account-stops', [AccountController::class, 'checkAccountStops']);
-
+    Route::post('/check-disable-account-payment',[AccountController::class, 'checkAccountPaymnetMethod']);
 
 });
 

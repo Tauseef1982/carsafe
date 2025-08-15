@@ -65,6 +65,7 @@ class DriverComplaintController extends Controller
         $driverComplaint = driverComplaint:: where('id' , $request->id)->first();
         $driverComplaint->status = $request->status;
         $driverComplaint->admin_note = $request->admin_note;
+        $driverComplaint->description = $request->description;
         $driverComplaint->save();
         return redirect()->back()->with('success','Complaint status is updated');
     }
@@ -77,6 +78,6 @@ class DriverComplaintController extends Controller
     $complaint = driverComplaint::findOrFail($id);
     $complaint->delete();
 
-    return response()->json(['success' => true]);
+    return redirect()->back()->with('success', 'Complaint is deleted successfully!');
 }
 }

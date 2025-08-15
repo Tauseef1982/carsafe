@@ -50,20 +50,20 @@ class TripController extends Controller
                 ->where('trips.payment_method', 'cash')
                 ->where('status', 'NOT LIKE', '%Cancelled%')
                 ->where('status', 'NOT LIKE', '%Client canceled%')
-                // ->whereNotNull('icked_up')
-                // ->where('icked_up', '!=', '')
-                // ->where(function ($query) {
-                //     $query->whereNull('ts_delivered')
-                //         ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
-                //         ->orWhereBetween('ts_delivered', [now()->subMinutes(15)->format('Y-m-d H:i:s'), now()->format('Y-m-d H:i:s')]);
-                // })
-                // ->whereNotExists(function ($query) use ($driverId) {
-                //     $query->select(DB::raw(1))
-                //         ->from('trips as future_trips')
-                //         ->whereColumn('future_trips.driver_id', 'trips.driver_id')
-                //         ->where('future_trips.icked_up', '>', DB::raw('trips.icked_up'));
+                ->whereNotNull('icked_up')
+                ->where('icked_up', '!=', '')
+                ->where(function ($query) {
+                    $query->whereNull('ts_delivered')
+                        ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
+                        ->orWhereBetween('ts_delivered', [now()->subMinutes(15)->format('Y-m-d H:i:s'), now()->format('Y-m-d H:i:s')]);
+                })
+                ->whereNotExists(function ($query) use ($driverId) {
+                    $query->select(DB::raw(1))
+                        ->from('trips as future_trips')
+                        ->whereColumn('future_trips.driver_id', 'trips.driver_id')
+                        ->where('future_trips.icked_up', '>', DB::raw('trips.icked_up'));
 
-                // })
+                })
                 ->select('trips.*')
                 ->orderBy('trips.date', 'desc')
                 ->orderBy('trips.time', 'desc')
@@ -241,9 +241,9 @@ class TripController extends Controller
             $trip->accepted_by = $request->accept_by;
         }
 
-        if(!empty($trip->order_id)){
-            $request->payment_method = 'card';
-        }
+        // if(!empty($trip->order_id)){
+        //     $request->payment_method = 'card';
+        // }
 
         if ($request->has('trip') && $request->payment_method == 'account') {
 
@@ -870,7 +870,7 @@ class TripController extends Controller
             try {
 
                 if ($request->has('trip') && isset($trip)) {
-                    
+
                     $originalAmount = $request->amount + $request->extra_charges;
                 } else {
 
@@ -2369,7 +2369,126 @@ class TripController extends Controller
 
         dd("All accounts are updated");
     }
+public function get_new_price(){
+     ini_set('max_execution_time', 0);
+        ini_set('memory_limit', '512M');
 
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => 'https://api.taxicaller.net/api/v1/reports/typed/generate',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => json_encode([
+                "company_id" => 48647,
+                "report_type" => "jobs",
+                "output_format" => "json",
+                "template_id" => 14122,
+                "search_query" => [
+                    "period" => [
+                        "@type" => "relative",
+                        "unit" => "day",
+                        "offset" => 0,
+                        "count" => 1
+                    ],
+                    "results" => [
+                        "offset" => 0,
+                        "limit" => 1000
+                    ]
+                ]
+            ]),
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . TokenService::token(),
+                'Content-Type: application/json'
+            ],
+        ]);
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        $response = json_decode($response);
+        $trips = $response->rows ?? [];
+
+        foreach ($trips as $trip) {
+            if (!empty($trip->{'start'}) && $trip->{'start'} != '-') {
+                if (!empty($trip->{'driverId'})) {
+
+                    $dateTime = Carbon::createFromFormat('m/d/Y h:i A', $trip->{'start'});
+                    $date = $dateTime->format('Y-m-d');
+                    $time = $dateTime->format('H:i:s');
+
+                    $existingTrip = Trip::where('trip_id', (int)$trip->{'id'})->first();
+
+                    $to_location = !empty($trip->{'stops'})
+                        ? $trip->{'stops'}
+                        : $trip->{'route.drop_off_text'};
+
+                    if ($existingTrip) {
+                        if ($existingTrip->payment_method === 'cash' && empty($existingTrip->temp_data)) {
+                            $tsDelivered = !empty($trip->{'ts.delivered'})
+                                ? date("Y-m-d H:i:s", strtotime($trip->{'ts.delivered'}))
+                                : null;
+                            $ickedup = !empty($trip->{'icked up'})
+                                ? date("Y-m-d H:i:s", strtotime($trip->{'icked up'}))
+                                : null;
+
+                            $existingTrip->update([
+                                'location_from' => $trip->{'route.pick_up_text'},
+                                'location_to' => $to_location,
+                                'date' => $date,
+                                'time' => $time,
+                                'trip_cost' => !empty($trip->{'fx.trip_base'}) && $trip->{'fx.trip_base'} != 0
+                                    ? $trip->{'fx.trip_base'}
+                                    : $trip->{'estimatedPrice'},
+                                'driver_id' => $trip->{'driverId'},
+                                'account_number' => $trip->{'account.name'},
+                                'passenger_phone' => $trip->{'passenger.phone'},
+                                'estimated_cost' => !empty($trip->{'fx.trip_base'}) && $trip->{'fx.trip_base'} != 0
+                                    ? $trip->{'fx.trip_base'}
+                                    : $trip->{'estimatedPrice'},
+                                'status' => $trip->{'job.state.status_localized'},
+                                'ts_delivered' => $tsDelivered,
+                                'icked_up' => $ickedup,
+                            ]);
+                        }
+                    } else {
+                        $ickedup = !empty($trip->{'icked up'})
+                            ? date("Y-m-d H:i:s", strtotime($trip->{'icked up'}))
+                            : null;
+                        $tsDelivered = !empty($trip->{'ts.delivered'})
+                            ? date("Y-m-d H:i:s", strtotime($trip->{'ts.delivered'}))
+                            : null;
+
+                        Trip::create([
+                            'trip_id' => (int)$trip->{'id'},
+                            'location_from' => $trip->{'route.pick_up_text'},
+                            'location_to' => $to_location,
+                            'date' => $date,
+                            'time' => $time,
+                            'trip_cost' => !empty($trip->{'fx.trip_base'}) && $trip->{'fx.trip_base'} != 0
+                                ? $trip->{'fx.trip_base'}
+                                : $trip->{'estimatedPrice'},
+                            'driver_id' => $trip->{'driverId'},
+                            'account_number' => $trip->{'account.name'},
+                            'passenger_phone' => $trip->{'passenger.phone'},
+                            'estimated_cost' => !empty($trip->{'fx.trip_base'}) && $trip->{'fx.trip_base'} != 0
+                                ? $trip->{'fx.trip_base'}
+                                : $trip->{'estimatedPrice'},
+                            'status' => $trip->{'job.state.status_localized'},
+                            'ts_delivered' => $tsDelivered,
+                            'icked_up' => $ickedup,
+                            'first_destination' => $trip->{'route.drop_off_text'}
+                        ]);
+                    }
+                }
+            }
+        }
+
+        Log::info('price is updated succ');
+
+        return back()->with('success', 'Price is updated now!');
+
+}
 
 
 }

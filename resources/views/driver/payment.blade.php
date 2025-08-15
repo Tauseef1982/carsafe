@@ -55,7 +55,7 @@ $util = new \App\Utils\dateUtil();
                                     {{ session('error') }}
                                 </div>
                             @endif
-                            <a href="{{ url('payment') }}" class="btn btn-primary float-end">Get updated Price</a>
+                            <a href="{{ url('update_price') }}" class="btn btn-primary float-end">Get updated Price</a>
                         </div>
                         <form action="{{url('add-payment')}}" method="post" id="payment_form" onsubmit="disableButton()">
                             @csrf
@@ -593,7 +593,7 @@ $(document).on('click', '.add-stop-4, .remove-stop-4, .add-stop-5, .remove-stop-
 
 // Trigger on input change
 $(document).on('input', 'input[name="stop_amount[]"], input[name="stop_location[]"]', validateStops);
-
+            let order_id;
             let selectedTripCost;
             $('#trips-container').on("change", 'input[name="trip"]', function () {
 
@@ -601,25 +601,50 @@ $(document).on('input', 'input[name="stop_amount[]"], input[name="stop_location[
 
                     $("#show-method-div").click();
                     selectedTripCost = $(this).data('trip-cost');
-                    let order_id = $(this).data('order_id');
+                     order_id = $(this).data('order_id');
                     //console.log(selectedTripCost);
 
-                    if(order_id != null) {
-                        $("#gocab-account-div").show();
-                        $("#method-div").hide();
-                        $("#amount-div").hide();
-                        $("#extra-div").hide();
-                        $("#acc-field").hide();
-                        $("#account_pin_masked").hide();
-                        $("#sb-btn-acc").prop('disabled',false);
+                    // if(order_id != null) {
+                    //     $("#gocab-account-div").show();
+                    //     $("#method-div").hide();
+                    //     $("#amount-div").hide();
+                    //     $("#extra-div").hide();
+                    //     $("#acc-field").hide();
+                    //     $("#account_pin_masked").hide();
+                    //     $("#sb-btn-acc").prop('disabled',false);
 
-                    }
+                    // }
 
-                } else {
-
-                    $("#show-method-div").prop("disabled", false);
                 }
+
+                 if (order_id == null) {
+    $('#acc-field').on('change', function () {
+        let accountId = $('#acc-field').val().trim();
+
+        $.ajax({
+            url: '/check-disable-account-payment',
+            type: 'POST',
+            data: {
+                account: accountId,
+
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function (res) {
+                if (res.disable_account_payment) {
+                     $('#sb-btn-acc').prop('disabled', true);
+                    alert('Account payment method is restricted for this account');
+
+                }
+            }
+        });
+    });
+}
+
             });
+
+
+
+
 
             $('#show-extra-field').on('click', function () {
 

@@ -27,7 +27,7 @@ $util = new \App\Utils\dateUtil();
         @endif
         <div class="row">
             <div class=" xl-100 col-lg-12 box-col-12">
-               
+
                 <div class="card">
                   <div class="card-header">
                     <h5 class="pull-left">Account Complaints</h5>
@@ -37,7 +37,7 @@ $util = new \App\Utils\dateUtil();
                       <ul class="pull-right nav nav-pills nav-primary" id="pills-clrtabinfo" role="tablist">
                         <!-- <li class="nav-item"><a class="nav-link active" id="pills-clrhome-tabinfo" data-bs-toggle="pill" href="#pills-clrhomeinfo" role="tab" aria-controls="pills-clrhome" aria-selected="true">Postpaid Accounts</a></li> -->
                         <!-- <li class="nav-item"><a class="nav-link" id="pills-clrprofile-tabinfo" data-bs-toggle="pill" href="#pills-clrprofileinfo" role="tab" aria-controls="pills-clrprofile" aria-selected="false">Prepaid Accounts</a></li> -->
-                      
+
                       </ul>
                       <div class="tab-content" id="pills-clrtabContentinfo">
                         <div class="tab-pane fade show active" id="pills-clrhomeinfo" role="tabpanel" aria-labelledby="pills-clrhome-tabinfo">
@@ -65,14 +65,17 @@ $util = new \App\Utils\dateUtil();
                                     <th>{{$complaint->status}}</th>
                                     <th>{{$complaint->username}}</th>
                                     <th>{{$complaint->note}}</th>
-                                    <th><a href="{{url('admin/update_complaint_status')}}/{{$complaint->id}}" class="btn btn-primary">Change Status</a></th>
-                                     </tr> 
+                                    <td>
+                                        <a href="{{url('admin/update_complaint_status')}}/{{$complaint->id}}" class="btn btn-primary mb-2">Change Status</a>
+                                        <a href="{{url('admin/delete_complaint_account')}}/{{$complaint->id}}" class="btn btn-danger mb-2"  onclick="return confirm('Are you sure you want to delete this complaint?')">Delete</a>
+                                    </td>
+                                     </tr>
                                     @endforeach
-                                
-                             
-                                
-                             
-                             
+
+
+
+
+
                             </tbody>
                             <tfoot>
                             <tr>
@@ -84,10 +87,10 @@ $util = new \App\Utils\dateUtil();
                                     <th>Username</th>
                                     <th>Note</th>
                                     <th>Action</th>
-                                    
+
                                      </tr>
                             </tfoot>
-                               
+
 
                             </table>
                         </div>
@@ -99,7 +102,7 @@ $util = new \App\Utils\dateUtil();
                                 <tr>
                                     <th>Account id</th>
                                     <th>Account Name</th>
-                                    
+
                                     <th>Amount</th>
                                     <th>Date</th>
                                     <th>Payment Method</th>
@@ -109,35 +112,35 @@ $util = new \App\Utils\dateUtil();
                                  <tr>
                                  <td>1502</td>
                                     <td>Jonh Doe</td>
-                                    
-                                   
+
+
                                     <td>$10</td>
-                                   
+
                                     <td>10-24-2024</td>
-                                   
+
                                   <td>Card</td>
-                                 </tr> 
-                                
-                                
-                             
+                                 </tr>
+
+
+
                             </tbody>
                             <tfoot>
                             <tr>
                             <tr>
                                     <th>Account id</th>
                                     <th>Account Name</th>
-                                  
+
                                     <th>Amount</th>
                                     <th>Date</th>
                                     <th>Payment Method</th>
-                                     </tr> 
+                                     </tr>
                             </tfoot>
-                               
+
 
                             </table>
                         </div>
                         </div>
-                        
+
                       </div>
                     </div>
                   </div>
@@ -146,7 +149,7 @@ $util = new \App\Utils\dateUtil();
         </div>
     </div>
 
-   
+
 
 @endsection
 
