@@ -298,7 +298,7 @@ class ApiController extends Controller
         if($account){
             return response()->json([
                 'valid' => true,
-                'balance' => 25.75
+                'balance' => $account->balance
             ]);
         }else{
             return response()->json([
@@ -703,8 +703,8 @@ class ApiController extends Controller
                         LogService::saveLog($logdata);
 //                        $this->ifBalanceMinusAutoPaidAsAdmin($trip);
 
-                        DB::rollBack();
-//                        DB::commit();
+//                        DB::rollBack();
+                        DB::commit();
             return response()->json([
                 'move_to' => 1,
                 'msg' => ''
