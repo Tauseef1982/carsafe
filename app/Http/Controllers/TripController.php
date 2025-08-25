@@ -657,6 +657,8 @@ class TripController extends Controller
                         $trip->payment_method = 'account';
                         $trip->cube_pin_status = $request->account_pin;
                         $trip->extra_charges = $extraCharges;
+                        $firstStopAmount = null;
+                        $firstStopLocation = null;
                            if($account->disable_stops == 0){
                             $firstStopAmount = collect($request->stop_amount)->filter()->first();
                             $firstStopLocation = collect($request->stop_location)->filter()->first();
@@ -749,10 +751,11 @@ class TripController extends Controller
 
 
                         if (isset($request->stop_amount)) {
+                           if (!is_null($firstStopAmount)) {
                             $extraStopCharges = '$' . $firstStopAmount;
                             $stoplocation = $firstStopLocation;
                             $extra_message .= "Extra Stop Charges: {$extraStopCharges}\nStop Location: {$stoplocation}. ";
-
+                           }
                         }
 
                         if (isset($request->wait_amount)) {
