@@ -616,31 +616,38 @@ $(document).on('input', 'input[name="stop_amount[]"], input[name="stop_location[
                     // }
 
                 }
-
-                 if (order_id == null) {
-    $('#acc-field').on('change', function () {
-        let accountId = $('#acc-field').val().trim();
-
-        $.ajax({
-            url: '/check-disable-account-payment',
-            type: 'POST',
-            data: {
-                account: accountId,
-
-                _token: $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function (res) {
-                if (res.disable_account_payment) {
-                     $('#sb-btn-acc').prop('disabled', true);
-                    alert('Account payment method is restricted for this account');
-
-                }
-            }
-        });
-    });
-}
-
             });
+
+      $(document).on('change', '#acc-field', function () {
+    let accountId = $(this).val().trim();
+
+    // 🚫 Do nothing if empty
+    if (!accountId) {
+        $('#sb-btn-acc').prop('disabled', false); // optional: reset button state
+        return;
+    }
+
+    let order_id  = $('input[name="trip"]').data('order_id');
+
+    $.ajax({
+        url: '/check-disable-account-payment',
+        type: 'POST',
+        data: {
+            account: accountId,
+            order_id: order_id,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (res) {
+            if (res.disable_account_payment) {
+                $('#sb-btn-acc').prop('disabled', true);
+                alert('Account payment method is restricted for this account');
+            } else {
+                $('#sb-btn-acc').prop('disabled', false);
+            }
+        }
+    });
+});
+
 
 
 
@@ -1086,15 +1093,25 @@ $('#account_pin_masked').on('input', function(e) {
         const stopLocationInput = document.getElementsByClassName('.stop_location');
         const form = document.getElementById('payment_form');
 
-        stopAmountInput.addEventListener('input', () => {
-            const stopAmountValue = parseFloat(stopAmountInput.value);
+        //stopAmountInput.addEventListener('input', () => {
+         //   const stopAmountValue = parseFloat(stopAmountInput.value);
 
-            if (stopAmountValue > 0) {
-                stopLocationInput.required = true;
-            } else {
-                stopLocationInput.required = false;
-            }
-        });
+         //   if (stopAmountValue > 0) {
+          //      stopLocationInput.required = true;
+         //   } else {
+          //      stopLocationInput.required = false;
+         //   }
+       // });
+       document.addEventListener('input', (e) => {
+  if (!e.target.classList.contains('stop_amount')) return;
+
+  const row = e.target.closest('.stop-row');
+  const stopLocationInput = row?.querySelector('.stop_location');
+  if (!stopLocationInput) return;
+
+  const val = parseFloat(e.target.value) || 0;
+  stopLocationInput.required = val > 0;
+});
 
         form.addEventListener('submit', (event) => {
             if (stopAmountInput.value && parseFloat(stopAmountInput.value) > 0 && !stopLocationInput.value) {

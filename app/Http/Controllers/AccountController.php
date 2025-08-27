@@ -2027,8 +2027,9 @@ if (!$account) {
 }
 
 if ($account->disable_account_payment) {
-    $order = CustomerBooking::where('account_id', $request->account)
-        ->where('order_id', $account->order_id)
+
+    $order = CustomerBooking::where('account_id', $account->account_id)
+        ->where('order_id', $request->order_id)
         ->first();
 
 
