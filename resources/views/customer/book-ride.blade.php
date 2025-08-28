@@ -97,6 +97,15 @@
                       <input class="form-control " type="phone" required  name="phone_number" placeholder="Please enter Passenger phone number">
 
                     </div>
+
+                       <label for="" class="mt-3">Please Choose Driver</label>
+                       <select name="driver_type" class="form-select" id="">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="both">Any</option>
+                       </select>
+
+
                   </div>
                   <div class="d-flex text-end">
                     <button class="btn btn-light me-2 text-gray b-r-8 ms-auto" id="cancel_btn">Cancel</button>

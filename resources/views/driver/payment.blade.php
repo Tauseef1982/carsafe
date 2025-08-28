@@ -221,9 +221,9 @@ $util = new \App\Utils\dateUtil();
                                                    placeholder="00.00" />
 
                                         </div>
-                                        <!-- <label for="stop_amount" class="me-2">Stop Location:  </label>
+                                        <label for="stop_amount" class="me-2">Stop Location:  </label>
                                         <input type="text" class="form-control stop_location"  name="stop_location[]"
-                                               placeholder="Please Enter Stop Location Here"> -->
+                                               placeholder="Please Enter Stop Location Here">
                                         <!-- <label for="wait_amount" class="me-2 ">Wait:</label>
                                         <div class="input-group mb-3">
 
@@ -338,6 +338,9 @@ $util = new \App\Utils\dateUtil();
                                                    placeholder="00.00" />
 
                                         </div>
+                                        <label for="stop_amount" class="me-2">Stop Location:  </label>
+                                        <input type="text" class="form-control stop_location"  name="stop_location[]"
+                                               placeholder="Please Enter Stop Location Here">
 
                                         <!-- <label for="wait_amount" class="me-2 ">Wait:</label>
                                         <div class="input-group mb-3">
@@ -507,6 +510,7 @@ $util = new \App\Utils\dateUtil();
             }
 
             updateExtraCharges($container);
+             validateStops();
         }
     });
 });
@@ -538,6 +542,7 @@ $(document).on('click', '.add-stop-4, .remove-stop-4, .add-stop-5, .remove-stop-
     }
 
     updateExtraCharges($container);
+    validateStops();
 });
 
 
@@ -572,7 +577,7 @@ $(document).on('click', '.add-stop-4, .remove-stop-4, .add-stop-5, .remove-stop-
 
     $('#extra_charges').val(total.toFixed(2));
 }
-            function validateStops() {
+function validateStops() {
     let shouldDisable = false;
 
     $('input[name="stop_amount[]"]').each(function(index) {
@@ -580,7 +585,7 @@ $(document).on('click', '.add-stop-4, .remove-stop-4, .add-stop-5, .remove-stop-
         const stopLocation = $('input[name="stop_location[]"]').eq(index).val();
 
         if (amountVal > 0 && (!stopLocation || stopLocation.trim() === '')) {
-            shouldDisable = false;
+            shouldDisable = true;
             return false;
         }
     });
@@ -619,9 +624,9 @@ $(document).on('input', 'input[name="stop_amount[]"], input[name="stop_location[
       $(document).on('change', '#acc-field', function () {
     let accountId = $(this).val().trim();
 
-    // 🚫 Do nothing if empty
+
     if (!accountId) {
-        $('#sb-btn-acc').prop('disabled', false); // optional: reset button state
+        $('#sb-btn-acc').prop('disabled', true); // optional: reset button state
         return;
     }
 

@@ -20,12 +20,28 @@ class BookRideController extends Controller{
 
 public function store(Request $request)
 {
+
     try {
         $account = Account::where('account_id', $request->account_id)->first();
 
         if (!$account) {
             return back()->with('error', 'Account not found.');
         }
+
+            $tagvehicle1 = false;
+            $tagvehicle2 = false;
+
+            if ($request->driver_type === 'male') {
+                $tagvehicle1 = true;
+            } elseif ($request->driver_type === 'female') {
+                $tagvehicle2 = true;
+            } elseif ($request->driver_type === 'both') {
+                $tagvehicle1 = true;
+                $tagvehicle2 = true;
+            }
+
+
+
 
         $account_id = $account->account_id;
         $name = $account->f_name;
@@ -46,6 +62,11 @@ public function store(Request $request)
                 "company_id" => 48647,
                 "provider_id" => 0,
                 "auto_assign" => true,
+                 "custom_fields" => [ 
+                "tag.vehicle.1" => $tagvehicle1,
+                "tag.vehicle.2" => $tagvehicle2,
+                "tag.vehicle.3" => false
+                  ],
                 "items" => [
                     [
                         "@type" => "passengers",
@@ -71,7 +92,7 @@ public function store(Request $request)
                                 "data" => null
                             ]
                         ],
-                       
+
                     ]
                 ],
                 "route" => [
@@ -97,9 +118,7 @@ public function store(Request $request)
                                     "latest" => 0
                                 ]
                             ],
-                            "info" => [
-                                "all" => "Needs help with luggage"
-                            ],
+
                             "seq" => 0
                         ],
                         [

@@ -2373,6 +2373,13 @@ class TripController extends Controller
         dd("All accounts are updated");
     }
 public function get_new_price(){
+
+    $end = Carbon::now();
+    $start = Carbon::now()->subHour();
+
+    $startIso = $start->toIso8601String();
+    $endIso = $end->toIso8601String();
+
      ini_set('max_execution_time', 0);
         ini_set('memory_limit', '512M');
 
@@ -2389,10 +2396,10 @@ public function get_new_price(){
                 "template_id" => 14122,
                 "search_query" => [
                     "period" => [
-                        "@type" => "relative",
-                        "unit" => "day",
-                        "offset" => 0,
-                        "count" => 1
+                        "@type" => "custom",
+                        "start" => $startIso,
+                        "end" => $endIso,
+
                     ],
                     "results" => [
                         "offset" => 0,
@@ -2411,7 +2418,7 @@ public function get_new_price(){
 
         $response = json_decode($response);
         $trips = $response->rows ?? [];
-
+       
         foreach ($trips as $trip) {
             if (!empty($trip->{'start'}) && $trip->{'start'} != '-') {
                 if (!empty($trip->{'driverId'})) {
