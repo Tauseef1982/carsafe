@@ -204,11 +204,11 @@ $util = new \App\Utils\dateUtil();
                                                 <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-5 ">+</button>
                                             </div>
 
-                                            <div class="d-flex align-items-center">
+                                            <!-- <div class="d-flex align-items-center">
                                                 <button type="button" class="btn btn-primary btn-sm me-2 remove-wait">−</button>
                                                 <span class="mx-2 fw-bold">Wait Charges</span>
                                                 <button type="button" class="btn btn-secondary btn-sm ms-2 add-wait">+</button>
-                                            </div>
+                                            </div> -->
                                         </div>
 
 
@@ -224,13 +224,13 @@ $util = new \App\Utils\dateUtil();
                                         <!-- <label for="stop_amount" class="me-2">Stop Location:  </label>
                                         <input type="text" class="form-control stop_location"  name="stop_location[]"
                                                placeholder="Please Enter Stop Location Here"> -->
-                                        <label for="wait_amount" class="me-2 ">Wait:</label>
+                                        <!-- <label for="wait_amount" class="me-2 ">Wait:</label>
                                         <div class="input-group mb-3">
 
                                             <span class="input-group-text">$</span>
                                             <input class="form-control me-2 wait_amount" type="tel" name="wait_amount[]" readonly id=""
                                                    placeholder="00.00" />
-                                        </div>
+                                        </div> -->
 
 
                                     </div>
@@ -320,11 +320,11 @@ $util = new \App\Utils\dateUtil();
                                                 <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-5 stops">+</button>
                                             </div>
 
-                                            <div class="d-flex align-items-center">
+                                            <!-- <div class="d-flex align-items-center">
                                                 <button type="button" class="btn btn-primary btn-sm me-2 remove-wait">−</button>
                                                 <span class="mx-2 fw-bold">Wait Charges</span>
                                                 <button type="button" class="btn btn-secondary btn-sm ms-2 add-wait">+</button>
-                                            </div>
+                                            </div> -->
                                         </div>
                                         <span class="input-group-text hide">$</span>
                                         <input class="form-control hide" type="tel" name="extra_charges"  autofocus value=""
@@ -338,16 +338,14 @@ $util = new \App\Utils\dateUtil();
                                                    placeholder="00.00" />
 
                                         </div>
-                                        <!-- <label for="stop_amount" class="me-2">Stop Location:  </label>
-                                        <input type="text" class="form-control stop_location"  name="stop_location[]"
-                                               placeholder="Please Enter Stop Location Here"> -->
-                                        <label for="wait_amount" class="me-2 ">Wait:</label>
+
+                                        <!-- <label for="wait_amount" class="me-2 ">Wait:</label>
                                         <div class="input-group mb-3">
 
                                             <span class="input-group-text">$</span>
                                             <input class="form-control me-2 wait_amount" type="tel" name="wait_amount[]" readonly id="wait_amount"
                                                    placeholder="00.00" />
-                                        </div>
+                                        </div> -->
 
 
                                     </div>
