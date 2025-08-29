@@ -621,12 +621,12 @@ $(document).on('input', 'input[name="stop_amount[]"], input[name="stop_location[
                 }
             });
 
-      $(document).on('change', '#acc-field', function () {
-    let accountId = $(this).val().trim();
+      $(document).on('keyup', '#acc-field', function () {
+      let accountId = $(this).val().trim();
 
 
     if (!accountId) {
-        $('#sb-btn-acc').prop('disabled', true); // optional: reset button state
+        $('#sb-btn-acc').prop('disabled', true);
         return;
     }
 
@@ -643,7 +643,7 @@ $(document).on('input', 'input[name="stop_amount[]"], input[name="stop_location[
         success: function (res) {
             if (res.disable_account_payment) {
                 $('#sb-btn-acc').prop('disabled', true);
-                alert('Account payment method is restricted for this account');
+                alert(res.error);
             } else {
                 $('#sb-btn-acc').prop('disabled', false);
             }

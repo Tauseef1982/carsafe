@@ -548,12 +548,7 @@ class AccountController extends Controller
                 if($uaccount->account_type == 'prepaid') {
                     if ($uaccount->balance > 0) {
                         $uaccount->status = 1;
-                        if ($uaccount->cube_id == null || $uaccount->cube_id == '') {
-                           // CubeContact::createAccount($uaccount->account_id);
-                        }
-                      //  CubeContact::updateCubeAccount($uaccount->account_id,null,'active');
-
-                        $uaccount->save();
+                         $uaccount->save();
                     }
                 }
 
@@ -606,12 +601,7 @@ class AccountController extends Controller
                     if($uaccount->account_type == 'prepaid') {
                         if ($uaccount->balance > 0) {
                             $uaccount->status = 1;
-                            if ($uaccount->cube_id == null || $uaccount->cube_id == '') {
-                                CubeContact::createAccount($uaccount->account_id);
-                            }
-                         //  $cube_resp = CubeContact::updateCubeAccount($uaccount->account_id,null,'active');
-
-                            $uaccount->save();
+                              $uaccount->save();
                         }
                     }
 
@@ -2019,14 +2009,8 @@ public function checkAccountPaymnetMethod(Request $request)
 {
    $account = Account::where('account_id', $request->account)->first();
 
-if (!$account) {
-    return response()->json([
-        'disable_account_payment' => true,
-        'error' => 'Account not found'
-    ]);
-}
-
-if ($account->disable_account_payment) {
+if ($account) {
+   if ($account->disable_account_payment) {
 
     $order = CustomerBooking::where('account_id', $account->account_id)
         ->where('order_id', $request->order_id)
@@ -2035,18 +2019,28 @@ if ($account->disable_account_payment) {
 
    if ($order) {
         return response()->json([
-            'disable_account_payment' => false
+            'disable_account_payment' => false,
+
+
         ]);
     }else{
         return response()->json([
-        'disable_account_payment' => true
+        'disable_account_payment' => true,
+        'error' => 'Account is restricted for account payments.'
     ]);
     }
+}else{
+    return response()->json([
+            'disable_account_payment' => false,
+            'error' => 'Account not found'
+        ]);
 }
 
-return response()->json([
-    'disable_account_payment' => (bool) $account->disable_account_payment
-]);
+}
+
+
+
+
 
 }
 

@@ -50,20 +50,20 @@ class TripController extends Controller
                 ->where('trips.payment_method', 'cash')
                 ->where('status', 'NOT LIKE', '%Cancelled%')
                 ->where('status', 'NOT LIKE', '%Client canceled%')
-                ->whereNotNull('icked_up')
-                ->where('icked_up', '!=', '')
-                ->where(function ($query) {
-                    $query->whereNull('ts_delivered')
-                        ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
-                        ->orWhereBetween('ts_delivered', [now()->subMinutes(15)->format('Y-m-d H:i:s'), now()->format('Y-m-d H:i:s')]);
-                })
-                ->whereNotExists(function ($query) use ($driverId) {
-                    $query->select(DB::raw(1))
-                        ->from('trips as future_trips')
-                        ->whereColumn('future_trips.driver_id', 'trips.driver_id')
-                        ->where('future_trips.icked_up', '>', DB::raw('trips.icked_up'));
+                // ->whereNotNull('icked_up')
+                // ->where('icked_up', '!=', '')
+                // ->where(function ($query) {
+                //     $query->whereNull('ts_delivered')
+                //         ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
+                //         ->orWhereBetween('ts_delivered', [now()->subMinutes(15)->format('Y-m-d H:i:s'), now()->format('Y-m-d H:i:s')]);
+                // })
+                // ->whereNotExists(function ($query) use ($driverId) {
+                //     $query->select(DB::raw(1))
+                //         ->from('trips as future_trips')
+                //         ->whereColumn('future_trips.driver_id', 'trips.driver_id')
+                //         ->where('future_trips.icked_up', '>', DB::raw('trips.icked_up'));
 
-                })
+                // })
                 ->select('trips.*')
                 ->orderBy('trips.date', 'desc')
                 ->orderBy('trips.time', 'desc')
@@ -2376,6 +2376,8 @@ public function get_new_price(){
 
     $end = Carbon::now();
     $start = Carbon::now()->subHour();
+   //$start = Carbon::now()->subHours(24);
+
 
     $startIso = $start->toIso8601String();
     $endIso = $end->toIso8601String();
@@ -2403,7 +2405,7 @@ public function get_new_price(){
                     ],
                     "results" => [
                         "offset" => 0,
-                        "limit" => 1000
+                        "limit" => 10000
                     ]
                 ]
             ]),
@@ -2418,8 +2420,12 @@ public function get_new_price(){
 
         $response = json_decode($response);
         $trips = $response->rows ?? [];
-       
+
         foreach ($trips as $trip) {
+            // if((int)$trip->{'id'} == 285077846){
+            //    dd($trip);
+            // }
+
             if (!empty($trip->{'start'}) && $trip->{'start'} != '-') {
                 if (!empty($trip->{'driverId'})) {
 
