@@ -28,7 +28,7 @@ class AccountInvoice extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'CarSafe PostPaid Account Invoice',
+            subject: 'CarSafe Monthly Report',
         );
     }
 
