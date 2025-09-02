@@ -67,7 +67,7 @@ Route::get('/logs', function () {
 
 Route::get('/correct/balanceprepaid', function () {
 
-    
+
 
     $accounts = \App\Models\Account::where('account_type', 'prepaid')
         ->where('is_deleted', 0)->get();
@@ -80,7 +80,7 @@ Route::get('/correct/balanceprepaid', function () {
         ->sum('amount');
 
         $account_payments = \App\Models\Trip::where('account_number',$account->account_id)
-        ->where('payment_method' ,'!=','cash')->sum('trip_cost');
+        ->where('payment_method' ,'!=','cash')->where('payper_trip', 0)->sum('trip_cost');
 
         echo "Account ID: {$account->account_id}\n";
         echo "Total Account Payments: {$account_total_inv}\n";
