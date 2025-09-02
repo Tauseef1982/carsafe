@@ -62,11 +62,7 @@ public function store(Request $request)
                 "company_id" => 48647,
                 "provider_id" => 0,
                 "auto_assign" => true,
-                 "custom_fields" => [ 
-                "tag.vehicle.1" => $tagvehicle1,
-                "tag.vehicle.2" => $tagvehicle2,
-                "tag.vehicle.3" => false
-                  ],
+
                 "items" => [
                     [
                         "@type" => "passengers",
@@ -76,6 +72,8 @@ public function store(Request $request)
                             'email' => $email,
                             'phone' => $phone,
                         ],
+
+
                         "client_id" => 0,
                         "account" => [
                             "id" => 0,
@@ -92,6 +90,11 @@ public function store(Request $request)
                                 "data" => null
                             ]
                         ],
+                         "custom_fields" => [
+                                "tag.vehicle.1" => $tagvehicle1,
+                                "tag.vehicle.2" => $tagvehicle2,
+                                "tag.vehicle.3" => false
+                            ],
 
                     ]
                 ],
@@ -161,7 +164,7 @@ public function store(Request $request)
                 ]
             ]
         ];
-       // dd(json_encode($bookingData, JSON_PRETTY_PRINT));
+        //dd(json_encode($bookingData, JSON_PRETTY_PRINT));
 
         $response = Http::withHeaders([
     'Authorization' => 'Bearer ' . $token,
