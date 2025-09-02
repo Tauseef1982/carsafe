@@ -454,11 +454,11 @@
                                                     @endif
                                             </div>
                                             @php
-                                                if ($paidd == $cost) {
+
                                                     $due_date = $utils->format_date(now()->toDateString());
                                                     $payment_status = 'Paid';
                                                     $imagePath = asset('assets/images/paid.jpg');
-                                                }
+                                              
                                             @endphp
                                             <!-- End InvoiceBot-->
                                         </div>
