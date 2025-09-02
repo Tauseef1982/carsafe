@@ -67,7 +67,7 @@ Route::get('/logs', function () {
 
 Route::get('/correct/balanceprepaid', function () {
 
-    dd('not allow');
+    
 
     $accounts = \App\Models\Account::where('account_type', 'prepaid')
         ->where('is_deleted', 0)->get();
@@ -76,10 +76,11 @@ Route::get('/correct/balanceprepaid', function () {
 
     $account_total_inv = \App\Models\AccountPayment::where('account_type', 'prepaid')
         ->where('account_id',$account->account_id)
+        ->whereNull('hash_id')
         ->sum('amount');
 
-        $account_payments = \App\Models\Payment::where('user_type','customer')->where('type','debit')
-            ->where('account_id',$account->account_id)->sum('amount');
+        $account_payments = \App\Models\Trip::where('account_number',$account->account_id)
+        ->where('payment_method' ,'!=','cash')->sum('trip_cost');
 
         echo "Account ID: {$account->account_id}\n";
         echo "Total Account Payments: {$account_total_inv}\n";
@@ -88,7 +89,7 @@ Route::get('/correct/balanceprepaid', function () {
         if($balance != $account->balance) {
             echo " = Balance Payments:" . $balance . "<br>";
             $account->balance = $account_total_inv - $account_payments;
-            $account->save();
+            // $account->save();
         }
 
     }
@@ -127,7 +128,7 @@ Route::get('/correct/balanceprepaid', function () {
 // });
 
 Route::get('/script/account_defaultPin', function () {
-    
+
 
 
     $accounts = Account::all();
@@ -520,8 +521,8 @@ Route::get("trips_tc/{from}", function($from){
 Route::get('update_cards', function () {
     DB::statement("
         UPDATE credit_cards
-        JOIN accounts 
-            ON accounts.f_name = credit_cards.account_number 
+        JOIN accounts
+            ON accounts.f_name = credit_cards.account_number
             AND accounts.lname = credit_cards.account_name
         SET credit_cards.account_id = accounts.account_id
     ");
@@ -559,7 +560,7 @@ Route::get('account_balance', function(){
 
     $response = curl_exec($curl);
     curl_close($curl);
- 
+
     $data = json_decode($response, true);
     $accounts = $data['accounts'] ?? [];
 
@@ -583,6 +584,6 @@ Route::get('account_balance', function(){
     }
 
     return 'Account balances updated successfully.';
-   
-   
+
+
 });
