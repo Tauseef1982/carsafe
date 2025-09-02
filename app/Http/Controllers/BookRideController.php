@@ -36,8 +36,8 @@ public function store(Request $request)
             } elseif ($request->driver_type === 'female') {
                 $tagvehicle2 = true;
             } elseif ($request->driver_type === 'both') {
-                $tagvehicle1 = true;
-                $tagvehicle2 = true;
+                $tagvehicle1 = false;
+                $tagvehicle2 = false;
             }
 
 

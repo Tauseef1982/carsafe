@@ -564,14 +564,14 @@ Route::get('account_balance', function(){
     $data = json_decode($response, true);
     $accounts = $data['accounts'] ?? [];
 
-    // Loop over each balance record
+
     foreach ($accounts as $record) {
-        // Extract the cube_id from the 'name' field
+
         if (preg_match('/customer-(\d+)/', $record['name'], $matches)) {
             $cubeId = $matches[1];
             $balance = $record['balance'] / 1000;
 
-            // Find and update the account
+            
             $account = Account::where('cube_id', $cubeId)->first();
             if ($account) {
                 $account->balance = $balance;
