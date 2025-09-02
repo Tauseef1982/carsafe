@@ -173,7 +173,8 @@
                                                 ,
                                                 to
                                                 {{ \Carbon\Carbon::parse($invoice->invoice_to_date)->format('F d, Y') }}
-                                                .</p>
+                                                .
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -219,59 +220,60 @@
                                                 @endphp
 
                                                 @foreach($trips as $trip)
-                                                                                                <tr>
-                                                                                                    <td>
+                                                    <tr>
+                                                        <td>
 
-                                                                                                        <p class="m-0">{{$trip->trip_id}}</p>
-                                                                                                    </td>
+                                                            <p class="m-0">{{$trip->trip_id}}</p>
+                                                        </td>
 
-                                                                                                    <td>{{$trip->cube_pin}} {{$trip->cube_pin_status}}</td>
+                                                        <td>{{$trip->cube_pin}} {{$trip->cube_pin_status}}</td>
 
-                                                                                                    <td>
-                                                                                                        @php
+                                                        <td>
+                                                            @php
 
-                                                                                                            $termsToRemove = [', Nueva York, EE. UU.', ', NY, USA'];
-
-
-                                                                                                            $cleanedLocationFrom = str_replace($termsToRemove, '', $trip->location_from);
-                                                                                                            $cleanedLocationTo = str_replace($termsToRemove, '', $trip->location_to);
-                                                                                                        @endphp
-                                                                                                        @php
-                                                                                                            $single_p = $trip->totalPaidAmountByCustomerFromAccountCard()->sum('amount');
-                                                                                                            $paidd = $paidd + $single_p;
-                                                                                                            $total_trips++;
-                                                                                                            $cost += $trip->TotalCostDiscounted;
-                                                                                                            $totalDiscount += $trip->discount_amount;
-                                                                                                            $paid_fee = $paidd * 0.0375;
-                                                                                                            $cost_fee = $cost * 0.0375;
-                                                                                                        @endphp
-                                                                                                        <p class="itemtext">{{$cleanedLocationFrom ?: 'Flag Down'}}</p>
-                                                                                                    </td>
-                                                                                                    <td>
-                                                                                                        <p class="itemtext">{{$cleanedLocationTo}}</p>
-                                                                                                    </td>
-                                                                                                    <td>
-                                                                                                        <p class="itemtext">{{$utils->format_date($trip->date)}}
-                                                                                                            {{$utils->time_format($trip->time)}}</p>
-                                                                                                    </td>
-                                                                                                    <td>
-                                                                                                        <p class="itemtext">
-                                                                                                            ${{number_format((float) $trip->extra_charges, 2)}}
-
-                                                                                                        </p>
-                                                                                                    </td>
-                                                                                                    <td>
-                                                                                                        <p class="itemtext">
-                                                                                                            ${{number_format($trip->trip_cost - (float) $trip->extra_charges, 2)}}
-                                                                                                        </p>
-                                                                                                    </td>
-                                                                                                    <td>
-                                                                                                        <p class="itemtext">
-                                                                                                            ${{ number_format($trip->TotalCostDiscounted, 2)}}</p>
-                                                                                                    </td>
+                                                                $termsToRemove = [', Nueva York, EE. UU.', ', NY, USA'];
 
 
-                                                                                                </tr>
+                                                                $cleanedLocationFrom = str_replace($termsToRemove, '', $trip->location_from);
+                                                                $cleanedLocationTo = str_replace($termsToRemove, '', $trip->location_to);
+                                                            @endphp
+                                                            @php
+                                                                $single_p = $trip->totalPaidAmountByCustomerFromAccountCard()->sum('amount');
+                                                                $paidd = $paidd + $single_p;
+                                                                $total_trips++;
+                                                                $cost += $trip->TotalCostDiscounted;
+                                                                $totalDiscount += $trip->discount_amount;
+                                                                $paid_fee = $paidd * 0.0375;
+                                                                $cost_fee = $cost * 0.0375;
+                                                            @endphp
+                                                            <p class="itemtext">{{$cleanedLocationFrom ?: 'Flag Down'}}</p>
+                                                        </td>
+                                                        <td>
+                                                            <p class="itemtext">{{$cleanedLocationTo}}</p>
+                                                        </td>
+                                                        <td>
+                                                            <p class="itemtext">{{$utils->format_date($trip->date)}}
+                                                                {{$utils->time_format($trip->time)}}
+                                                            </p>
+                                                        </td>
+                                                        <td>
+                                                            <p class="itemtext">
+                                                                ${{number_format((float) $trip->extra_charges, 2)}}
+
+                                                            </p>
+                                                        </td>
+                                                        <td>
+                                                            <p class="itemtext">
+                                                                ${{number_format($trip->trip_cost - (float) $trip->extra_charges, 2)}}
+                                                            </p>
+                                                        </td>
+                                                        <td>
+                                                            <p class="itemtext">
+                                                                ${{ number_format($trip->TotalCostDiscounted, 2)}}</p>
+                                                        </td>
+
+
+                                                    </tr>
 
                                                 @endforeach
 
@@ -382,10 +384,10 @@
                                                                                 name="payment_type" value="card" checked>
                                                                         </div>
                                                                         <!-- <div class="col-6">
-                                                                            <label for="payment_type">ACH Account</label>
-                                                                            <input class="paywith" type="radio" name="payment_type"
-                                                                                   value="ach">
-                                                                        </div> -->
+                                                                                    <label for="payment_type">ACH Account</label>
+                                                                                    <input class="paywith" type="radio" name="payment_type"
+                                                                                           value="ach">
+                                                                                </div> -->
                                                                     </div>
                                                                     <div class="row">
 
@@ -416,24 +418,24 @@
                                                                             </div>
                                                                         </div>
                                                                         <!-- <div class="col-12">
-                                                                            <label for="card_number">Card Number</label>
-                                                                            <input type="text" class="form-control"
-                                                                                   value=""
-                                                                                   name="card_number" id="card_number">
-                                                                        </div> -->
+                                                                                    <label for="card_number">Card Number</label>
+                                                                                    <input type="text" class="form-control"
+                                                                                           value=""
+                                                                                           name="card_number" id="card_number">
+                                                                                </div> -->
                                                                         <!-- <div class="col-6">
-                                                                            <label for="cvc">CVC</label>
-                                                                            <input type="number" class="form-control"
-                                                                                   value=""
-                                                                                   name="cvc" id="cvc">
-                                                                        </div>
-                                                                        <div class="col-6">
-                                                                            <label for="expiry">Expiry (MM/YY)</label>
-                                                                            <input type="text" class="form-control"
-                                                                                   value=""
-                                                                                   name="expiry" id="expiry"
-                                                                                   placeholder="MM/YY">
-                                                                        </div> -->
+                                                                                    <label for="cvc">CVC</label>
+                                                                                    <input type="number" class="form-control"
+                                                                                           value=""
+                                                                                           name="cvc" id="cvc">
+                                                                                </div>
+                                                                                <div class="col-6">
+                                                                                    <label for="expiry">Expiry (MM/YY)</label>
+                                                                                    <input type="text" class="form-control"
+                                                                                           value=""
+                                                                                           name="expiry" id="expiry"
+                                                                                           placeholder="MM/YY">
+                                                                                </div> -->
 
 
                                                                     </div>
