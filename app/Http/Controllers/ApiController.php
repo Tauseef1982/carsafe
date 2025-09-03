@@ -185,8 +185,20 @@ class ApiController extends Controller
             'data' => $tripContent,
         ];
 
-        LogService::saveLog($data);
+        $logdata = LogService::saveLog($data);
         $trip = json_decode( $tripContent, true);
+
+        if(!isset($trip['start']) || $trip == null){
+
+            $logdata = \App\Models\Log::find(2);
+            $tripdata = json_decode($logdata->data, true);
+            $tripdata = str_replace("\t".'','',$tripdata['data']);
+            $tripdata = json_decode($tripdata,true);
+            $trip = $tripdata;
+//            $this->fetchtrip($tripId);
+        }
+
+
         try {
 
         // Check if 'start' is valid
@@ -290,7 +302,6 @@ class ApiController extends Controller
 
             }
 
-
    public function voiceCall(Request $request){
 
 
@@ -308,6 +319,128 @@ class ApiController extends Controller
         }
 
 
+
+    }
+
+    public function fetchtrip($tripid){
+
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://api.taxicaller.net/api/v1/reports/typed/generate',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => json_encode([
+                    "company_id" => 57068,
+                    "report_type" => "jobs",
+                    "output_format" => "json",
+                    "template_id" => 12528,
+                    "search_query" => [
+                        "period" => [
+                            "@type" => "custom",
+                            "start" => "2025-03-01T00:00:00",
+                            "end" => "2025-03-02T00:00:00",
+//                    "end" => "".$from."T00:00:00",
+//                    "start" => "".$to."T00:00:00"
+                        ]
+                    ]
+                ]),
+                CURLOPT_HTTPHEADER => array(
+                    'Authorization: Bearer ' . TokenService::token(),
+                    'Content-Type: application/json'
+                ),
+            ));
+
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+        $response = json_decode($response);
+
+        $trips = $response->rows;
+        $trips = collect($trips)->where('id',$tripid);
+
+        foreach ($trips as $trip) {
+
+
+        if ($trip->{'start'} != '-' && $trip->{'start'} != '') {
+            if (isset($trip->{'driverId'})) {
+                if ($trip->{'driverId'} != '') {
+
+
+                    $dateTime = Carbon::createFromFormat('m/d/Y h:i A', $trip->{'start'});
+                    $date = $dateTime->format('Y-m-d'); // e.g., '2024-09-01'
+                    $time = $dateTime->format('H:i:s'); // e.g., '12:25:00'
+
+                    $existingTrip = Trip::where('trip_id', (int)$trip->{'id'})->first();
+
+                    if($trip->{'stops'} != '' && $trip->{'stops'} != null){
+                        $to_location = $trip->{'stops'};
+
+                    }else{
+                        $to_location = $trip->{'route.drop_off_text'};
+
+                    }
+
+
+                    //todo confirm
+                    if ($existingTrip) {
+                        // Check if the payment method is cash
+                        if ($existingTrip->payment_method === 'cash') {
+                            if ($existingTrip->temp_data == null || $existingTrip->temp_data == '') {
+                                $tsDelivered = !empty($trip->{'ts.delivered'}) ? date("Y-m-d H:i:s", strtotime($trip->{'ts.delivered'})) : null;
+                                $ickedup = !empty($trip->{'icked up'}) ? date("Y-m-d H:i:s", strtotime($trip->{'icked up'})) : null;
+                                $existingTrip->update([
+                                    'location_from' => $trip->{'route.pick_up_text'},
+                                    'location_to' => $to_location,
+                                    'date' => $date,
+                                    'time' => $time,
+                                    'trip_cost' => !empty($trip->{'fx.trip_base'}) && $trip->{'fx.trip_base'} != 0 ? $trip->{'fx.trip_base'} : $trip->{'estimatedPrice'},
+                                    'driver_id' => $trip->{'driverId'},
+                                    'account_number' => $trip->{'account.name'},
+                                    'passenger_phone' => $trip->{'passenger.phone'},
+                                    'estimated_cost' => !empty($trip->{'fx.trip_base'}) && $trip->{'fx.trip_base'} != 0 ? $trip->{'fx.trip_base'} : $trip->{'estimatedPrice'},
+                                    'status' => $trip->{'job.state.status_localized'},
+                                    'ts_delivered' => $tsDelivered,
+                                    'icked_up' => $ickedup,
+                                ]);
+                            }
+                        }
+                    } else {
+                        $ickedup = !empty($trip->{'icked up'}) ? date("Y-m-d H:i:s", strtotime($trip->{'icked up'})) : null;
+                        $tsDelivered = !empty($trip->{'ts.delivered'}) ? date("Y-m-d H:i:s", strtotime($trip->{'ts.delivered'})) : null;
+                        Trip::create([
+                            'trip_id' => (int)$trip->{'id'},
+                            'location_from' => $trip->{'route.pick_up_text'},
+                            'location_to' => $to_location,
+                            'date' => $date,
+                            'time' => $time,
+                            'trip_cost' => !empty($trip->{'fx.trip_base'}) && $trip->{'fx.trip_base'} != 0 ? $trip->{'fx.trip_base'} : $trip->{'estimatedPrice'},
+                            'driver_id' => $trip->{'driverId'},
+                            'account_number' => $trip->{'account.name'},
+                            'passenger_phone' => $trip->{'passenger.phone'},
+                            'estimated_cost' => !empty($trip->{'fx.trip_base'}) && $trip->{'fx.trip_base'} != 0 ? $trip->{'fx.trip_base'} : $trip->{'estimatedPrice'},
+                            'status' => $trip->{'job.state.status_localized'},
+                            'ts_delivered' => $tsDelivered,
+                            'icked_up' => $ickedup,
+                            'first_destination'=>$trip->{'route.drop_off_text'}
+                        ]);
+                    }
+
+
+
+                }
+            }
+
+        }
+
+
+
+        }
 
     }
 
@@ -603,7 +736,6 @@ class ApiController extends Controller
         ]);
     }
 
-
     public function payTripAccount(Request $request)
     {
         Log::info($request);
@@ -720,7 +852,6 @@ class ApiController extends Controller
 
     }
 
-
     public function payTripCard(Request $request)
     {
 
@@ -817,6 +948,7 @@ class ApiController extends Controller
 
         }
     }
+
     public function prepaidAccountDeduction($trip, $account)
     {
         $new = new Payment();
@@ -833,6 +965,7 @@ class ApiController extends Controller
 
         return $new;
     }
+
     public function addpay($trip, $request)
     {
 
