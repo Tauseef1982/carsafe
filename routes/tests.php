@@ -70,8 +70,10 @@ Route::get('/correct/balanceprepaid', function () {
 
 
     $accounts = \App\Models\Account::where('account_type', 'prepaid')
-        ->where('is_deleted', 0)->get();
-
+        ->where('is_deleted', 0)
+        ->where('paypertrip', 'off')->get();
+$totalAccounts = 0;
+$negativeBalanceAccounts = 0;
     foreach ($accounts as $account){
 
     $account_total_inv = \App\Models\AccountPayment::where('account_type', 'prepaid')
@@ -82,19 +84,31 @@ Route::get('/correct/balanceprepaid', function () {
         $account_payments = \App\Models\Trip::where('account_number',$account->account_id)
         ->where('payment_method' ,'!=','cash')->where('payper_trip', 0)->sum('trip_cost');
 
+
+    $balance = $account_total_inv - $account_payments;
+
+    $totalAccounts++; // Count every account processed
+
+    if ($balance < 0) {
+        $negativeBalanceAccounts++;
         echo "Account ID: {$account->account_id}\n";
         echo "Total Account Payments: {$account_total_inv}\n";
         echo "Total Payments: {$account_payments}";
+
+
+            echo " = Balance Payments:" . $balance . "<br>";
+    }
         $balance = $account_total_inv - $account_payments;
         if($balance != $account->balance) {
-            echo " = Balance Payments:" . $balance . "<br>";
+
             $account->balance = $account_total_inv - $account_payments;
             // $account->save();
         }
 
     }
 
-
+echo "Total Accounts Processed: {$totalAccounts}<br>";
+echo "Accounts with Negative Balance: {$negativeBalanceAccounts}<br>";
 
 
 });
@@ -571,7 +585,7 @@ Route::get('account_balance', function(){
             $cubeId = $matches[1];
             $balance = $record['balance'] / 1000;
 
-            
+
             $account = Account::where('cube_id', $cubeId)->first();
             if ($account) {
                 $account->balance = $balance;
