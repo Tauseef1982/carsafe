@@ -81,7 +81,17 @@ Route::get('/correct/balanceprepaid', function () {
 
         $account_payments = \App\Models\Trip::where('account_number',$account->account_id)
         ->where('payment_method' ,'!=','cash')->where('payper_trip', 0)->sum('trip_cost');
-       $balance = $account_total_inv - $account_payments;
+        $account_total_inv = ...; // your calculation logic
+    $account_payments = ...; // your calculation logic
+
+    $balance = $account_total_inv - $account_payments;
+
+    $totalAccounts++; // Count every account processed
+
+    if ($balance < 0) {
+        $negativeBalanceAccounts++; // Count accounts with negative balance
+    }
+        $balance = $account_total_inv - $account_payments;
         if($balance != $account->balance) {
         echo "Account ID: {$account->account_id}\n";
         echo "Total Account Payments: {$account_total_inv}\n";
@@ -95,7 +105,8 @@ Route::get('/correct/balanceprepaid', function () {
 
     }
 
-
+echo "Total Accounts Processed: {$totalAccounts}<br>";
+echo "Accounts with Negative Balance: {$negativeBalanceAccounts}<br>";
 
 
 });
