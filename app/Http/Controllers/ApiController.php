@@ -190,7 +190,6 @@ class ApiController extends Controller
 
         if(!isset($trip['start']) || $trip == null){
 
-            $logdata = \App\Models\Log::find(2);
             $tripdata = json_decode($logdata->data, true);
             $tripdata = str_replace("\t".'','',$tripdata['data']);
             $tripdata = json_decode($tripdata,true);
