@@ -74,6 +74,10 @@ Route::get('/correct/balanceprepaid', function () {
         ->where('paypertrip', 'off')->get();
 $totalAccounts = 0;
 $negativeBalanceAccounts = 0;
+$plusBalanceAccounts = 0;
+$eqBalanceAccounts = 0;
+$lessBalnceaccounts = 0;
+
     foreach ($accounts as $account){
 
     $account_total_inv = \App\Models\AccountPayment::where('account_type', 'prepaid')
@@ -91,6 +95,13 @@ $negativeBalanceAccounts = 0;
 
     if ($balance < 0) {
         $negativeBalanceAccounts++;
+
+    }
+    if($balance < $account->balance){
+        $lessBalnceaccounts++;
+    }
+    if ($balance > $account->balance) {
+        $plusBalanceAccounts++;
         echo "Account ID: {$account->account_id}\n";
         echo "Total Account Payments: {$account_total_inv}\n";
         echo "Total Payments: {$account_payments}";
@@ -98,10 +109,11 @@ $negativeBalanceAccounts = 0;
 
             echo " = Balance Payments:" . $balance . "<br>";
     }
-        $balance = $account_total_inv - $account_payments;
-        if($balance != $account->balance) {
 
-            $account->balance = $account_total_inv - $account_payments;
+        $balance = $account_total_inv - $account_payments;
+        if($balance == $account->balance) {
+
+            $eqBalanceAccounts++;
             // $account->save();
         }
 
@@ -109,6 +121,9 @@ $negativeBalanceAccounts = 0;
 
 echo "Total Accounts Processed: {$totalAccounts}<br>";
 echo "Accounts with Negative Balance: {$negativeBalanceAccounts}<br>";
+echo "Accounts where pabalnce is in plus: {$plusBalanceAccounts}<br>";
+echo "Accounts with ok balance: {$eqBalanceAccounts}<br>";
+echo "Accounts where  balance is less in actual: {$lessBalnceaccounts}<br>";
 
 
 });

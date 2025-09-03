@@ -60,7 +60,7 @@ public function store(Request $request)
         $bookingData = [
             "order" => [
                 "company_id" => 48647,
-                "provider_id" => 0,
+                "provider_id" => 72679,
                 "auto_assign" => true,
 
                 "items" => [
