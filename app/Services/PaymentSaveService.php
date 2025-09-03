@@ -101,12 +101,7 @@ class PaymentSaveService
                 $account->save();
 
                 if($account->cube_id == null || $account->cube_id == '') {
-                   // CubeContact::createAccount($account->account_id);
-                }
-
-               // CubeContact::updateCubeAccount($account->account_id, null, "active");
-
-                // Log the successful operation
+                
                 $logData = [
                     'from' => 'customer',
                     'payment' => $to_refill,
