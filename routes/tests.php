@@ -71,7 +71,7 @@ Route::get('/correct/balanceprepaid', function () {
 
     $accounts = \App\Models\Account::where('account_type', 'prepaid')
         ->where('is_deleted', 0)
-        ->where('payper_trip', 'off')->get();
+        ->where('paypertrip', 'off')->get();
 $totalAccounts = 0;
 $negativeBalanceAccounts = 0;
     foreach ($accounts as $account){
