@@ -81,11 +81,12 @@ Route::get('/correct/balanceprepaid', function () {
 
         $account_payments = \App\Models\Trip::where('account_number',$account->account_id)
         ->where('payment_method' ,'!=','cash')->where('payper_trip', 0)->sum('trip_cost');
+       $balance = $account_total_inv - $account_payments;
         if($balance != $account->balance) {
         echo "Account ID: {$account->account_id}\n";
         echo "Total Account Payments: {$account_total_inv}\n";
         echo "Total Payments: {$account_payments}";
-        $balance = $account_total_inv - $account_payments;
+
 
             echo " = Balance Payments:" . $balance . "<br>";
             $account->balance = $account_total_inv - $account_payments;
