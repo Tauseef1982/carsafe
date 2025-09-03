@@ -71,7 +71,8 @@ Route::get('/correct/balanceprepaid', function () {
 
     $accounts = \App\Models\Account::where('account_type', 'prepaid')
         ->where('is_deleted', 0)->get();
-
+$totalAccounts = 0;
+$negativeBalanceAccounts = 0;
     foreach ($accounts as $account){
 
     $account_total_inv = \App\Models\AccountPayment::where('account_type', 'prepaid')
@@ -81,7 +82,7 @@ Route::get('/correct/balanceprepaid', function () {
 
         $account_payments = \App\Models\Trip::where('account_number',$account->account_id)
         ->where('payment_method' ,'!=','cash')->where('payper_trip', 0)->sum('trip_cost');
-    
+
 
     $balance = $account_total_inv - $account_payments;
 
