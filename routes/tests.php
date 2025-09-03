@@ -89,16 +89,17 @@ $negativeBalanceAccounts = 0;
     $totalAccounts++; // Count every account processed
 
     if ($balance < 0) {
-        $negativeBalanceAccounts++; // Count accounts with negative balance
-    }
-        $balance = $account_total_inv - $account_payments;
-        if($balance != $account->balance) {
+        $negativeBalanceAccounts++;
         echo "Account ID: {$account->account_id}\n";
         echo "Total Account Payments: {$account_total_inv}\n";
         echo "Total Payments: {$account_payments}";
 
 
             echo " = Balance Payments:" . $balance . "<br>";
+    }
+        $balance = $account_total_inv - $account_payments;
+        if($balance != $account->balance) {
+
             $account->balance = $account_total_inv - $account_payments;
             // $account->save();
         }

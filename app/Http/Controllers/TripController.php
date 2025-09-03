@@ -417,8 +417,8 @@ class TripController extends Controller
                         $trip->cube_pin_status = $request->account_pin;
                         $trip->extra_charges = $extraCharges;
 
-                            $firstStopAmount = collect($request->stop_amount)->filter()->first();
-                            $firstStopLocation = collect($request->stop_location)->filter()->first();
+                        $firstStopAmount = collect($request->stop_amount)->filter()->first();
+                        $firstStopLocation = collect($request->stop_location)->filter()->first();
 
                             if ($firstStopAmount || $firstStopLocation) {
                                 $trip->extra_stop_amount = $firstStopAmount;
