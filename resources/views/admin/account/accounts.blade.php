@@ -143,11 +143,11 @@
                         <label for="">Account Type</label>
 
                          <select name="account_type" class="form-select mb-3" id="account_type">
-                           
+
 
                             <option value="prepaid">Pre Paid</option>
                          </select>
-                         <div id="recharge">
+
                          <label for="">First Recharge</label>
                          <input type="text" class="form-control mb-3" name="first_refill" id="first_refill" placeholder="$ 00.00">
 
@@ -156,7 +156,7 @@
                               <input type="radio" id="off-autofill"  name="autofill" value="off"><label for="off-autofill ms-2">Auto fill Off</label><br>
                               <label for="">Please Enter Rechrage Amount</label>
                               <input type="text"  class="form-control mb-3" name="recharge" id="recharge_amount" placeholder="$ 00.00">
-                         </div>
+                         
                                                  <label for="">Do you want to on pay per trip</label><br>
                               <input type="radio" id="on-paypertrip" name="paypertrip" value="on"><label for="on-paypertrip ">Pay Per Trip On</label><br>
                               <input type="radio" id="off-paypertrip"  name="paypertrip" checked value="off"><label for="off-paypertrip ">Pay Per Trip Off</label><br>
