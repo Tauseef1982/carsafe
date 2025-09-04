@@ -2420,7 +2420,7 @@ public function get_new_price(){
 
         $response = json_decode($response);
         $trips = $response->rows ?? [];
-
+           dd($trips);
         foreach ($trips as $trip) {
             // if((int)$trip->{'id'} == 285077846){
             //    dd($trip);
@@ -2453,9 +2453,11 @@ public function get_new_price(){
                                 'location_to' => $to_location,
                                 'date' => $date,
                                 'time' => $time,
-                                'trip_cost' => !empty($trip->{'fx.trip_base'}) && $trip->{'fx.trip_base'} != 0
-                                    ? $trip->{'fx.trip_base'}
-                                    : $trip->{'estimatedPrice'},
+                                'trip_cost' => !empty($trip->{'fx.grand_total'}) && $trip->{'fx.grand_total'} != 0
+                                    ? $trip->{'fx.grand_total'}
+                                    : ((!empty($trip->{'fx.trip_base'}) && $trip->{'fx.trip_base'} != 0)
+                                        ? $trip->{'fx.trip_base'}
+                                        : $trip->estimatedPrice),
                                 'driver_id' => $trip->{'driverId'},
                                 'account_number' => $trip->{'account.name'},
                                 'passenger_phone' => $trip->{'passenger.phone'},

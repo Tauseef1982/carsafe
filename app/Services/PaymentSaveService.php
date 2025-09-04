@@ -101,7 +101,7 @@ class PaymentSaveService
                 $account->save();
 
                 if($account->cube_id == null || $account->cube_id == '') {
-                
+
                 $logData = [
                     'from' => 'customer',
                     'payment' => $to_refill,
