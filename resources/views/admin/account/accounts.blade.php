@@ -143,8 +143,8 @@
                         <label for="">Account Type</label>
 
                          <select name="account_type" class="form-select mb-3" id="account_type">
-                            <option value="">Select Account Type</option>
                            
+
                             <option value="prepaid">Pre Paid</option>
                          </select>
                          <div id="recharge">
@@ -299,7 +299,7 @@ $('#addAccountForm').on('submit', function (e) {
         let form = $(this);
         let formData = new FormData(this);
         let submitButton = form.find('button[type="submit"]');
-        
+
         // Disable the button and show loading state
         submitButton.prop('disabled', true).text('Saving...');
 
@@ -400,25 +400,25 @@ $('#addAccountForm').on('submit', function (e) {
             ajax: {
                 url: "{{ url('admin/accounts') }}",
                 method: "Get",
-                
+
                 data: function (data) {
                     data.status = $('#status').val();
                     data.unpaid_postpaid = $('#open_invoices').is(':checked') ? 1 : 0;
                     data.have_card = $('#have_card').val();
                 }
             },
-         
+
             columns: [
                 {
     data: 'full_name',
     name: 'full_name'
 },
-        
+
                         // {data: 'f_name', name: 'f_name', render: function(data, type, row) {
                         //      return data.charAt(0).toUpperCase() + data.slice(1).toLowerCase();
                         //  }
                         // },
-//         { 
+//         {
 //     data: null, // use null when combining multiple fields
 //     name: 'f_name', // or a custom name
 //     render: function(data, type, row) {
