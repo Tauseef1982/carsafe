@@ -190,7 +190,6 @@ class ApiController extends Controller
 
         if(!isset($trip['start']) || $trip == null){
 
-            $logdata = \App\Models\Log::find(2);
             $tripdata = json_decode($logdata->data, true);
             $tripdata = str_replace("\t".'','',$tripdata['data']);
             $tripdata = json_decode($tripdata,true);
@@ -469,7 +468,7 @@ class ApiController extends Controller
 
     public function tryrechargefinal(Request $request){
 
-        Log::info($request->all());
+        Log::info('recharge-refill-twilio');
 
         $to_refill = $request->amount;
         $account_id = $request->account;
@@ -672,7 +671,6 @@ class ApiController extends Controller
     {
 
         Log::info('finddriver');
-        Log::info($request);
 
         $current_time = Carbon::now();
         $vehicle_number = $request->v_number;
@@ -738,7 +736,7 @@ class ApiController extends Controller
 
     public function payTripAccount(Request $request)
     {
-        Log::info($request);
+        Log::info('twilio-call-trip-pay');
         $account_number = $request->account_number;
         $account_pin = $request->account_pin;
         $trip_id = $request->trip_id;
@@ -855,7 +853,8 @@ class ApiController extends Controller
     public function payTripCard(Request $request)
     {
 
-        Log::info($request);
+        Log::info('twilio-call-trip-pay-card');
+
 
         $month = $request->expiry_month;
         $year = $request->expiry_year;
@@ -892,7 +891,7 @@ class ApiController extends Controller
     public function payTripCard2(Request $request)
     {
 
-        Log::info($request);
+
 
         $trip_id = $request->trip_id;
 //        $trip_id = '277151862';
