@@ -28,7 +28,6 @@
                       <li><a class="lan-" href="{{url('admin/download/drivers_sheet')}}">Download Drivers Sheet</a></li>
                     <li><a class="lan-" href="{{url('admin/inactive-drivers')}}">Inactive Drivers</a></li>
                     <li><a class="lan-" href="{{url('admin/drivers?show_negative=true')}}">Negative Balance</a></li>
-                    <li><a class="lan-" href="{{url('admin/driver_complaints')}}">Complaints</a></li>   
                 </ul>
                   </li>
                 <li class="sidebar-main-title">
@@ -47,7 +46,6 @@
                       <li><a class="lan-" href="{{url('admin/trips2?tab=all')}}">All Trips</a></li>
 {{--                      <li><a class="lan-" href="{{url('admin/trips2?tab=paid')}}">Paid Trips</a></li>--}}
                       <li><a class="lan-" href="{{url('admin/tripswithoutestimatedcost')}}">Trips Cost Added by Driver</a></li>
-                      <li><a class="lan-" href="{{url('admin/trips_complaint')}}">Trips With Complaint</a></li>
                       <li><a class="lan-" href="{{url('admin/trips_extra')}}">Trips With Extra</a></li>
                     </ul>
                   </li>
@@ -72,12 +70,20 @@
 
 
                 <li class="sidebar-list" style="  padding:15px 20px; ">
+                    <a class="sidebar-link sidebar-title " style="background-color:rgba(115, 102, 255, 0.06);padding-top:15px; padding-bottom:13px;padding-left:20px;" href="#"><span class="lan-">All Complaints</span></a>
+                    <ul class="sidebar-submenu">
+                        <li><a class="lan-" href="{{url('admin/driver_complaints')}}">Driver Complaints</a></li>
+                        <li><a class="lan-" href="{{url('admin/accounts/complaints')}}">Account Complaints</a></li>
+                        <li><a class="lan-" href="{{url('admin/trips_complaint')}}">Trips With Complaint</a></li>
+
+                    </ul>
+                </li>
+                <li class="sidebar-list" style="  padding:15px 20px; ">
                     <a class="sidebar-link sidebar-title " style="background-color:rgba(115, 102, 255, 0.06);padding-top:15px; padding-bottom:13px;padding-left:20px;" href="#"><span class="lan-">Accounts</span></a>
                     <ul class="sidebar-submenu">
                         <li><a class="lan-" href="{{url('admin/accounts')}}">All Accounts</a></li>
                         <li><a class="lan-" href="{{url('admin/accounts/cards')}}">Accounts Cards</a></li>
                         <li><a class="lan-" href="{{url('admin/accounts/invoices')}}">Invoices</a></li>
-                        <li><a class="lan-" href="{{url('admin/accounts/complaints')}}">Complaints</a></li>
                         <li><a class="lan-" href="{{url('admin/accounts/cron-postpaid')}}">Generate Invoices</a></li>
                     </ul>
                 </li>
