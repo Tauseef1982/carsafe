@@ -720,7 +720,8 @@ class ApiController extends Controller
                         return response()->json([
                             'valid' => true,
                             'trip_id' => $trip->trip_id,
-                            'driver_id' => $driver->driver_id
+                            'driver_id' => $driver->driver_id,
+                            'trip_cost' => $trip->trip_cost
                         ]);
                     }
                 }

@@ -13,8 +13,10 @@ use App\Models\Payment;
 use App\Services\AccountService;
 use App\Services\CardKnoxService;
 use App\Services\CubeContact;
+use App\Services\EmailService;
 use App\Services\LogService;
 use App\Services\PaymentSaveService;
+use App\Services\TwilioService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -69,7 +71,7 @@ class UserPortalController extends Controller
 
     }
     public function change_password($token){
-       
+
         return view('customer.change_password', compact('token'));
     }
 
@@ -78,13 +80,13 @@ class UserPortalController extends Controller
     ->where('token', hash('sha256', $request->token))
     ->where('created_at', '>=', now()->subMinutes(60))
     ->first();
- 
+
 if (!$record) {
     return redirect()->back()->withErrors(['token' => 'Invalid or expired token.']);
 }
         $password = $request->password;
         $con_password = $request->confirm_password;
-       
+
         if($password === $con_password){
             $user = Account::where('email', $record->email)->first();
             $user->password = Hash::make($request->password);
@@ -102,7 +104,7 @@ if (!$record) {
         return redirect()->back()->with('error', 'Invalid account number. Contact support for help.');
     }
         if($user->status == 0){
-           return redirect()->back()->with('error', 'Account inactive. Please contact support.');  
+           return redirect()->back()->with('error', 'Account inactive. Please contact support.');
         }
         if ($user) {
 
@@ -156,7 +158,7 @@ if (!$record) {
                     'total_payments' => $data['total_payments'],
                     'total_complaints' => $data['total_complaints'],
                     'total_invoices'   => $data['total_invoices']
-                    
+
                 ]);
             }
                  $weeklyTripCounts = [];
@@ -183,7 +185,7 @@ if (!$record) {
 
               $complaints= Account_Complaint::where('account_id' , $account->account_id)
               ->whereBetween('created_at', [$start, $end])->count();
-           
+
 
                $weeklyComplaints[] = $complaints;
            }
@@ -402,11 +404,11 @@ if (!$record) {
         $account_id = Auth::guard('customer')->user()->account_id;
         $account = Account::where('account_id',$account_id)->first();
         DB::beginTransaction();
-        
+
          if ($request->hasFile('image')) {
         $path = $request->file('image')->store('uploads', 'public');
         $account->image = $path;
-        
+
     }
 
         $account->recharge = $request->recharge;
@@ -459,11 +461,11 @@ if (!$record) {
         $uaccount = Account::where('account_id', $account_id)->first();
          // Retrieve the account
         if($request->refill_method == 'card'){
-                  
+
                     $total_amonunt = $to_refill + 3.75;
-          
+
             $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',1)->where('is_deleted', 0)->first();
-         
+
             if (empty($cardDetails)) {
                 // if no primary then secondary
                 $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',0)->where('is_deleted', 0)->first();
@@ -473,7 +475,7 @@ if (!$record) {
             }
             $msg = '';
             $cardknoxToken = $cardDetails->cardnox_token;
-           
+
             //trying to pay invoice if there is any before
             if($uaccount->account_type == 'postpaid') {
 
@@ -486,7 +488,7 @@ if (!$record) {
             //if not then moving to pay trip
 
             $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $total_amonunt, $account_id);
-        
+
             if ($cardknoxResponse['status'] == 'approved') {
 
                 $account_payment = new AccountPayment();
@@ -497,7 +499,7 @@ if (!$record) {
                 $account_payment->payment_date = Carbon::today();
                 $account_payment->payment_type = 'card';
                 $account_payment->save();
-                
+
                 if($uaccount->account_type == 'postpaid'){
 
                     $from_date = 2024-10-15;
@@ -542,7 +544,7 @@ if (!$record) {
 
 
                 }
-           
+
                 //$to_refill = $to_refill - $total_payments;
                 if ($uaccount) {
                     $uaccount->balance += $to_refill;
@@ -587,7 +589,27 @@ if (!$record) {
             }
 
         }
-        //check first primary
+        if (isset($uaccount)) {
+
+            $message = "Your CarSafe Account ".$uaccount->account_id." Has Been Credited With Amount $".$to_refill;
+
+            if ($uaccount->notification_setting == 'account_email') {
+
+                EmailService::sendtext($uaccount->email,$message);
+
+            }elseif ($uaccount->notification_setting == 'account_phone') {
+
+                $phone = preg_replace('/[^0-9]/', '', $uaccount->phone);
+
+                if (!Str::startsWith($phone, '+1')) {
+                    $phone = '+1' . $phone;
+                }
+                TwilioService::sendRawSms($phone,$message);
+
+
+            }
+
+        }
 
         Session::flash('success',''.$to_refill.' Refill added successfully.'.$msg.'');
         return redirect()->back();

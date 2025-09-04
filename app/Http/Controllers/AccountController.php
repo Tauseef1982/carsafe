@@ -19,6 +19,7 @@ use App\Services\CustomPagination;
 use App\Services\EmailService;
 use App\Services\LogService;
 use App\Services\PaymentSaveService;
+use App\Services\TwilioService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
 use App\Imports\UsersImport;
@@ -442,7 +444,7 @@ class AccountController extends Controller
     public function edit($id)
     {
         $account = Account::with('trips')->find($id);
-        return view('admin/edit-account', compact('account'));
+        return view('admin.account.edit-account', compact('account'));
     }
 
     /**
@@ -526,82 +528,30 @@ class AccountController extends Controller
     public function paymentToRefill(Request $request)
     {
 
-//        dd($request->all());
         $account_id = $request->account_id;
         $to_refill = $request->to_refill;
         $uaccount = Account::where('account_id', $account_id)->first(); // Retrieve the account
-        if($request->refill_method == 'cash'){
 
-            $account_payment = new AccountPayment();
-            $account_payment->account_id = $uaccount->account_id;
-            $account_payment->account_type = $uaccount->account_type;
-            $account_payment->amount = $to_refill;
-            $account_payment->payment_date = Carbon::today();
-            $account_payment->payment_type = 'cash';
-            $account_payment->save();
-
-            if ($uaccount) {
-                $uaccount->balance += $to_refill;
-                $uaccount->save();
-
-
-                if($uaccount->account_type == 'prepaid') {
-                    if ($uaccount->balance > 0) {
-                        $uaccount->status = 1;
-                         $uaccount->save();
-                    }
-                }
-
-            } else {
-                return redirect()->back()->with(['status' => 'error', 'message' => 'Account not found.']);
-
-            }
-            $logdata = [
-                'from' => 'customer',
-                'payment' => $to_refill,
-                'message' => 'Refill Payment added using Cash for Account#' . $account_id . ' Amount: ' . $to_refill
-            ];
-            LogService::saveLog($logdata);
-
-
-            DB::commit();
-
-        }else{
-
-            $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',1)->where('is_deleted', 0)->first();
-
-            if (empty($cardDetails)) {
-                // if no primary then secondary
-                $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',0)->where('is_deleted', 0)->first();
-                if (empty($cardDetails)) {
-                    return redirect()->back()->with('error', 'No credit card details found for Account: ' . $account_id);
-                }
-            }
-             $fee = $to_refill * 0.03;
-            $to_refill = $to_refill + $fee;
-            $cardknoxToken = $cardDetails->cardnox_token;
-            $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $to_refill, $account_id);
-
-            if ($cardknoxResponse['status'] == 'approved') {
+        if($to_refill > 0 ) {
+            if ($request->refill_method == 'cash') {
 
                 $account_payment = new AccountPayment();
                 $account_payment->account_id = $uaccount->account_id;
                 $account_payment->account_type = $uaccount->account_type;
-                $account_payment->amount = $request->to_refill;
-                $account_payment->transaction_id = $cardknoxResponse['transaction_id'];
+                $account_payment->amount = $to_refill;
                 $account_payment->payment_date = Carbon::today();
-                $account_payment->payment_type = 'card';
+                $account_payment->payment_type = 'cash';
                 $account_payment->save();
 
                 if ($uaccount) {
-                    $uaccount->balance += $request->to_refill;
+                    $uaccount->balance += $to_refill;
                     $uaccount->save();
 
 
-                    if($uaccount->account_type == 'prepaid') {
+                    if ($uaccount->account_type == 'prepaid') {
                         if ($uaccount->balance > 0) {
                             $uaccount->status = 1;
-                              $uaccount->save();
+                            $uaccount->save();
                         }
                     }
 
@@ -609,31 +559,108 @@ class AccountController extends Controller
                     return redirect()->back()->with(['status' => 'error', 'message' => 'Account not found.']);
 
                 }
-
-
                 $logdata = [
                     'from' => 'customer',
-                    'payment' => $request->to_refill,
-                    'cardknox_response' => $cardknoxResponse,
-                    'message' => 'Refill Payment added using Cardknox for Account#' . $account_id . ' Amount: ' . $to_refill
+                    'payment' => $to_refill,
+                    'message' => 'Refill Payment added using Cash for Account#' . $account_id . ' Amount: ' . $to_refill
                 ];
                 LogService::saveLog($logdata);
 
 
                 DB::commit();
-            } elseif ($cardknoxResponse['status'] == 'declined') {
-                return redirect()->back()->with(['status' => 'error', 'message' => 'Cardknox Payment declined: ' . $cardknoxResponse['message']]);
 
             } else {
 
-                return redirect()->back()->with(['status' => 'error', 'message' => 'Cardknox Payment failed: ' . $cardknoxResponse['message']]);
+                $cardDetails = CreditCard::where('account_id', $account_id)->where('charge_priority', 1)->where('is_deleted', 0)->first();
+
+                if (empty($cardDetails)) {
+                    // if no primary then secondary
+                    $cardDetails = CreditCard::where('account_id', $account_id)->where('charge_priority', 0)->where('is_deleted', 0)->first();
+                    if (empty($cardDetails)) {
+                        return redirect()->back()->with('error', 'No credit card details found for Account: ' . $account_id);
+                    }
+                }
+                $fee = $to_refill * 0.03;
+                $to_refill = $to_refill + $fee;
+                $cardknoxToken = $cardDetails->cardnox_token;
+                $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $to_refill, $account_id);
+
+                if ($cardknoxResponse['status'] == 'approved') {
+
+                    $account_payment = new AccountPayment();
+                    $account_payment->account_id = $uaccount->account_id;
+                    $account_payment->account_type = $uaccount->account_type;
+                    $account_payment->amount = $request->to_refill;
+                    $account_payment->transaction_id = $cardknoxResponse['transaction_id'];
+                    $account_payment->payment_date = Carbon::today();
+                    $account_payment->payment_type = 'card';
+                    $account_payment->save();
+
+                    if ($uaccount) {
+                        $uaccount->balance += $request->to_refill;
+                        $uaccount->save();
+
+
+                        if ($uaccount->account_type == 'prepaid') {
+                            if ($uaccount->balance > 0) {
+                                $uaccount->status = 1;
+                                $uaccount->save();
+                            }
+                        }
+
+                    } else {
+                        return redirect()->back()->with(['status' => 'error', 'message' => 'Account not found.']);
+
+                    }
+
+
+                    $logdata = [
+                        'from' => 'customer',
+                        'payment' => $request->to_refill,
+                        'cardknox_response' => $cardknoxResponse,
+                        'message' => 'Refill Payment added using Cardknox for Account#' . $account_id . ' Amount: ' . $to_refill
+                    ];
+                    LogService::saveLog($logdata);
+
+
+                    DB::commit();
+                } elseif ($cardknoxResponse['status'] == 'declined') {
+                    return redirect()->back()->with(['status' => 'error', 'message' => 'Cardknox Payment declined: ' . $cardknoxResponse['message']]);
+
+                } else {
+
+                    return redirect()->back()->with(['status' => 'error', 'message' => 'Cardknox Payment failed: ' . $cardknoxResponse['message']]);
+
+                }
+
+            }
+        }else{
+
+            return redirect()->back()->with(['status' => 'error', 'message' => 'Amount Should be Greater than zero']);
+
+        }
+
+        if (isset($uaccount)) {
+
+            $message = "Your CarSafe Account ".$uaccount->account_id." Has Been Credited With Amount $".$to_refill;
+
+            if ($uaccount->notification_setting == 'account_email') {
+
+                EmailService::sendtext($uaccount->email,$message);
+
+            }elseif ($uaccount->notification_setting == 'account_phone') {
+
+                $phone = preg_replace('/[^0-9]/', '', $uaccount->phone);
+
+                if (!Str::startsWith($phone, '+1')) {
+                    $phone = '+1' . $phone;
+                }
+                TwilioService::sendRawSms($phone,$message);
+
 
             }
 
         }
-        //check first primary
-
-
 
         return redirect()->back()->with(['status' => 'success', 'message' => 'Refill added successfully.']);
 

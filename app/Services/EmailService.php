@@ -37,6 +37,13 @@ class EmailService
 
     }
 
+    public static function sendtext($email,$message)
+    {
+        Mail::to($email)->send(new TripEmail($message));
+
+
+    }
+
 
     public static function sendBulkInvoices($data)
     {
