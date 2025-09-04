@@ -2420,7 +2420,7 @@ public function get_new_price(){
 
         $response = json_decode($response);
         $trips = $response->rows ?? [];
-           dd($trips);
+          // dd($trips);
         foreach ($trips as $trip) {
             // if((int)$trip->{'id'} == 285077846){
             //    dd($trip);
