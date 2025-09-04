@@ -248,7 +248,6 @@ class TripController extends Controller
         if ($request->has('trip') && $request->payment_method == 'account') {
 
 
-
             if (!empty($trip->account_number) && $request->account !== $trip->account_number) {
                 return redirect()->back()->with('error', 'Trip Account Not Match');
             }
@@ -557,6 +556,14 @@ class TripController extends Controller
 
                         }
 
+                        $driverphone = preg_replace('/[^0-9]/', '', $trip->driver->phone);
+
+                        if (!Str::startsWith($driverphone, '+1')) {
+                            $driverphone = '+1' . $driverphone;
+                        }
+                        $message = 'Payment Added Agianst Trip #'.$trip->trip_id;
+                        TwilioService::sendRawSms($driverphone,$message);
+
                         $logdata = array();
                         $logdata['from'] = 'driver';
                         $logdata['payment'] = $pay_data;
@@ -802,6 +809,14 @@ class TripController extends Controller
 
                         }
 
+                        $driverphone = preg_replace('/[^0-9]/', '', $trip->driver->phone);
+
+                        if (!Str::startsWith($driverphone, '+1')) {
+                            $driverphone = '+1' . $driverphone;
+                        }
+                        $message = 'Payment Added Agianst Trip #'.$trip->trip_id;
+                        TwilioService::sendRawSms($driverphone,$message);
+
                         $logdata = array();
                         $logdata['from'] = 'driver';
                         $logdata['payment'] = $pay_data;
@@ -935,6 +950,14 @@ class TripController extends Controller
                     $trip->update($data);
 
                     $pay_data = $this->addpay($trip, $request);
+
+                    $driverphone = preg_replace('/[^0-9]/', '', $trip->driver->phone);
+
+                    if (!Str::startsWith($driverphone, '+1')) {
+                        $driverphone = '+1' . $driverphone;
+                    }
+                    $message = 'Payment Added Agianst Trip #'.$trip->trip_id;
+                    TwilioService::sendRawSms($driverphone,$message);
 
                     $logdata = array();
                     $logdata['from'] = 'driver';

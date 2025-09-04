@@ -20,11 +20,13 @@ use App\Services\EmailService;
 use App\Services\LogService;
 use App\Services\PaymentSaveService;
 use App\Services\TokenService;
+use App\Services\TwilioService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class ApiController extends Controller
 {
@@ -830,6 +832,15 @@ class ApiController extends Controller
                         $logdata['trip'] = $trip;
                         $logdata['message'] = 'from twillio call';
 
+                        //send notification to driver
+                        $driverphone = preg_replace('/[^0-9]/', '', $trip->driver->phone);
+
+                        if (!Str::startsWith($driverphone, '+1')) {
+                            $driverphone = '+1' . $driverphone;
+                        }
+                        $message = 'Customer Added Payment from Account amount $'.$trip_cost.' Agianst Trip #'.$trip->trip_id;
+
+                        TwilioService::sendRawSms($driverphone,$message);
 
                         LogService::saveLog($logdata);
 //                        $this->ifBalanceMinusAutoPaidAsAdmin($trip);
@@ -929,6 +940,14 @@ class ApiController extends Controller
 
             $logdata['message'] = 'Twillio:Trip Payment Added By Driver Using Method Card#' . $charge['transaction_id'] . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
 
+            $driverphone = preg_replace('/[^0-9]/', '', $trip->driver->phone);
+
+            if (!Str::startsWith($driverphone, '+1')) {
+                $driverphone = '+1' . $driverphone;
+            }
+            $message = 'Customer Added Payment from Card amount $'.$cardknoxAmount.' Agianst Trip #'.$trip->trip_id;
+
+            TwilioService::sendRawSms($driverphone,$message);
             LogService::saveLog($logdata);
             // $this->ifBalanceMinusAutoPaidAsAdmin($trip);
             DB::commit();
