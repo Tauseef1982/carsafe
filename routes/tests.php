@@ -67,65 +67,83 @@ Route::get('/logs', function () {
 
 Route::get('/correct/balanceprepaid', function () {
 
-
-
     $accounts = \App\Models\Account::where('account_type', 'prepaid')
         ->where('is_deleted', 0)
-        ->where('paypertrip', 'off')->get();
-$totalAccounts = 0;
-$negativeBalanceAccounts = 0;
-$plusBalanceAccounts = 0;
-$eqBalanceAccounts = 0;
-$lessBalnceaccounts = 0;
+        ->where('paypertrip', 'off')
+        ->get();
 
-    foreach ($accounts as $account){
+    $totalAccounts = 0;
+    $negativeBalanceAccounts = 0;
+    $plusBalanceAccounts = 0;
+    $eqBalanceAccounts = 0;
+    $lessBalanceAccounts = 0;
 
-    $account_total_inv = \App\Models\AccountPayment::where('account_type', 'prepaid')
-        ->where('account_id',$account->account_id)
-        ->whereNull('hash_id')
-        ->sum('amount');
+    $loop = 0;
+    foreach ($accounts as $account) {
+        $oldBalance = $account->balance;
 
-        $account_payments = \App\Models\Trip::where('account_number',$account->account_id)
-        ->where('payment_method' ,'!=','cash')->where('payper_trip', 0)->sum('trip_cost');
+        // Total amount invoiced (exclude reconciliation adjustments)
+        $account_total_inv = \App\Models\AccountPayment::where('account_type', 'prepaid')
+            ->where('account_id', $account->account_id)
+            ->whereNull('hash_id')
+            ->where('note','!=','balance_reconciliation')
+            ->sum('amount');
 
+        // Total trip costs deducted
+        $account_payments = \App\Models\Trip::where('account_number', $account->account_id)
+            ->where('payment_method', '!=', 'cash')
+            ->where('payper_trip', 0)
+            ->sum('trip_cost');
 
-    $balance = $account_total_inv - $account_payments;
-
-    $totalAccounts++; // Count every account processed
-
-    if ($balance < 0) {
-        $negativeBalanceAccounts++;
-
-    }
-    if($balance < $account->balance){
-        $lessBalnceaccounts++;
-    }
-    if ($balance > $account->balance) {
-        $plusBalanceAccounts++;
-        echo "Account ID: {$account->account_id}\n";
-        echo "Total Account Payments: {$account_total_inv}\n";
-        echo "Total Payments: {$account_payments}";
-
-
-            echo " = Balance Payments:" . $balance . "<br>";
-    }
-
+        // True balance from actual data
         $balance = $account_total_inv - $account_payments;
-        if($balance == $account->balance) {
+        $totalAccounts++;
 
-            $eqBalanceAccounts++;
-            // $account->save();
+        // Difference = actual balance - recorded balance column
+        $diff = $balance - $oldBalance;
+
+        if ($diff != 0) {
+            // log adjustment entry
+            $account_payment = new \App\Models\AccountPayment();
+            $account_payment->account_id = $account->account_id;
+            $account_payment->account_type = $account->account_type;
+            $account_payment->amount = $diff; // signed (+/-)
+            $account_payment->payment_date = '2025-05-08';
+            $account_payment->payment_type = 'cash';
+            $account_payment->note = 'balance_reconciliation';
+            $account_payment->save();
+
+            // update account balance once, based on correct calculation
+            $account->balance = $balance;
+//            $account->save();
+
+            $loop++;
         }
 
+        // Categorize accounts
+        if ($balance < 0) {
+            $negativeBalanceAccounts++;
+        }
+        if ($balance < $oldBalance) {
+            $lessBalanceAccounts++;
+        }
+        if ($balance > $oldBalance) {
+            $plusBalanceAccounts++;
+        }
+        if ($balance == $oldBalance) {
+            $eqBalanceAccounts++;
+        }
+
+        if ($loop > 10) {
+            break;
+        }
     }
 
-echo "Total Accounts Processed: {$totalAccounts}<br>";
-echo "Accounts with Negative Balance: {$negativeBalanceAccounts}<br>";
-echo "Accounts where pabalnce is in plus: {$plusBalanceAccounts}<br>";
-echo "Accounts with ok balance: {$eqBalanceAccounts}<br>";
-echo "Accounts where  balance is less in actual: {$lessBalnceaccounts}<br>";
-
-
+    echo "Total Accounts Processed: {$totalAccounts}<br>";
+    echo "Accounts with Negative Balance: {$negativeBalanceAccounts}<br>";
+    echo "Accounts with Balance Increased (plus): {$plusBalanceAccounts}<br>";
+    echo "Accounts with Equal Balance: {$eqBalanceAccounts}<br>";
+    echo "Accounts with Balance Decreased (less): {$lessBalanceAccounts}<br>";
 });
 
 
