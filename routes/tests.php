@@ -88,10 +88,20 @@ $lessBalnceaccounts = 0;
         $account_payments = \App\Models\Trip::where('account_number',$account->account_id)
         ->where('payment_method' ,'!=','cash')->where('payper_trip', 0)->sum('trip_cost');
 
+    $oldbalance = $account->balance;
 
     $balance = $account_total_inv - $account_payments;
 
+    $diff = $balance - $oldbalance;
+
     $totalAccounts++; // Count every account processed
+     echo "Account ID: {$account->account_id}\n";
+        echo "Total Account Payments: {$account_total_inv}\n";
+        echo "Total trip cost: {$account_payments}";
+        echo " = Balance:" . $balance . "<br>";
+        echo " = old Balance :" . $oldbalance . "<br>";
+        echo " = diffirence :" . $diff . "<br>";
+
 
     if ($balance < 0) {
         $negativeBalanceAccounts++;
@@ -102,12 +112,7 @@ $lessBalnceaccounts = 0;
     }
     if ($balance > $account->balance) {
         $plusBalanceAccounts++;
-        echo "Account ID: {$account->account_id}\n";
-        echo "Total Account Payments: {$account_total_inv}\n";
-        echo "Total Payments: {$account_payments}";
 
-
-            echo " = Balance Payments:" . $balance . "<br>";
     }
 
         $balance = $account_total_inv - $account_payments;
@@ -124,6 +129,7 @@ echo "Accounts with Negative Balance: {$negativeBalanceAccounts}<br>";
 echo "Accounts where pabalnce is in plus: {$plusBalanceAccounts}<br>";
 echo "Accounts with ok balance: {$eqBalanceAccounts}<br>";
 echo "Accounts where  balance is less in actual: {$lessBalnceaccounts}<br>";
+
 
 
 });
