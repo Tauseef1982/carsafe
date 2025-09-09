@@ -82,7 +82,7 @@ Route::get('/correct/balanceprepaid', function () {
     foreach ($accounts as $account) {
         $oldBalance = $account->balance;
 
-        // Total amount invoiced (exclude reconciliation adjustments)
+
         $account_total_inv = \App\Models\AccountPayment::where('account_type', 'prepaid')
             ->where('account_id', $account->account_id)
             ->whereNull('hash_id')
@@ -99,26 +99,27 @@ Route::get('/correct/balanceprepaid', function () {
         $balance = $account_total_inv - $account_payments;
         $totalAccounts++;
 
-        // Difference = actual balance - recorded balance column
+
         $diff = $balance - $oldBalance;
 
-        if ($diff != 0) {
-            // log adjustment entry
-            $account_payment = new \App\Models\AccountPayment();
-            $account_payment->account_id = $account->account_id;
-            $account_payment->account_type = $account->account_type;
-            $account_payment->amount = $diff; // signed (+/-)
-            $account_payment->payment_date = '2025-05-08';
-            $account_payment->payment_type = 'cash';
-            $account_payment->note = 'balance_reconciliation';
-            $account_payment->save();
+         echo "total payments to carsaf = ".$account_total_inv. "toalt trips cost = " .$account_payments . "balance = ".$balance. " current balance = " .$oldBalance. " and diffirence is = ".$diff;                    ;
 
-            // update account balance once, based on correct calculation
-            $account->balance = $balance;
-//            $account->save();
+        // if ($diff != 0) {
 
-            $loop++;
-        }
+        //     $account_payment = new \App\Models\AccountPayment();
+        //     $account_payment->account_id = $account->account_id;
+        //     $account_payment->account_type = $account->account_type;
+        //     $account_payment->amount = $diff;
+        //     $account_payment->payment_date = '2025-05-08';
+        //     $account_payment->payment_type = 'cash';
+        //     $account_payment->note = 'balance_reconciliation';
+        //     $account_payment->save();
+
+
+
+
+        //     $loop++;
+        // }
 
         // Categorize accounts
         if ($balance < 0) {
@@ -134,9 +135,9 @@ Route::get('/correct/balanceprepaid', function () {
             $eqBalanceAccounts++;
         }
 
-        if ($loop > 10) {
-            break;
-        }
+        // if ($loop > 10) {
+        //     break;
+        // }
     }
 
     echo "Total Accounts Processed: {$totalAccounts}<br>";
