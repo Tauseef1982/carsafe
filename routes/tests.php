@@ -92,7 +92,7 @@ $lessBalnceaccounts = 0;
 
     $balance = $account_total_inv - $account_payments;
 
-    $diff = $balance - $oldbalance;
+    $diff =  $oldbalance - $balance ;
 
     $totalAccounts++; // Count every account processed
      echo "Account ID: {$account->account_id}\n";
