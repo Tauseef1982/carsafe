@@ -102,24 +102,24 @@ Route::get('/correct/balanceprepaid', function () {
 
         $diff =  $oldBalance - $balance;
 
-         //echo "total payments to carsaf = ".$account_total_inv. "toalt trips cost = " .$account_payments . "balance = ".$balance. " current balance = " .$oldBalance. " and diffirence is = ".$diff;                    ;
+         echo "total payments to carsaf = ".$account_total_inv. "toalt trips cost = " .$account_payments . "balance = ".$balance. " current balance = " .$oldBalance. " and diffirence is = ".$diff;                    ;
 
-         if ($diff != 0) {
+        //  if ($diff != 0) {
 
-            $account_payment = new \App\Models\AccountPayment();
-            $account_payment->account_id = $account->account_id;
-            $account_payment->account_type = $account->account_type;
-            $account_payment->amount = $diff;
-            $account_payment->payment_date = '2025-05-08';
-            $account_payment->payment_type = 'cash';
-            $account_payment->note = 'balance_from_taxicaller';
-            $account_payment->save();
-
-
+        //     $account_payment = new \App\Models\AccountPayment();
+        //     $account_payment->account_id = $account->account_id;
+        //     $account_payment->account_type = $account->account_type;
+        //     $account_payment->amount = $diff;
+        //     $account_payment->payment_date = '2025-05-08';
+        //     $account_payment->payment_type = 'cash';
+        //     $account_payment->note = 'balance_from_taxicaller';
+        //     $account_payment->save();
 
 
-            $loop++;
-        }
+
+
+        //     $loop++;
+        // }
 
         // Categorize accounts
         if ($balance < 0) {
