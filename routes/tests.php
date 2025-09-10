@@ -96,13 +96,13 @@ Route::get('/correct/balanceprepaid', function () {
             ->sum('trip_cost');
 
         // True balance from actual data
-        $balance = $account_total_inv - $account_payments;
+        $balance =  $account_payments - $account_total_inv ;
         $totalAccounts++;
 
 
         $diff =  $oldBalance - $balance;
 
-         echo "total payments to carsaf = ".$account_total_inv. "toalt trips cost = " .$account_payments . "balance = ".$balance. " current balance = " .$oldBalance. " and diffirence is = ".$diff;                    ;
+         echo "account = ".$account->account_id." total payments to carsaf = ".$account_total_inv. "toalt trips cost = " .$account_payments . "balance = ".$balance. " current balance = " .$oldBalance. " and diffirence is = ".$diff;                    ;
 
         //  if ($diff != 0) {
 
@@ -120,7 +120,7 @@ Route::get('/correct/balanceprepaid', function () {
 
         //     $loop++;
         // }
-
+          $loop++;
         // Categorize accounts
         if ($balance < 0) {
             $negativeBalanceAccounts++;
