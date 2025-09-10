@@ -135,9 +135,9 @@ Route::get('/correct/balanceprepaid', function () {
             $eqBalanceAccounts++;
         }
 
-        // if ($loop > 10) {
-        //     break;
-        // }
+        if ($loop > 10) {
+            break;
+        }
     }
 
     echo "Total Accounts Processed: {$totalAccounts}<br>";
