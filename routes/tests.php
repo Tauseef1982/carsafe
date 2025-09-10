@@ -93,6 +93,7 @@ Route::get('/correct/balanceprepaid', function () {
     $balance = $account_total_inv - $account_payments;
 
     $diff =  $oldbalance - $balance ;
+    
 
     $totalAccounts++; // Count every account processed
      echo "Account ID: {$account->account_id}\n";
