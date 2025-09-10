@@ -102,7 +102,7 @@ Route::get('/correct/balanceprepaid', function () {
 
         $diff =  $oldBalance - $balance;
 
-         echo "account = ".$account->account_id." total payments to carsaf = ".$account_total_inv. "toalt trips cost = " .$account_payments . "balance = ".$balance. " current balance = " .$oldBalance. " and diffirence is = ".$diff . "<br>";                    ;
+         echo "account = ".$account->account_id." total payments to carsaf = ".$account_total_inv. " toalt trips cost = " .$account_payments . " balance = ".$balance. " current balance = " .$oldBalance. " and diffirence is = ".$diff . "<br>";                    ;
 
         //  if ($diff != 0) {
 
