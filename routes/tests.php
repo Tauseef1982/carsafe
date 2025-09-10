@@ -83,8 +83,7 @@ Route::get('/correct/balanceprepaid', function () {
         $oldBalance = $account->balance;
 
 
-        $account_total_inv = \App\Models\AccountPayment::where('account_type', 'prepaid')
-            ->where('account_id', $account->account_id)
+        $account_total_inv = \App\Models\AccountPayment::where('account_id', $account->account_id)
             ->whereNull('hash_id')
             ->where('note','!=','balance_reconciliation')
             ->sum('amount');
