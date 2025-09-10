@@ -1232,7 +1232,8 @@ class AccountController extends Controller
             ->make(true);
            }else{
 
-            $batchPayments = AccountPayment::where('account_id',$account->account_id)->get();
+            $batchPayments = AccountPayment::where('account_id',$account->account_id)
+            ->whereNull('hash_id')->get();
             return DataTables::of($batchPayments)
             ->addIndexColumn()
             ->editColumn('created_at', function ($row) {
