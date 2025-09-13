@@ -20,9 +20,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::post('/testwebhook', [TripController::class, 'cubePayment']);
-Route::post('/webhook-store-trip', [\App\Http\Controllers\ApiController::class, 'getWebHookTrip']);
+Route::any('/webhook-store-trip', [\App\Http\Controllers\ApiController::class, 'getWebHookTrip']);
 Route::post('/voice/call', [\App\Http\Controllers\ApiController::class, 'voiceCall']);
 Route::post('/try-charge', [\App\Http\Controllers\ApiController::class, 'tryrecharge']);
 Route::post('/try-charge2', [\App\Http\Controllers\ApiController::class, 'tryrechargefinal']);
 Route::post('/add-card', [\App\Http\Controllers\ApiController::class, 'addcard']);
+Route::post('/twilio/findvehicle', [\App\Http\Controllers\ApiController::class, 'driverByVehicle']);
+Route::post('/twilio/payTripAccount', [\App\Http\Controllers\ApiController::class, 'payTripAccount']);
+Route::post('/twilio/payTripCard', [\App\Http\Controllers\ApiController::class, 'payTripCard']);
+Route::post('/twilio/payTripCard2', [\App\Http\Controllers\ApiController::class, 'payTripCard2']);
 

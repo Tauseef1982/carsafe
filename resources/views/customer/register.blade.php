@@ -1,21 +1,21 @@
 @extends('auth-layout')
  @section('css')
     <style>
-        .icon {
-            float: right;
-            margin-top: -28px;
-            margin-right: 20px;
-        }
-        .icon svg {
-  fill: #FF6600; /* Replace with your desired color */
-}
+      .icon {
+        float: right;
+        margin-top: -28px;
+        margin-right: 20px;
+      }
+      .icon svg {
+       fill: #FF6600; 
+     }
 
-        .second_step{
-          display: none;
-        }
-        .third_step{
-          display: none;
-        }
+      .second_step{
+        display: none;
+      }
+      .third_step{
+        display: none;
+      }
     </style>
 
 @endsection

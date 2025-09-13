@@ -11,6 +11,7 @@ use App\Models\Payment;
 use App\Models\Trip;
 use App\Models\Discount;
 use App\Models\AllowedAddress;
+use App\Models\CustomerBooking;
 use App\Services\AccountService;
 use App\Services\CardKnoxService;
 use App\Services\CubeContact;
@@ -18,6 +19,7 @@ use App\Services\CustomPagination;
 use App\Services\EmailService;
 use App\Services\LogService;
 use App\Services\PaymentSaveService;
+use App\Services\TwilioService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -25,6 +27,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
 use App\Imports\UsersImport;
@@ -331,7 +334,7 @@ class AccountController extends Controller
     $data['password'] = $request->password;
     Mail::to($request->email)->send(new CustomerLogins($data));
 
-    
+
 
     // Save payment
     $account_payment = new AccountPayment();
@@ -403,13 +406,13 @@ class AccountController extends Controller
         return redirect()->back()->with('error', 'Account not found.');
     }
 
-   
+
     if ($request->status == 1) {
         $account->last_activated_at = now();
-       
+
     } else {
         $account->last_inactive_at = now();
-        
+
     }
 
     $account->status = $request->status;
@@ -418,7 +421,7 @@ class AccountController extends Controller
 
     $account->save();
 
-    
+
 
     return redirect()->back()->with('success', 'Account status is changed successfully.');
 }
@@ -441,7 +444,7 @@ class AccountController extends Controller
     public function edit($id)
     {
         $account = Account::with('trips')->find($id);
-        return view('admin/edit-account', compact('account'));
+        return view('admin.account.edit-account', compact('account'));
     }
 
     /**
@@ -512,7 +515,7 @@ class AccountController extends Controller
 
             }
 
-               
+
 
 
         DB::commit();
@@ -525,91 +528,29 @@ class AccountController extends Controller
     public function paymentToRefill(Request $request)
     {
 
-//        dd($request->all());
         $account_id = $request->account_id;
         $to_refill = $request->to_refill;
         $uaccount = Account::where('account_id', $account_id)->first(); // Retrieve the account
-        if($request->refill_method == 'cash'){
 
-            $account_payment = new AccountPayment();
-            $account_payment->account_id = $uaccount->account_id;
-            $account_payment->account_type = $uaccount->account_type;
-            $account_payment->amount = $to_refill;
-            $account_payment->payment_date = Carbon::today();
-            $account_payment->payment_type = 'cash';
-            $account_payment->save();
-
-            if ($uaccount) {
-                $uaccount->balance += $to_refill;
-                $uaccount->save();
-
-
-                if($uaccount->account_type == 'prepaid') {
-                    if ($uaccount->balance > 0) {
-                        $uaccount->status = 1;
-                        if ($uaccount->cube_id == null || $uaccount->cube_id == '') {
-                           // CubeContact::createAccount($uaccount->account_id);
-                        }
-                      //  CubeContact::updateCubeAccount($uaccount->account_id,null,'active');
-
-                        $uaccount->save();
-                    }
-                }
-
-            } else {
-                return redirect()->back()->with(['status' => 'error', 'message' => 'Account not found.']);
-
-            }
-            $logdata = [
-                'from' => 'customer',
-                'payment' => $to_refill,
-                'message' => 'Refill Payment added using Cash for Account#' . $account_id . ' Amount: ' . $to_refill
-            ];
-            LogService::saveLog($logdata);
-
-
-            DB::commit();
-
-        }else{
-
-            $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',1)->where('is_deleted', 0)->first();
-
-            if (empty($cardDetails)) {
-                // if no primary then secondary
-                $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',0)->where('is_deleted', 0)->first();
-                if (empty($cardDetails)) {
-                    return redirect()->back()->with('error', 'No credit card details found for Account: ' . $account_id);
-                }
-            }
-             $fee = $to_refill * 0.03;
-            $to_refill = $to_refill + $fee;
-            $cardknoxToken = $cardDetails->cardnox_token;
-            $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $to_refill, $account_id);
-
-            if ($cardknoxResponse['status'] == 'approved') {
+        if($to_refill > 0 ) {
+            if ($request->refill_method == 'cash') {
 
                 $account_payment = new AccountPayment();
                 $account_payment->account_id = $uaccount->account_id;
                 $account_payment->account_type = $uaccount->account_type;
-                $account_payment->amount = $request->to_refill;
-                $account_payment->transaction_id = $cardknoxResponse['transaction_id'];
+                $account_payment->amount = $to_refill;
                 $account_payment->payment_date = Carbon::today();
-                $account_payment->payment_type = 'card';
+                $account_payment->payment_type = 'cash';
                 $account_payment->save();
 
                 if ($uaccount) {
-                    $uaccount->balance += $request->to_refill;
+                    $uaccount->balance += $to_refill;
                     $uaccount->save();
 
 
-                    if($uaccount->account_type == 'prepaid') {
+                    if ($uaccount->account_type == 'prepaid') {
                         if ($uaccount->balance > 0) {
                             $uaccount->status = 1;
-                            if ($uaccount->cube_id == null || $uaccount->cube_id == '') {
-                                CubeContact::createAccount($uaccount->account_id);
-                            }
-                         //  $cube_resp = CubeContact::updateCubeAccount($uaccount->account_id,null,'active');
-
                             $uaccount->save();
                         }
                     }
@@ -618,31 +559,108 @@ class AccountController extends Controller
                     return redirect()->back()->with(['status' => 'error', 'message' => 'Account not found.']);
 
                 }
-
-
                 $logdata = [
                     'from' => 'customer',
-                    'payment' => $request->to_refill,
-                    'cardknox_response' => $cardknoxResponse,
-                    'message' => 'Refill Payment added using Cardknox for Account#' . $account_id . ' Amount: ' . $to_refill
+                    'payment' => $to_refill,
+                    'message' => 'Refill Payment added using Cash for Account#' . $account_id . ' Amount: ' . $to_refill
                 ];
                 LogService::saveLog($logdata);
 
 
                 DB::commit();
-            } elseif ($cardknoxResponse['status'] == 'declined') {
-                return redirect()->back()->with(['status' => 'error', 'message' => 'Cardknox Payment declined: ' . $cardknoxResponse['message']]);
 
             } else {
 
-                return redirect()->back()->with(['status' => 'error', 'message' => 'Cardknox Payment failed: ' . $cardknoxResponse['message']]);
+                $cardDetails = CreditCard::where('account_id', $account_id)->where('charge_priority', 1)->where('is_deleted', 0)->first();
+
+                if (empty($cardDetails)) {
+                    // if no primary then secondary
+                    $cardDetails = CreditCard::where('account_id', $account_id)->where('charge_priority', 0)->where('is_deleted', 0)->first();
+                    if (empty($cardDetails)) {
+                        return redirect()->back()->with('error', 'No credit card details found for Account: ' . $account_id);
+                    }
+                }
+                $fee = $to_refill * 0.03;
+                $to_refill = $to_refill + $fee;
+                $cardknoxToken = $cardDetails->cardnox_token;
+                $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $to_refill, $account_id);
+
+                if ($cardknoxResponse['status'] == 'approved') {
+
+                    $account_payment = new AccountPayment();
+                    $account_payment->account_id = $uaccount->account_id;
+                    $account_payment->account_type = $uaccount->account_type;
+                    $account_payment->amount = $request->to_refill;
+                    $account_payment->transaction_id = $cardknoxResponse['transaction_id'];
+                    $account_payment->payment_date = Carbon::today();
+                    $account_payment->payment_type = 'card';
+                    $account_payment->save();
+
+                    if ($uaccount) {
+                        $uaccount->balance += $request->to_refill;
+                        $uaccount->save();
+
+
+                        if ($uaccount->account_type == 'prepaid') {
+                            if ($uaccount->balance > 0) {
+                                $uaccount->status = 1;
+                                $uaccount->save();
+                            }
+                        }
+
+                    } else {
+                        return redirect()->back()->with(['status' => 'error', 'message' => 'Account not found.']);
+
+                    }
+
+
+                    $logdata = [
+                        'from' => 'customer',
+                        'payment' => $request->to_refill,
+                        'cardknox_response' => $cardknoxResponse,
+                        'message' => 'Refill Payment added using Cardknox for Account#' . $account_id . ' Amount: ' . $to_refill
+                    ];
+                    LogService::saveLog($logdata);
+
+
+                    DB::commit();
+                } elseif ($cardknoxResponse['status'] == 'declined') {
+                    return redirect()->back()->with(['status' => 'error', 'message' => 'Cardknox Payment declined: ' . $cardknoxResponse['message']]);
+
+                } else {
+
+                    return redirect()->back()->with(['status' => 'error', 'message' => 'Cardknox Payment failed: ' . $cardknoxResponse['message']]);
+
+                }
+
+            }
+        }else{
+
+            return redirect()->back()->with(['status' => 'error', 'message' => 'Amount Should be Greater than zero']);
+
+        }
+
+        if (isset($uaccount)) {
+
+            $message = "Your CarSafe Account ".$uaccount->account_id." Has Been Credited With Amount $".$to_refill;
+
+            if ($uaccount->notification_setting == 'account_email') {
+
+                EmailService::sendtext($uaccount->email,$message);
+
+            }elseif ($uaccount->notification_setting == 'account_phone') {
+
+                $phone = preg_replace('/[^0-9]/', '', $uaccount->phone);
+
+                if (!Str::startsWith($phone, '+1')) {
+                    $phone = '+1' . $phone;
+                }
+                TwilioService::sendRawSms($phone,$message);
+
 
             }
 
         }
-        //check first primary
-
-
 
         return redirect()->back()->with(['status' => 'success', 'message' => 'Refill added successfully.']);
 
@@ -1214,7 +1232,8 @@ class AccountController extends Controller
             ->make(true);
            }else{
 
-            $batchPayments = AccountPayment::where('account_id',$account->account_id)->get();
+            $batchPayments = AccountPayment::where('account_id',$account->account_id)
+            ->whereNull('hash_id')->get();
             return DataTables::of($batchPayments)
             ->addIndexColumn()
             ->editColumn('created_at', function ($row) {
@@ -1940,14 +1959,33 @@ class AccountController extends Controller
     $account_payment = AccountPayment::where('hash_id',$id)->first();
     return view('account_complaint', compact('account_payment'));
     }
+      public function disable_stops(Request $request){
+        $id = $request->account_id;
+        $account = Account::find($id);
+        $account->disable_stops = $request->has('disable_stops');
+        $account->save();
+        return back()->with('success', 'Account stops are updated.');
 
+      }
+       public function disable_account_payment(Request $request){
+
+        $id = $request->account_id;
+        $account = Account::find($id);
+
+        $account->disable_account_payment = $request->has('disable_account_payment');
+
+        $account->save();
+
+        return back()->with('success', 'Account payment method is updated.');
+
+      }
     public function account_restriction(Request $request){
         $id = $request->account_id;
         $account = Account::find($id);
         $account->address_restriction = $request->has('address_restriction');
         $account->save();
 
-        
+
 
         if ($account->address_restriction && $request->filled('addresses')) {
         foreach ($request->addresses as $address) {
@@ -1961,7 +1999,7 @@ class AccountController extends Controller
     }
 
     public function deleteAllowedAddress($id){
-         
+
 
     $address = AllowedAddress::where('id', $id)->first();
 
@@ -1981,7 +2019,58 @@ public function checkAccountId(Request $request){
     return response()->json(['exists' => $exists]);
 }
 
+public function checkAccountStops(Request $request)
+{
+    $account = Account::where('account_id', $request->account)->first();
 
+    if (!$account) {
+        return response()->json(['disable_stops' => true, 'error' => 'Account not found']);
+    }
+
+    return response()->json([
+        'disable_stops' => (bool) $account->disable_stops
+    ]);
+}
+
+
+public function checkAccountPaymnetMethod(Request $request)
+{
+   $account = Account::where('account_id', $request->account)->first();
+
+if ($account) {
+   if ($account->disable_account_payment) {
+
+    $order = CustomerBooking::where('account_id', $account->account_id)
+        ->where('order_id', $request->order_id)
+        ->first();
+
+
+   if ($order) {
+        return response()->json([
+            'disable_account_payment' => false,
+
+
+        ]);
+    }else{
+        return response()->json([
+        'disable_account_payment' => true,
+        'error' => 'Account is restricted for account payments.'
+    ]);
+    }
+}else{
+    return response()->json([
+            'disable_account_payment' => false,
+            'error' => 'Account not found'
+        ]);
+}
+
+}
+
+
+
+
+
+}
 
 
 }

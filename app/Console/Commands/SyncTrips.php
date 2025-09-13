@@ -65,8 +65,8 @@ class SyncTrips extends Command
                     "report_type": "jobs",
                     "output_format": "json",
                     "template_id": 14122,
-                    "search_query": {"period":{"@type":"relative","unit":"day","offset":0,"count":1},
-                    "results":{"offset":0,"limit":10000}}
+                    "search_query": {"period":{"@type":"relative","unit":"day","offset":0,"count":4},
+                    "results":{"offset":0,"limit":15000}}
                     }',
             CURLOPT_HTTPHEADER => array(
                 'Authorization: Bearer ' . TokenService::token(),
@@ -76,13 +76,13 @@ class SyncTrips extends Command
 
         $response = curl_exec($curl);
         curl_close($curl);
-        
+
         $response = json_decode($response);
         $trips = $response->rows;
 
 
         foreach ($trips as $trip) {
-          // dd($trip);
+
 
             // Check if 'start' is valid
             if ($trip->{'start'} != '-' && $trip->{'start'} != '') {

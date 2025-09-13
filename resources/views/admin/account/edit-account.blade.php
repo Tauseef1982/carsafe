@@ -33,10 +33,10 @@
                                 @csrf
                                 <label for="">Account Type</label>
 
-                            <select name="account_type" class="form-select mb-3" id="account_type">
-                            <option value="">Select Account Type</option>
+                            <select name="account_type" class="form-select mb-3" id="account_type" required>
+                          
 
-                            
+
                             <option value="prepaid" @if($account->account_type == 'prepaid') selected @endif>Pre Paid</option>
                          </select>
 

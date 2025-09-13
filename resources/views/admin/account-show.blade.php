@@ -93,10 +93,10 @@
                                     @endif
                                     <div class="card-header card-no-border">
                                         <h5>{{$account->f_name}} {{$account->lname}}</h5>
-                                         <a href="{{ url('admin/edit/account/') }}/{{$account->id  }}" target="_blank" class="btn btn-primary">Edit Account</a> 
+                                         <a href="{{ url('admin/edit/account/') }}/{{$account->id  }}" target="_blank" class="btn btn-primary">Edit Account</a>
 
                                          <form action="{{ url('admin/update_account_restriction') }}" method="post">
-                                         @csrf  
+                                         @csrf
                                          <input type="hidden" value="{{ $account->id }}" name="account_id">
                                          <label>
                                             <input type="checkbox" name="address_restriction" id="address_restriction" {{ $account->address_restriction ? 'checked' : '' }}>
@@ -118,10 +118,35 @@
 
                                             <div id="new-address-container"></div>
                                             <button type="button" class="btn btn-secondary" id="add-address-btn">Add Address</button>
-                                             
+
                                         </div>
                                         <button type="submit" class="btn btn-primary mt-3">Save</button>
                                              </form>
+                                             <div class="row">
+                                                <div class="col-md-6">
+                                                     <form action="{{ url('admin/disable_stops') }}" method="post" class="mt-4">
+                                                 @csrf
+                                         <input type="hidden" value="{{ $account->id }}" name="account_id">
+                                         <label>
+                                            <input type="checkbox" name="disable_stops" id="disable_stops" {{ $account->disable_stops ? 'checked' : '' }}>
+                                            Disable Stops
+                                        </label> <br>
+                                        <button type="submit" class="btn btn-primary mt-3">Save</button>
+                                             </form>
+                                                </div>
+                                                 <div class="col-md-6">
+                                                     <form action="{{ url('admin/disable_account_payment') }}" method="post" class="mt-4">
+                                                 @csrf
+                                         <input type="hidden" value="{{ $account->id }}" name="account_id">
+                                         <label>
+                                            <input type="checkbox" name="disable_account_payment" id="disable_account_paymnet" {{ $account->disable_account_payment ? 'checked' : '' }}>
+                                            Disable Account Payments
+                                        </label> <br>
+                                        <button type="submit" class="btn btn-primary mt-3">Save</button>
+                                             </form>
+                                                </div>
+                                             </div>
+
 
 
                                         <div class="card-header-right">
@@ -165,20 +190,7 @@
                                                 </div>
 
                                             </div>
-                                            <!-- <div class="col-md-3">
-                                                <div class="bg-info card p-10">
-                                                    <h5 class="font-dark text-center">Total Driver Earnings</h5>
-                                                    <h6 id="total_earnings" class="font-dark text-center">$0</h6>
 
-                                                </div>
-                                            </div> -->
-                                            <!-- <div class="col-md-3">
-                                                <div class="bg-success card p-10">
-                                                    <h5 class="font-dark text-center">Total Driver Received</h5>
-                                                    <h6 id="total_recived" class="font-dark text-center">$0</h6>
-
-                                                </div>
-                                            </div> -->
 
                                             <div class="col-md-6">
                                                 <div class="bg-secondary card p-10">
@@ -230,7 +242,7 @@
                                                     <td>{{$account->pins}}</td>
                                                      <td>
                                                             <button class="btn btn-xs btn-primary" data-bs-toggle="modal" data-bs-target="#changeStatusModal">
-                                                            Change Status 
+                                                            Change Status
                                                         </button>
                                                         <!-- Modal -->
                                                         <div class="modal fade" id="changeStatusModal" tabindex="-1" aria-labelledby="changeStatusModalLabel" aria-hidden="true">
@@ -600,7 +612,7 @@
                                   <div class="col-12">
 
                                     <input type="hidden" class="form-control mb-3" name="account_id" id="account_id_card" required>
-                                  </div> 
+                                  </div>
 
 
 

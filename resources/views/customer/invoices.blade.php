@@ -1,16 +1,58 @@
 @extends('customer.layouts.yajra')
+@section('css')
+<style>
+  #accounts {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+}
+  #accounts thead tr:first-child th:first-child {
+    border-top-left-radius: 12px;
+}
+#accounts thead tr:first-child th:last-child {
+    border-top-right-radius: 12px;
+}
 
+.page-wrapper .page-body-wrapper .page-title {
+    margin: 0 !important;
+    background-color: none !important;
+    border-bottom: 1px solid #D9D9E1 !important;
+    box-shadow: none !important;
+}
+   .even{
+    background-color: #FEEEEA !important;
+}
+.even > .sorting_1{
+    background-color: #FEEEEA!important;
+}
+
+
+
+
+</style>
+@endsection
 @section('content')
-<div class="container-fluid">
-            <div class="page-title">
-              <div class="row">
-                <div class="col-6">
-                  <h3>Invoices</h3>
-                </div>
-                <div class="col-6">
-                  <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url('customer/index') }}">                                       <i data-feather="home"></i></a></li>
-                    <li class="breadcrumb-item text-primary">Invoices</li>
+
+  <div class="card total-users">
+
+       <div class="container-fluid mt-3">
+
+      <div class="row">
+         <!-- Zero Configuration  Starts-->
+         <div class="col-sm-12">
+          <div class="">
+
+            <div class="card-body">
+            <div class="page-title ">
+          <div class="row">
+          <div class="col-6">
+            <h3 class="f-28 fw-bold">Invoices</h3>
+          </div>
+          <div class="col-6">
+            <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url('customer/index') }}">                                       <i data-feather="home"></i></a></li>
+            <li class="breadcrumb-item text-primary">Invoices</li>
 
                   </ol>
                 </div>
@@ -52,19 +94,19 @@
                             <th>Due Date</th>
                             <th>Action</th>
 
-                          </tr>
-                        </thead>
-                        <tbody>
+                </tr>
+              </thead>
+              <tbody>
 
-                        </tbody>
+              </tbody>
 
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- Zero Configuration  Ends-->
-        </div>
+              </table>
+            </div>
+            </div>
+          </div>
+          </div>
+          <!-- Zero Configuration  Ends-->
+      </div>
        </div>
       </div>
 

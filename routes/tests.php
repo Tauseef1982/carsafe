@@ -67,32 +67,86 @@ Route::get('/logs', function () {
 
 Route::get('/correct/balanceprepaid', function () {
 
-    dd('not allow');
+
 
     $accounts = \App\Models\Account::where('account_type', 'prepaid')
-        ->where('is_deleted', 0)->get();
+        ->where('is_deleted', 0)
+        ->where('paypertrip', 'off')->get();
+    $totalAccounts = 0;
+    $negativeBalanceAccounts = 0;
+    $plusBalanceAccounts = 0;
+    $eqBalanceAccounts = 0;
+    $lessBalnceaccounts = 0;
 
     foreach ($accounts as $account){
 
     $account_total_inv = \App\Models\AccountPayment::where('account_type', 'prepaid')
         ->where('account_id',$account->account_id)
+        ->whereNull('hash_id')
         ->sum('amount');
 
-        $account_payments = \App\Models\Payment::where('user_type','customer')->where('type','debit')
-            ->where('account_id',$account->account_id)->sum('amount');
+        $account_payments = \App\Models\Trip::where('account_number',$account->account_id)
+        ->where('payment_method' ,'!=','cash')->where('payper_trip', 0)->sum('trip_cost');
 
-        echo "Account ID: {$account->account_id}\n";
+    $oldbalance = $account->balance;
+
+    $balance = $account_total_inv - $account_payments;
+
+    $diff =  $oldbalance - $balance ;
+
+
+    $totalAccounts++; // Count every account processed
+     echo "Account ID: {$account->account_id}\n";
         echo "Total Account Payments: {$account_total_inv}\n";
-        echo "Total Payments: {$account_payments}";
+        echo "Total trip cost: {$account_payments}";
+        echo " = Balance:" . $balance . "<br>";
+        echo " = old Balance :" . $oldbalance . "<br>";
+        echo " = diffirence :" . $diff . "<br>";
+
+        // if ($diff != 0) {
+
+        //     $account_payment = new \App\Models\AccountPayment();
+        //     $account_payment->account_id = $account->account_id;
+        //     $account_payment->account_type = $account->account_type;
+        //     $account_payment->amount = $diff;
+        //     $account_payment->payment_date = '2025-05-08';
+        //     $account_payment->payment_type = 'cash';
+        //     $account_payment->note = 'balance_reconciliation';
+        //     $account_payment->save();
+
+
+
+
+
+        // }
+
+
+    if ($balance < 0) {
+        $negativeBalanceAccounts++;
+
+    }
+    if($balance < $account->balance){
+        $lessBalnceaccounts++;
+    }
+    if ($balance > $account->balance) {
+        $plusBalanceAccounts++;
+
+    }
+
         $balance = $account_total_inv - $account_payments;
-        if($balance != $account->balance) {
-            echo " = Balance Payments:" . $balance . "<br>";
-            $account->balance = $account_total_inv - $account_payments;
-            $account->save();
+        if($balance == $account->balance) {
+
+            $eqBalanceAccounts++;
+            // $account->save();
         }
 
     }
 
+echo "Total Accounts Processed: {$totalAccounts}<br>";
+echo "Accounts with Negative Balance: {$negativeBalanceAccounts}<br>";
+echo "Accounts where pabalnce is in plus: {$plusBalanceAccounts}<br>";
+echo "Accounts with ok balance: {$eqBalanceAccounts}<br>";
+echo "Accounts where  balance is less in actual: {$lessBalnceaccounts}<br>";
 
 
 
@@ -127,7 +181,7 @@ Route::get('/correct/balanceprepaid', function () {
 // });
 
 Route::get('/script/account_defaultPin', function () {
-    
+
 
 
     $accounts = Account::all();
@@ -520,8 +574,8 @@ Route::get("trips_tc/{from}", function($from){
 Route::get('update_cards', function () {
     DB::statement("
         UPDATE credit_cards
-        JOIN accounts 
-            ON accounts.f_name = credit_cards.account_number 
+        JOIN accounts
+            ON accounts.f_name = credit_cards.account_number
             AND accounts.lname = credit_cards.account_name
         SET credit_cards.account_id = accounts.account_id
     ");
@@ -559,18 +613,18 @@ Route::get('account_balance', function(){
 
     $response = curl_exec($curl);
     curl_close($curl);
- 
+
     $data = json_decode($response, true);
     $accounts = $data['accounts'] ?? [];
 
-    // Loop over each balance record
+
     foreach ($accounts as $record) {
-        // Extract the cube_id from the 'name' field
+
         if (preg_match('/customer-(\d+)/', $record['name'], $matches)) {
             $cubeId = $matches[1];
             $balance = $record['balance'] / 1000;
 
-            // Find and update the account
+
             $account = Account::where('cube_id', $cubeId)->first();
             if ($account) {
                 $account->balance = $balance;
@@ -583,6 +637,6 @@ Route::get('account_balance', function(){
     }
 
     return 'Account balances updated successfully.';
-   
-   
+
+
 });

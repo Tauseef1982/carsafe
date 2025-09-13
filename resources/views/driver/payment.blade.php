@@ -11,12 +11,12 @@ $util = new \App\Utils\dateUtil();
 <style>
 .extracharges-field-div{
  display: none;
-  } 
+  }
   .toggle-extra{
     cursor: pointer;
   }
 </style>
-   
+
 
 @endsection
 
@@ -55,7 +55,7 @@ $util = new \App\Utils\dateUtil();
                                     {{ session('error') }}
                                 </div>
                             @endif
-                            <a href="{{ url('payment') }}" class="btn btn-primary float-end">Get updated Price</a>
+                            <a href="{{ url('update_price') }}" class="btn btn-primary float-end">Get updated Price</a>
                         </div>
                         <form action="{{url('add-payment')}}" method="post" id="payment_form" onsubmit="disableButton()">
                             @csrf
@@ -156,10 +156,10 @@ $util = new \App\Utils\dateUtil();
                                         </div>
                                     </div>
                                 </div>
-                              
+
                               @endif
-                               
-                               
+
+
 
                                 <div class="text-end mt-3">
                                     <button class="btn btn-primary btn-block w-100" type="button" id="show-amount-div">
@@ -189,19 +189,19 @@ $util = new \App\Utils\dateUtil();
                                      @else
                                      <span class="danger" >Admin has blocked you from adding extra </span>
                                     @endif
-                                    
+
                                     <div class="  p-3 extracharges-field-div" data-id="2">
                                         <div class="mb-3">
                                             <div class="d-flex align-items-center mb-2">
-                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-4">−</button>
+                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-4 ">−</button>
                                                 <span class="mx-2 fw-bold">$4 Stop</span>
-                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-4">+</button>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-4 ">+</button>
                                             </div>
 
                                             <div class="d-flex align-items-center mb-2">
-                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-5">−</button>
+                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-5 ">−</button>
                                                 <span class="mx-2 fw-bold">$5 Stop</span>
-                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-5">+</button>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-5 ">+</button>
                                             </div>
 
                                             <div class="d-flex align-items-center">
@@ -221,9 +221,9 @@ $util = new \App\Utils\dateUtil();
                                                    placeholder="00.00" />
 
                                         </div>
-                                        <!-- <label for="stop_amount" class="me-2">Stop Location:  </label>
+                                        <label for="stop_amount" class="me-2">Stop Location:  </label>
                                         <input type="text" class="form-control stop_location"  name="stop_location[]"
-                                               placeholder="Please Enter Stop Location Here"> -->
+                                               placeholder="Please Enter Stop Location Here">
                                         <label for="wait_amount" class="me-2 ">Wait:</label>
                                         <div class="input-group mb-3">
 
@@ -283,7 +283,7 @@ $util = new \App\Utils\dateUtil();
                             </div>
                             <div class="card-body pt-0 hide" id="gocab-account-div">
                                 <h5>
-                                    Account Number
+                                    Account
                                     <span class="badge badge-primary pull-right digits btn  show-method-div">Go Back</span>
                                 </h5>
                                 <div class="card">
@@ -309,15 +309,15 @@ $util = new \App\Utils\dateUtil();
                                     <div class="  p-3 extracharges-field-div" data-id="1">
                                        <div class="mb-3">
                                             <div class="d-flex align-items-center mb-2">
-                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-4">−</button>
+                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-4 stops">−</button>
                                                 <span class="mx-2 fw-bold">$4 Stop</span>
-                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-4">+</button>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-4 stops">+</button>
                                             </div>
 
                                             <div class="d-flex align-items-center mb-2">
-                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-5">−</button>
+                                                <button type="button" class="btn btn-primary btn-sm me-2 remove-stop-5 stops">−</button>
                                                 <span class="mx-2 fw-bold">$5 Stop</span>
-                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-5">+</button>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2 add-stop-5 stops">+</button>
                                             </div>
 
                                             <div class="d-flex align-items-center">
@@ -334,13 +334,14 @@ $util = new \App\Utils\dateUtil();
                                         <div class="input-group mb-3">
 
                                             <span class="input-group-text">$</span>
-                                            <input class="form-control me-2 stop_amount" type="tel" readonly name="stop_amount[]" 
+                                            <input class="form-control me-2 stop_amount" type="tel" readonly name="stop_amount[]"
                                                    placeholder="00.00" />
 
                                         </div>
-                                        <!-- <label for="stop_amount" class="me-2">Stop Location:  </label>
+                                        <label for="stop_amount" class="me-2">Stop Location:  </label>
                                         <input type="text" class="form-control stop_location"  name="stop_location[]"
-                                               placeholder="Please Enter Stop Location Here"> -->
+                                               placeholder="Please Enter Stop Location Here">
+
                                         <label for="wait_amount" class="me-2 ">Wait:</label>
                                         <div class="input-group mb-3">
 
@@ -409,7 +410,7 @@ $util = new \App\Utils\dateUtil();
                         $('#trips-container').html('<p>Loading trips...</p>');
                     },
                     success: function (response) {
-                        console.log(response); 
+                        console.log(response);
                         let tripsHtml = '';
 
                         if (response.trips && response.trips.length > 0) {
@@ -422,13 +423,13 @@ $util = new \App\Utils\dateUtil();
                         <div class="form-check radio radio-primary me-3">
                             <input class="form-check-input trip-radio" id="radio${trip.trip_id}"
                                    type="radio" name="trip"
-                                   value="${trip.trip_id}" data-trip-cost="${parseFloat(trip.trip_cost) + parseFloat(trip.extra_charges ?? 0)}" />
+                                   value="${trip.trip_id}" data-order_id="${trip.order_id}" data-trip-cost="${parseFloat(trip.trip_cost) + parseFloat(trip.extra_charges ?? 0)}" />
                             <label class="form-check-label" for="radio${trip.trip_id}">
                                 <div class="media-body">
                                     <h6 class="mt-0 mega-title-badge">
                                         ${trip.location_from} to ${trip.location_to}
                                         <span class="badge badge-primary pull-right digits">
-                                         $${trip.trip_cost} 
+                                         $${trip.trip_cost}
                                         </span>
                                     </h6>
                                     <p class="notranslate">
@@ -455,7 +456,7 @@ $util = new \App\Utils\dateUtil();
                 });
             }
 
-            
+
             loadLatestTrips();
         });
     </script>
@@ -465,51 +466,88 @@ $util = new \App\Utils\dateUtil();
         var targetId = $(this).data('target');
         $('.extracharges-field-div[data-id="' + targetId + '"]').toggle();
     });
-        // + $4 Stop
-    $('.add-stop-4').click(function (e) {
-        e.preventDefault();
-        var $container = $(this).closest('.extracharges-field-div');
-        var $input = $container.find('.stop_amount').first();
-        var current = parseFloat($input.val()) || 0;
+   $(document).on('click', '.stops', function (e) {
+    e.preventDefault();
+
+    let $btn = $(this);
+    let accountId = $('#acc-field').val().trim();
+
+    if (!accountId) {
+        alert('Please enter an account number first.');
+        return;
+    }
+
+
+    $.ajax({
+        url: '/check-account-stops',
+        type: 'POST',
+        data: {
+            account: accountId,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (res) {
+            if (res.disable_stops) {
+                alert('This account  stops are disabled by admin.');
+                return;
+            }
+
+            // If stops are allowed, run the original logic
+            let $container = $btn.closest('.extracharges-field-div');
+            let $input = $container.find('.stop_amount').first();
+            let current = parseFloat($input.val()) || 0;
+
+            if ($btn.hasClass('add-stop-4')) {
+                $input.val((current + 4).toFixed(2));
+            }
+            else if ($btn.hasClass('remove-stop-4')) {
+                if (current >= 4) $input.val((current - 4).toFixed(2));
+            }
+            else if ($btn.hasClass('add-stop-5')) {
+                $input.val((current + 5).toFixed(2));
+            }
+            else if ($btn.hasClass('remove-stop-5')) {
+                if (current >= 5) $input.val((current - 5).toFixed(2));
+            }
+
+            updateExtraCharges($container);
+             validateStops();
+        }
+    });
+});
+
+$(document).on('click', '.add-stop-4, .remove-stop-4, .add-stop-5, .remove-stop-5', function (e) {
+    e.preventDefault();
+
+    // Check if payment method is card
+    if ($('input[name="payment_method"]:checked').val() !== 'card') {
+        alert('Stops can only be added for Card payments.');
+        return;
+    }
+
+    var $container = $(this).closest('.extracharges-field-div');
+    var $input = $container.find('.stop_amount').first();
+    var current = parseFloat($input.val()) || 0;
+
+    if ($(this).hasClass('add-stop-4')) {
         $input.val((current + 4).toFixed(2));
-        updateExtraCharges($container);
-    });
-
-    // − $4 Stop
-    $('.remove-stop-4').click(function (e) {
-        e.preventDefault();
-        var $container = $(this).closest('.extracharges-field-div');
-        var $input = $container.find('.stop_amount').first();
-        var current = parseFloat($input.val()) || 0;
-        if (current >= 4) {
-            $input.val((current - 4).toFixed(2));
-            updateExtraCharges($container);
-        }
-    });
-
-    // + $5 Stop
-    $('.add-stop-5').click(function (e) {
-        e.preventDefault();
-        var $container = $(this).closest('.extracharges-field-div');
-        var $input = $container.find('.stop_amount').first();
-        var current = parseFloat($input.val()) || 0;
+    }
+    else if ($(this).hasClass('remove-stop-4') && current >= 4) {
+        $input.val((current - 4).toFixed(2));
+    }
+    else if ($(this).hasClass('add-stop-5')) {
         $input.val((current + 5).toFixed(2));
-        updateExtraCharges($container);
-    });
+    }
+    else if ($(this).hasClass('remove-stop-5') && current >= 5) {
+        $input.val((current - 5).toFixed(2));
+    }
 
-    // − $5 Stop
-    $('.remove-stop-5').click(function (e) {
-        e.preventDefault();
-        var $container = $(this).closest('.extracharges-field-div');
-        var $input = $container.find('.stop_amount').first();
-        var current = parseFloat($input.val()) || 0;
-        if (current >= 5) {
-            $input.val((current - 5).toFixed(2));
-            updateExtraCharges($container);
-        }
-    });
+    updateExtraCharges($container);
+    validateStops();
+});
 
-    
+
+
+
      let driverWaitCharges = {{ $driver->wait_charges ?? 0.5 }};
     $('.add-wait').click(function (e) {
         e.preventDefault();
@@ -539,7 +577,7 @@ $util = new \App\Utils\dateUtil();
 
     $('#extra_charges').val(total.toFixed(2));
 }
-            function validateStops() {
+function validateStops() {
     let shouldDisable = false;
 
     $('input[name="stop_amount[]"]').each(function(index) {
@@ -547,18 +585,18 @@ $util = new \App\Utils\dateUtil();
         const stopLocation = $('input[name="stop_location[]"]').eq(index).val();
 
         if (amountVal > 0 && (!stopLocation || stopLocation.trim() === '')) {
-            shouldDisable = false;
-            return false; 
+            shouldDisable = true;
+            return false;
         }
     });
 
-    
+
     $('#sb-btn-acc, #next-step-btn').prop('disabled', shouldDisable);
 }
 
 // Trigger on input change
 $(document).on('input', 'input[name="stop_amount[]"], input[name="stop_location[]"]', validateStops);
-
+            let order_id;
             let selectedTripCost;
             $('#trips-container').on("change", 'input[name="trip"]', function () {
 
@@ -566,12 +604,57 @@ $(document).on('input', 'input[name="stop_amount[]"], input[name="stop_location[
 
                     $("#show-method-div").click();
                     selectedTripCost = $(this).data('trip-cost');
+                     order_id = $(this).data('order_id');
                     //console.log(selectedTripCost);
-                } else {
 
-                    $("#show-method-div").prop("disabled", false);
+                    // if(order_id != null) {
+                    //     $("#gocab-account-div").show();
+                    //     $("#method-div").hide();
+                    //     $("#amount-div").hide();
+                    //     $("#extra-div").hide();
+                    //     $("#acc-field").hide();
+                    //     $("#account_pin_masked").hide();
+                    //     $("#sb-btn-acc").prop('disabled',false);
+
+                    // }
+
                 }
             });
+
+      $(document).on('keyup', '#acc-field', function () {
+      let accountId = $(this).val().trim();
+
+
+    if (!accountId) {
+        $('#sb-btn-acc').prop('disabled', true);
+        return;
+    }
+
+    let order_id  = $('input[name="trip"]').data('order_id');
+
+    $.ajax({
+        url: '/check-disable-account-payment',
+        type: 'POST',
+        data: {
+            account: accountId,
+            order_id: order_id,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (res) {
+            if (res.disable_account_payment) {
+                $('#sb-btn-acc').prop('disabled', true);
+                alert(res.error);
+            } else {
+                $('#sb-btn-acc').prop('disabled', false);
+            }
+        }
+    });
+});
+
+
+
+
+
 
             $('#show-extra-field').on('click', function () {
 
@@ -720,7 +803,7 @@ $('.round_trip').each(function () {
 
             $('.stop_amount, .wait_amount, .round_trip').on('input', function () {
                 calculateExtraCharges();
-                
+
             });
             $("#show-amount-div").click(function () {
                 let selectedValue = $('input[name="payment_method"]:checked').val();
@@ -788,13 +871,13 @@ $('.round_trip').each(function () {
         $('#card-check').click(function () {
           $('#radio20').prop('checked', true);
             $("#show-amount-div").click();
-            
-           
+
+
         });
 
 
         });
-       
+
 
         function toggleButton() {
 
@@ -927,7 +1010,7 @@ $('.round_trip').each(function () {
                                     url: form.attr('action'),
                                     method: 'POST',
                                     data: form.serialize(),
-                                   
+
                                     success: function (response2) {
 
                                         console.log(response2.status + " this is response");
@@ -1013,15 +1096,25 @@ $('#account_pin_masked').on('input', function(e) {
         const stopLocationInput = document.getElementsByClassName('.stop_location');
         const form = document.getElementById('payment_form');
 
-        stopAmountInput.addEventListener('input', () => {
-            const stopAmountValue = parseFloat(stopAmountInput.value);
+        //stopAmountInput.addEventListener('input', () => {
+         //   const stopAmountValue = parseFloat(stopAmountInput.value);
 
-            if (stopAmountValue > 0) {
-                stopLocationInput.required = true;
-            } else {
-                stopLocationInput.required = false;
-            }
-        });
+         //   if (stopAmountValue > 0) {
+          //      stopLocationInput.required = true;
+         //   } else {
+          //      stopLocationInput.required = false;
+         //   }
+       // });
+       document.addEventListener('input', (e) => {
+  if (!e.target.classList.contains('stop_amount')) return;
+
+  const row = e.target.closest('.stop-row');
+  const stopLocationInput = row?.querySelector('.stop_location');
+  if (!stopLocationInput) return;
+
+  const val = parseFloat(e.target.value) || 0;
+  stopLocationInput.required = val > 0;
+});
 
         form.addEventListener('submit', (event) => {
             if (stopAmountInput.value && parseFloat(stopAmountInput.value) > 0 && !stopLocationInput.value) {
@@ -1030,7 +1123,7 @@ $('#account_pin_masked').on('input', function(e) {
             }
         });
     </script>
-   
+
 
 
 

@@ -52,7 +52,8 @@ class Trip extends Model
         'accepted_by',
         'icked_up',
         'first_destination',
-        'payper_trip'
+        'payper_trip',
+        'order_id'
 
     ];
 

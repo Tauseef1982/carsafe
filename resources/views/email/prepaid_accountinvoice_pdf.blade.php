@@ -301,11 +301,11 @@
                                             </td>
                                             @endif
                                             <td>
-                                                <p class="itemtext">${{number_format($cost - $paidd, 2, '.', '')}}</p>
+                                                <p class="itemtext">$0</p>
                                             </td>
 
                                             <td>
-                                                <p class="itemtext">${{number_format($paidd, 2, '.', '')}}</p>
+                                                <p class="itemtext">${{number_format($cost, 2, '.', '')}}</p>
                                             </td>
                                             <td>
                                                 <p class="itemtext">${{number_format($cost,2, '.', '')}}</p>
@@ -332,11 +332,11 @@
                                             @endif
                                         </div>
                                     @php
-                                        if($paidd == $cost){
+
                                                 $due_date = $utils->format_date(now()->toDateString());
                                                 $payment_status = 'Paid';
                                                 $imagePath = asset('assets/images/paid.jpg');
-                                              }
+
                                     @endphp
 
                                     <!-- End InvoiceBot-->

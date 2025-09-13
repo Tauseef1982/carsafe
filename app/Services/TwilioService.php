@@ -53,6 +53,52 @@ class TwilioService
 
     }
 
+    public static function sendRawSms($phone,$message)
+    {
+
+        $sid = config("app.TWILIO_SID");
+        $token = config("app.TWILIO_AUTH_TOKEN");
+
+        DB::beginTransaction();
+
+        try {
+            $twilio = new Client($sid, $token);
+
+            $twilio->messages->create(
+                $phone,
+                array(
+                    'from' => '+19294311217',
+                    'body' => $message
+                )
+            );
+
+            SmsLog::create([
+                'to_phone' => $phone,
+                'message' => $message,
+                'status' => 'success',
+                'response' => 'SMS sent successfully',
+                'trip_id' => 0000,
+                'driver_id' => 0000
+            ]);
+
+            DB::commit();
+
+        } catch (\Twilio\Exceptions\RestException $e) {
+            DB::rollBack();
+
+            SmsLog::create([
+                'to_phone' => $phone,
+                'message' => $message,
+                'status' => 'failed',
+                'response' => 'SMS sent successfully',
+                'trip_id' => 0000,
+                'driver_id' => 0000
+            ]);
+
+
+        }
+    }
+
     public static function sendSms($phone, $cost, $extraCharges, $tripId, $driverId, $extra_message=null)
     {
         if ($extraCharges > 0) {
@@ -97,7 +143,7 @@ class TwilioService
             $twilio->messages->create(
                 $phone,
                 array(
-                    'from' => '+18455994444',
+                    'from' => '+19294311217',
                     'body' => $message
                 )
             );

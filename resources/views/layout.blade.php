@@ -4,9 +4,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Cuba admin is super flexible, powerful, clean &amp; modern responsive bootstrap 5 admin template with unlimited possibilities.">
-    <meta name="keywords" content="admin template, Cuba admin template, dashboard template, flat admin template, responsive admin template, web app">
-    <meta name="author" content="pixelstrap">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <link rel="icon" href="{{asset('assets/images/logo/carsafe-icon.png')}}" type="image/x-icon">
     <link rel="shortcut icon" href="{{asset('assets/images/logo/carsafe-icon.png')}}" type="image/x-icon">
     <title>CarSafe - Driver Dashboard </title>
@@ -139,9 +138,9 @@ function googleTranslateElementInit() {
             </div>
             <div class="toggle-sidebar"><i class="status_toggle middle sidebar-toggle" data-feather="align-center"></i></div>
 
-           
+
             <a href="{{url('payment')}}" id="accept-payment-btn" class="btn btn-primary m-l-50 ac-btn">Accept Payment</a>
-          
+
 
           </div>
           <div class="left-header col horizontal-wrapper ps-0">
@@ -197,7 +196,7 @@ function googleTranslateElementInit() {
                     </div>
                     </a>
                   </li>
-                
+
                   <li class="sidebar-main-title">
                   <a href="{{url('payment')}}">
                     <div>
@@ -207,7 +206,7 @@ function googleTranslateElementInit() {
                     </div>
                     </a>
                   </li>
-                 
+
 
 
 
@@ -312,7 +311,7 @@ function googleTranslateElementInit() {
    @endif
 <script>
     // document.getElementById('accept-payment-btn').addEventListener('click', function (event) {
-      
+
     //     const button = event.target;
     //     button.classList.add('disabled');
     //     button.setAttribute('disabled', true);
@@ -337,22 +336,22 @@ function googleTranslateElementInit() {
     document.addEventListener("DOMContentLoaded", function () {
         const loader = document.getElementById("loader");
 
-       
+
         loader.style.display = "none";
 
-       
+
         document.querySelectorAll("a").forEach((link) => {
             link.addEventListener("click", function (e) {
-                
+
                 if (!link.target || link.target === "_self") {
-                    loader.style.display = "block"; 
+                    loader.style.display = "block";
                 }
             });
         });
         const submitButton = document.getElementById("new-submit-btn");
         if (submitButton) {
             submitButton.addEventListener("click", function () {
-                loader.style.display = "block"; 
+                loader.style.display = "block";
             });
         }
     });

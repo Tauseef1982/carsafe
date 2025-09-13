@@ -26,6 +26,7 @@ class LogService
         $log->message = $data['message'];
         $log->data = json_encode($data);
         $log->save();
+        return $log;
 
     }
 

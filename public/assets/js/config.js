@@ -1,4 +1,4 @@
-var primary = localStorage.getItem("primary") || '#7366ff';
+var primary =  '#F3744D';
 var secondary = localStorage.getItem("secondary") || '#f73164';
 
 window.CubaAdminConfig = {

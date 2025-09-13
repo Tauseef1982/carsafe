@@ -127,7 +127,7 @@ class CardKnoxService
                $cardknoxToken = '94352hph47hm7p855m8107q6310h215m';
                $xAllowDuplicate = true;
         }
-       
+
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => env('CARDKNOX_ENDPOINT'),
@@ -192,7 +192,7 @@ class CardKnoxService
         if(config('app.CARDKNOX_ENV_LIVE') == false){
 
             $amount = 10;
-            $cardknoxToken = '94352hph47hm7p855m8107q6310h215m';
+            $cardknoxToken = 'hhhg2h1g4pm32n588208h5qg9pnm8m55';
             $xAllowDuplicate = true;
 
         }

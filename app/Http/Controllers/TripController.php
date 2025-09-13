@@ -224,7 +224,6 @@ class TripController extends Controller
     {
 
 
-
         DB::beginTransaction();
         if ($request->has('trip')) {
 
@@ -242,8 +241,11 @@ class TripController extends Controller
             $trip->accepted_by = $request->accept_by;
         }
 
-        if ($request->has('trip') && $request->payment_method == 'account') {
+        // if(!empty($trip->order_id)){
+        //     $request->payment_method = 'card';
+        // }
 
+        if ($request->has('trip') && $request->payment_method == 'account') {
 
 
             if (!empty($trip->account_number) && $request->account !== $trip->account_number) {
@@ -285,6 +287,15 @@ class TripController extends Controller
                     $cost = $trip->trip_cost > 0 ? (float) $trip->trip_cost : (float) $request->amount;
 
                     $extraCharges = $request->extra_charges > 0 ? (float) $request->extra_charges : (float) $trip->extra_charges ;
+                    if ($account->disable_stops == 1) {
+                        $stop_amounts = $request->stop_amount ?? [];
+
+                        $stop_amount_0 = isset($stop_amounts[0]) ? (float) $stop_amounts[0] : 0;
+                        $stop_amount_1 = isset($stop_amounts[1]) ? (float) $stop_amounts[1] : 0;
+
+                        $stop = $stop_amount_0 + $stop_amount_1;
+                        $extraCharges -= $stop;
+                    }
                     $cost += $extraCharges;
                     $fee = ($cost * 0.03333333333) + 0.30;
                     $cardknoxAmount = $cost + $fee;
@@ -371,6 +382,15 @@ class TripController extends Controller
 
 
                         $extraCharges = $request->extra_charges > 0 ? $request->extra_charges : $trip->extra_charges;
+                        if ($account->disable_stops == 1) {
+                        $stop_amounts = $request->stop_amount ?? [];
+
+                        $stop_amount_0 = isset($stop_amounts[0]) ? (float) $stop_amounts[0] : 0;
+                        $stop_amount_1 = isset($stop_amounts[1]) ? (float) $stop_amounts[1] : 0;
+
+                        $stop = $stop_amount_0 + $stop_amount_1;
+                        $extraCharges -= $stop;
+                    }
                         $cost = $cost + (float) $extraCharges;
 
                         $discount = Discount::select('discounts.*')
@@ -396,8 +416,8 @@ class TripController extends Controller
                         $trip->cube_pin_status = $request->account_pin;
                         $trip->extra_charges = $extraCharges;
 
-                            $firstStopAmount = collect($request->stop_amount)->filter()->first();
-                            $firstStopLocation = collect($request->stop_location)->filter()->first();
+                        $firstStopAmount = collect($request->stop_amount)->filter()->first();
+                        $firstStopLocation = collect($request->stop_location)->filter()->first();
 
                             if ($firstStopAmount || $firstStopLocation) {
                                 $trip->extra_stop_amount = $firstStopAmount;
@@ -536,6 +556,14 @@ class TripController extends Controller
 
                         }
 
+                        $driverphone = preg_replace('/[^0-9]/', '', $trip->driver->phone);
+
+                        if (!Str::startsWith($driverphone, '+1')) {
+                            $driverphone = '+1' . $driverphone;
+                        }
+                        $message = 'Payment Added Agianst Trip #'.$trip->trip_id;
+                        TwilioService::sendRawSms($driverphone,$message);
+
                         $logdata = array();
                         $logdata['from'] = 'driver';
                         $logdata['payment'] = $pay_data;
@@ -603,6 +631,15 @@ class TripController extends Controller
 
 
                         $extraCharges = $request->extra_charges > 0 ? (float)$request->extra_charges : (float)$trip->extra_charges ;
+                            if ($account->disable_stops == 1) {
+                        $stop_amounts = $request->stop_amount ?? [];
+
+                        $stop_amount_0 = isset($stop_amounts[0]) ? (float) $stop_amounts[0] : 0;
+                        $stop_amount_1 = isset($stop_amounts[1]) ? (float) $stop_amounts[1] : 0;
+
+                        $stop = $stop_amount_0 + $stop_amount_1;
+                        $extraCharges -= $stop;
+                    }
                         $cost = $cost + (float) $extraCharges;
 
                         $discount = Discount::select('discounts.*')
@@ -627,14 +664,18 @@ class TripController extends Controller
                         $trip->payment_method = 'account';
                         $trip->cube_pin_status = $request->account_pin;
                         $trip->extra_charges = $extraCharges;
-
+                        $firstStopAmount = null;
+                        $firstStopLocation = null;
+                           if($account->disable_stops == 0){
                             $firstStopAmount = collect($request->stop_amount)->filter()->first();
                             $firstStopLocation = collect($request->stop_location)->filter()->first();
+                           }
+
                               $firstwait_amount = collect($request->wait_amount)->filter()->first();
-                        if (isset($request->stop_amount)) {
-                            $trip->extra_stop_amount = $firstStopAmount;
-                            $trip->stop_location = $firstStopLocation;
-                        }
+                        // if (isset($request->stop_amount)) {
+                        //     $trip->extra_stop_amount = $firstStopAmount;
+                        //     $trip->stop_location = $firstStopLocation;
+                        // }
 
                         if (isset($request->wait_amount)) {
                             $trip->extra_wait_amount = $firstwait_amount;
@@ -717,10 +758,11 @@ class TripController extends Controller
 
 
                         if (isset($request->stop_amount)) {
+                           if (!is_null($firstStopAmount)) {
                             $extraStopCharges = '$' . $firstStopAmount;
                             $stoplocation = $firstStopLocation;
                             $extra_message .= "Extra Stop Charges: {$extraStopCharges}\nStop Location: {$stoplocation}. ";
-
+                           }
                         }
 
                         if (isset($request->wait_amount)) {
@@ -766,6 +808,14 @@ class TripController extends Controller
 
 
                         }
+
+                        $driverphone = preg_replace('/[^0-9]/', '', $trip->driver->phone);
+
+                        if (!Str::startsWith($driverphone, '+1')) {
+                            $driverphone = '+1' . $driverphone;
+                        }
+                        $message = 'Payment Added Agianst Trip #'.$trip->trip_id;
+                        TwilioService::sendRawSms($driverphone,$message);
 
                         $logdata = array();
                         $logdata['from'] = 'driver';
@@ -838,6 +888,7 @@ class TripController extends Controller
             try {
 
                 if ($request->has('trip') && isset($trip)) {
+
                     $originalAmount = $request->amount + $request->extra_charges;
                 } else {
 
@@ -900,6 +951,14 @@ class TripController extends Controller
 
                     $pay_data = $this->addpay($trip, $request);
 
+                    $driverphone = preg_replace('/[^0-9]/', '', $trip->driver->phone);
+
+                    if (!Str::startsWith($driverphone, '+1')) {
+                        $driverphone = '+1' . $driverphone;
+                    }
+                    $message = 'Payment Added Agianst Trip #'.$trip->trip_id;
+                    TwilioService::sendRawSms($driverphone,$message);
+
                     $logdata = array();
                     $logdata['from'] = 'driver';
                     $logdata['payment'] = $pay_data;
@@ -942,7 +1001,7 @@ class TripController extends Controller
 
                     LogService::saveLog($logdata);
 
-                    return response()->json(['status' => false, 'msg' => 'Payment Failed Please Try Again']);
+                    return response()->json(['status' => false, 'msg' => $charge['message']]);
 
                 }
             } catch (\Exception $e) {
@@ -964,7 +1023,7 @@ class TripController extends Controller
                 }
                 LogService::saveLog($logdata);
 
-                return response()->json(['status' => false, 'msg' => 'Payment Failed Please Try Again']);
+                return response()->json(['status' => false, 'msg' => $charge['message']]);
             }
         }
 
@@ -2336,7 +2395,141 @@ class TripController extends Controller
 
         dd("All accounts are updated");
     }
+public function get_new_price(){
 
+    $end = Carbon::now();
+    $start = Carbon::now()->subHour();
+   //$start = Carbon::now()->subHours(24);
+
+
+    $startIso = $start->toIso8601String();
+    $endIso = $end->toIso8601String();
+
+     ini_set('max_execution_time', 0);
+        ini_set('memory_limit', '512M');
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => 'https://api.taxicaller.net/api/v1/reports/typed/generate',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => json_encode([
+                "company_id" => 48647,
+                "report_type" => "jobs",
+                "output_format" => "json",
+                "template_id" => 14122,
+                "search_query" => [
+                    "period" => [
+                        "@type" => "custom",
+                        "start" => $startIso,
+                        "end" => $endIso,
+
+                    ],
+                    "results" => [
+                        "offset" => 0,
+                        "limit" => 10000
+                    ]
+                ]
+            ]),
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . TokenService::token(),
+                'Content-Type: application/json'
+            ],
+        ]);
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        $response = json_decode($response);
+        $trips = $response->rows ?? [];
+          // dd($trips);
+        foreach ($trips as $trip) {
+            // if((int)$trip->{'id'} == 285077846){
+            //    dd($trip);
+            // }
+
+            if (!empty($trip->{'start'}) && $trip->{'start'} != '-') {
+                if (!empty($trip->{'driverId'})) {
+
+                    $dateTime = Carbon::createFromFormat('m/d/Y h:i A', $trip->{'start'});
+                    $date = $dateTime->format('Y-m-d');
+                    $time = $dateTime->format('H:i:s');
+
+                    $existingTrip = Trip::where('trip_id', (int)$trip->{'id'})->first();
+
+                    $to_location = !empty($trip->{'stops'})
+                        ? $trip->{'stops'}
+                        : $trip->{'route.drop_off_text'};
+
+                    if ($existingTrip) {
+                        if ($existingTrip->payment_method === 'cash' && empty($existingTrip->temp_data)) {
+                            $tsDelivered = !empty($trip->{'ts.delivered'})
+                                ? date("Y-m-d H:i:s", strtotime($trip->{'ts.delivered'}))
+                                : null;
+                            $ickedup = !empty($trip->{'icked up'})
+                                ? date("Y-m-d H:i:s", strtotime($trip->{'icked up'}))
+                                : null;
+
+                            $existingTrip->update([
+                                'location_from' => $trip->{'route.pick_up_text'},
+                                'location_to' => $to_location,
+                                'date' => $date,
+                                'time' => $time,
+                                'trip_cost' => !empty($trip->{'fx.grand_total'}) && $trip->{'fx.grand_total'} != 0
+                                    ? $trip->{'fx.grand_total'}
+                                    : ((!empty($trip->{'fx.trip_base'}) && $trip->{'fx.trip_base'} != 0)
+                                        ? $trip->{'fx.trip_base'}
+                                        : $trip->estimatedPrice),
+                                'driver_id' => $trip->{'driverId'},
+                                'account_number' => $trip->{'account.name'},
+                                'passenger_phone' => $trip->{'passenger.phone'},
+                                'estimated_cost' => !empty($trip->{'fx.trip_base'}) && $trip->{'fx.trip_base'} != 0
+                                    ? $trip->{'fx.trip_base'}
+                                    : $trip->{'estimatedPrice'},
+                                'status' => $trip->{'job.state.status_localized'},
+                                'ts_delivered' => $tsDelivered,
+                                'icked_up' => $ickedup,
+                            ]);
+                        }
+                    } else {
+                        $ickedup = !empty($trip->{'icked up'})
+                            ? date("Y-m-d H:i:s", strtotime($trip->{'icked up'}))
+                            : null;
+                        $tsDelivered = !empty($trip->{'ts.delivered'})
+                            ? date("Y-m-d H:i:s", strtotime($trip->{'ts.delivered'}))
+                            : null;
+
+                        Trip::create([
+                            'trip_id' => (int)$trip->{'id'},
+                            'location_from' => $trip->{'route.pick_up_text'},
+                            'location_to' => $to_location,
+                            'date' => $date,
+                            'time' => $time,
+                            'trip_cost' => !empty($trip->{'fx.trip_base'}) && $trip->{'fx.trip_base'} != 0
+                                ? $trip->{'fx.trip_base'}
+                                : $trip->{'estimatedPrice'},
+                            'driver_id' => $trip->{'driverId'},
+                            'account_number' => $trip->{'account.name'},
+                            'passenger_phone' => $trip->{'passenger.phone'},
+                            'estimated_cost' => !empty($trip->{'fx.trip_base'}) && $trip->{'fx.trip_base'} != 0
+                                ? $trip->{'fx.trip_base'}
+                                : $trip->{'estimatedPrice'},
+                            'status' => $trip->{'job.state.status_localized'},
+                            'ts_delivered' => $tsDelivered,
+                            'icked_up' => $ickedup,
+                            'first_destination' => $trip->{'route.drop_off_text'}
+                        ]);
+                    }
+                }
+            }
+        }
+
+        Log::info('price is updated succ');
+
+        return back()->with('success', 'Price is updated now!');
+
+}
 
 
 }

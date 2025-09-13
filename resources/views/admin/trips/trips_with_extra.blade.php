@@ -120,6 +120,7 @@
                                         <th>Trip Id</th>
                                         <th>Pin Status</th>
                                         <th>Driver Id</th>
+                                         <th>Driver Name</th>
                                         <th>From</th>
                                         <th>To</th>
                                         <th>Cost</th>
@@ -302,7 +303,8 @@
                      {data: 'actions', name: 'actions'},
                     {data: 'trip_id', name: 'trip_id'},
                     {data: 'cube_pin_status', name: 'cube_pin_status'},
-                    {data: 'driver_id', name: 'driver_id',},
+                    {data: 'driver_id', name: 'driver_id'},
+                    {data: 'driver_name', name: 'driver_name'},
                     {data: 'location_from', name: 'location_from'},
                     {data: 'location_to', name: 'location_to'},
                     {data: 'cost', name: 'cost'},

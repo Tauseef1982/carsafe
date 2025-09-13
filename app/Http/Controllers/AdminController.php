@@ -793,6 +793,7 @@ class AdminController extends Controller
                 ->select(
                     'trips.extra_charges',
                     'trips.extra_stop_amount',
+                    'trips.stop_location',
                     'trips.extra_wait_amount',
                     'trips.location_from',
                     'trips.location_to',
@@ -983,7 +984,7 @@ class AdminController extends Controller
                    }else{
                     return 'No';
                    }
-                    
+
                 })
                 ->editColumn('cube_pin_status', function ($row) use ($util) {
                     // Format time using utility class
@@ -1132,6 +1133,13 @@ class AdminController extends Controller
                     $driverLink = '<a href="' . url('admin/driver/' . $driver->id) . '" target="_blank">'
                         . $row->driver_id . '</a>';
                     return $driverLink;
+                })
+                     ->editColumn('driver_name', function ($row) {
+                    $driver = Driver::where('driver_id', $row->driver_id)->first();
+
+                    $driverName =  $driver->first_name;
+
+                    return $driverName;
                 })
 
                 ->editColumn('date', function ($row) use ($util) {
@@ -1786,7 +1794,7 @@ class AdminController extends Controller
         dd($duplicateDrivers);
 
     }
-     
+
      public function driver_extra_settings(Request $request){
         $id = $request->id;
        $driver = Driver::find($id);
@@ -1801,7 +1809,7 @@ class AdminController extends Controller
          $id = $request->id;
        $driver = Driver::find($id);
        $driver->wait_charges = $request->wait_charges;
-       
+
        $driver->save();
        return redirect()->back()->with('success' , 'Extra charges updated successfully!');
 
