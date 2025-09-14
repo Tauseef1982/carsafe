@@ -21,7 +21,7 @@
     <div class=" risk-col xl-100 box-col-12">
       <div class="card total-users">
         <div class="card-header card-no-border d-flex justify-content-between">
-          <h5>Last week {{$util->format_date($data['last_start'])}} to {{$util->format_date($data['last_end'])}}</h5>
+          <h5>Last week {{format_date($data['last_start'])}} to {{format_date($data['last_end'])}}</h5>
           <a href="{{ url('admin/export-drivers-earnings') }}" class="btn btn-primary">Download Last Week Report</a>
 
         </div>
@@ -65,7 +65,7 @@
               </div>
             </div>
             <div class="col-md-5">
-           
+
 
             </div>
 
@@ -82,7 +82,7 @@
     <div class=" risk-col xl-100 box-col-12">
       <div class="card total-users">
         <div class="card-header card-no-border">
-          <h5>Current week {{$util->format_date($data['current_start'])}} to till today</h5>
+          <h5>Current week {{format_date($data['current_start'])}} to till today</h5>
 
         </div>
         <div class="card-body pt-0 ">

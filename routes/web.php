@@ -41,6 +41,7 @@ Route::group(['prefix' => 'admin','as' => 'admin.'], function () {
 
 Route::group(['middleware' => 'admin.auth'], function () {
 
+        Route::get('/finance', [AdminController::class, 'finance']);
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
         Route::get('/drivers', [AdminController::class, 'drivers'])->name('drivers.index');
         Route::post('/driver_extra_settings', [AdminController::class, 'driver_extra_settings']);
@@ -224,7 +225,7 @@ Route::group(['middleware' => 'driver.auth','as' => 'driver.'], function () {
     });
     Route::post('/check-account-stops', [AccountController::class, 'checkAccountStops']);
     Route::post('/check-disable-account-payment',[AccountController::class, 'checkAccountPaymnetMethod']);
-    
+
 
 });
 

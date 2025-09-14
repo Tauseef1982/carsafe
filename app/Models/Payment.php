@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Payment extends Model
 {
     use HasFactory;
+    use LogsActivity;
 
 
     protected $fillable = [
@@ -22,7 +25,12 @@ class Payment extends Model
     ];
 
 
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logAll()
+            ->logOnlyDirty()->useLogName('Payment');
 
+    }
     public function trip(){
 
         return $this->belongsTo(Trip::class,'trip_id','trip_id');

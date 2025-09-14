@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Trip extends Model
 {
     use HasFactory;
+    use LogsActivity;
     public $appends = ['ExtraDescription','TotalCostDiscounted'];
     protected $fillable = [
         'location_from',
@@ -56,7 +59,12 @@ class Trip extends Model
         'order_id'
 
     ];
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logAll()
+            ->logOnlyDirty()->useLogName('Trip');
 
+    }
     public function payments()
     {
         return $this->hasMany(Payment::class, 'trip_id', 'trip_id');

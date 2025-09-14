@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\AccountPayment;
 use App\Models\Adjustment;
 use App\Models\BatchPayment;
 use App\Models\Driver;
@@ -89,32 +90,64 @@ class AdminController extends Controller
         return view('admin.dispatchers', compact('dispatchers'));
     }
 
-    public function index(Request $request)
+    public function finance(Request $request)
     {
 
-        if (Auth::guard('admin')->user()->role != 'admin') {
-
-            return redirect()->route('admin.trips');
-
-        }
 
         $fromlastweek = Carbon::now()->subWeek()->startOfWeek(Carbon::SUNDAY)->toDateString();  // Start of last week (Sunday)
         $tolastweek = Carbon::now()->subWeek()->endOfWeek(Carbon::SATURDAY)->toDateString();
 
-        //        $total_payments = Payment::where('is_delete',0)->where('type', 'credit')
-//            ->where('payment_date','>=',$fromlastweek)->where('payment_date','<=',$tolastweek)
-//            ->sum('amount');
-//
-//        $total_recieved = Payment::where('is_delete',0)->where('type', 'debit')->where('user_type','admin')
-//            ->where('payment_date','>=',$fromlastweek)->where('payment_date','<=',$tolastweek)
-//            ->sum('amount');
-//
-//        $adjust = Adjustment::where('type','debit_driver_balance')
-//            ->where('date','>=',$fromlastweek)->where('date','<=',$tolastweek)
-//            ->sum('amount');
+        $tripsidnotinc = Trip::where(function ($query) {
+            $query->where('status', 'like', '%Cancelled%')
+                ->orWhere('status', 'like', '%canceled%');
+        })->where('payment_method', 'account')->pluck('id');
 
-        // $lastWeekOwed = $total_payments - $total_recieved;
-        // $lastWeekOwed = $lastWeekOwed - $adjust;
+
+        $trips_data = Trip::where('is_delete', 0)
+            ->whereBetween('date', [$fromlastweek, $tolastweek])
+            ->selectRaw("SUM(CASE WHEN payper_trip = 1 THEN trip_cost ELSE 0 END) as total_papertrip,
+                     SUM(trip_cost) as total_tripcost,
+                     SUM(CASE WHEN payment_method = 'card' THEN trip_cost ELSE 0 END) as total_trip_card_method")->first();
+
+
+        $payment_data = Payment::where('is_delete', 0)
+            ->selectRaw("
+        SUM(CASE WHEN type = 'credit' AND user_type = 'admin' THEN amount ELSE 0 END) as total_from_driver,
+        SUM(CASE WHEN type = 'debit' AND user_type = 'admin' THEN amount ELSE 0 END) as to_driver,
+        SUM(CASE WHEN type = 'debit' AND user_type = 'driver' THEN amount ELSE 0 END) as weekly_driver,
+        SUM(CASE WHEN type = 'debit' AND user_type = 'customer' AND account_id IS NOT NULL THEN amount ELSE 0 END) as customer_account
+        ") ->first();
+
+
+        $prepaid = AccountPayment::where('account_type', 'prepaid')
+        ->whereNull('hash_id')
+        ->sum('amount');
+
+        $data['last_start'] = $fromlastweek;
+        $data['last_end'] = $tolastweek;
+
+        $data['total_papertrip'] = $trips_data->total_papertrip;
+        $data['total_tripcost'] = $trips_data->total_tripcost;
+        $data['total_trip_card_method'] =$trips_data->total_trip_card_method;
+
+        $data['total_from_driver'] = $payment_data->total_from_driver;
+        $data['to_driver'] = $payment_data->to_driver;
+        $data['weekly_driver'] = $payment_data->weekly_driver;
+        $data['customer_account'] = $payment_data->customer_account;
+        $data['prepaid_amount'] = $prepaid;
+
+        //dd($data);
+        return view('admin.finance', compact('data'));
+
+    }
+
+    public function index(Request $request)
+    {
+
+
+        $fromlastweek = Carbon::now()->subWeek()->startOfWeek(Carbon::SUNDAY)->toDateString();  // Start of last week (Sunday)
+        $tolastweek = Carbon::now()->subWeek()->endOfWeek(Carbon::SATURDAY)->toDateString();
+
 
         $lastWeekTrips = Trip::where('is_delete', 0)
             ->where('date', '>=', $fromlastweek)
@@ -209,9 +242,6 @@ class AdminController extends Controller
             ->sum('extra_charges');
 
 
-
-
-
         $CurrentWeekOwed =  $CurrentWeekcost;
         $currentWeekRearn = $currentWeekRearn;
         $data['current_trips'] = $currentWeekTrips;
@@ -229,9 +259,7 @@ class AdminController extends Controller
         $data['last_end'] = $tolastweek;
         $data['tripsCount'] = $tripsCount;
 
-//        dd($lastWeekRearn);
-        $util = new dateUtil();
-        return view('admin.index', compact('data', 'util'));
+        return view('admin.index', compact('data'));
 
     }
 

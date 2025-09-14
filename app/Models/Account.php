@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Account extends Authenticatable
 {
     use HasFactory;
+    use LogsActivity;
 
     protected $table = 'accounts';
 
@@ -18,6 +21,14 @@ class Account extends Authenticatable
     protected $casts = [
         'password' => 'hashed',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logAll()
+            ->logOnlyDirty()->useLogName('Account');
+
+    }
+
     public function trips()
     {
         return $this->hasMany(Trip::class, 'account_number', 'account_id');
