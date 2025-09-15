@@ -275,9 +275,11 @@ Route::group(['prefix' => 'customer','as' => 'customer.'], function () {
     Route::get('/pins', [\App\Http\Controllers\UserPortalController::class, 'pins']);
     Route::post('/pins/update', [\App\Http\Controllers\UserPortalController::class, 'update_pins'] );
     Route::get('/complaints', [\App\Http\Controllers\UserPortalController::class, 'complaints']);
-   Route::get('/book-ride', [\App\Http\Controllers\BookRideController::class, 'index']);
+    Route::get('/book-pre-ride', [\App\Http\Controllers\BookRideController::class, 'bookPreRide']);
+    Route::get('/book-ride', [\App\Http\Controllers\BookRideController::class, 'index']);
     Route::get('/complaint/{id}', [\App\Http\Controllers\UserPortalController::class, 'show_single_complaint'])->name('complaints.show');});
-   Route::post('/store_ride', [\App\Http\Controllers\BookRideController::class, 'store']);
+    Route::post('/store_ride', [\App\Http\Controllers\BookRideController::class, 'store']);
+    Route::post('/store_pre_ride', [\App\Http\Controllers\BookRideController::class, 'PreRideStore']);
     Route::any('/invoice/preview' , [AccountController::class, 'show_invoice']);
 });
 
