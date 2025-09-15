@@ -9,8 +9,8 @@
     box-shadow: none !important;
 }
 .card .card-body {
-     padding: 13px; 
-  
+     padding: 13px;
+
 }
 .btn {
     padding: 0.375rem 0.79rem !important;
@@ -43,7 +43,7 @@
 }
 .even > .sorting_1{
     background-color: #FEEEEA!important;
-} 
+}
 </style>
 @endsection
 
@@ -54,12 +54,12 @@
                     <div class="col-6">
                       <h3 class="f-28 fw-bold">Dashboard</h3>
                     </div>
-                 
+
                   </div>
-                  
+
                 </div>
         <div class="card-body pt-5 ">
-          
+
           <div class="row">
           <!-- <div class="col-xl-4 col-lg-12 xl-50 morning-sec box-col-12">
                 <div class="card profile-greeting">
@@ -94,7 +94,7 @@
                 <button class="btn text-primary" type="button" data-bs-toggle="modal" data-bs-target="#myModal">Add More Balance</button>
 
               </div> -->
-                
+
               <div class="col-lg-3 col-md-4">
                 <div class="card">
                   <div class="card-body">
@@ -122,10 +122,10 @@
                    <div class="d-flex justify-content-between">
                        <h3 class="f-32 f-w-700 text-primary" id="total_trips">0</h3>
                         <canvas id="myGraph" style="height: 100px; width: 100px;"></canvas>
-                       
+
                    </div>
                   </div>
-                  
+
                 </div>
               </div>
               <div class="col-lg-3 col-md-4">
@@ -138,10 +138,10 @@
                    <div class="d-flex justify-content-between">
                        <h3 class="f-32 f-w-700 text-primary" id="account_complaints">0</h3>
                          <canvas id="myGraph1" style="height: 100px; width: 100px;"></canvas>
-                       
+
                    </div>
                   </div>
-                  
+
                 </div>
               </div>
               <div class="col-lg-3 col-md-4">
@@ -154,17 +154,17 @@
                    <div class="d-flex justify-content-between">
                        <h3 class="f-32 f-w-700 text-primary" id="account_invoices">0</h3>
                          <canvas id="myGraph2" style="height: 100px; width: 100px;"></canvas>
-                       
+
                    </div>
                   </div>
-                  
+
                 </div>
               </div>
-              
 
-             
+
+
               </div>
-               
+
              <h3 class="f-24 fw-bold">Discover Our Features</h3>
 
               <div class="row mt-4">
@@ -178,7 +178,7 @@
                    <div class="">
                        <p class="f-14 f-w-500  ">Safe rides, anytime.</p>
                       <a href="{{ url('customer/book-ride') }}"> <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
-                        Book a Ride 
+                        Book a Ride
                                 <img src="{{ asset('assets/images/arrow-right-line.png') }}" alt="">
 
                        </button></a>
@@ -191,13 +191,13 @@
                 <div class="card bg-primary">
                   <div class="card-body">
                    <div class="d-flex justify-content-between">
-                       <h3 class="f-18 f-w-700">Track Your Rides</h3>
+                       <h3 class="f-18 f-w-700">Future Rides</h3>
                        <img class="img-fluid img-2" src="{{ asset('assets/images/Frame 40.png') }}" alt="">
                    </div>
                    <div class="">
                        <p class="f-14 f-w-500  ">Track live. Ride safe.</p>
-                      <a href=""> <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
-                       Track Your Rides
+                      <a href="{{ url('customer/book-pre-ride') }}"> <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
+                       Book Future Ride
                                 <img src="{{ asset('assets/images/arrow-right-line.png') }}" alt="">
 
                        </button></a>
@@ -234,7 +234,7 @@
                    <div class="">
                        <p class="f-14 f-w-500  ">Instant invoice. Zero hassle.</p>
                       <a href="{{ url('customer/invoices') }}"> <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
-                     Download Invoice 
+                     Download Invoice
                                 <img src="{{ asset('assets/images/arrow-right-line.png') }}" alt="">
 
                        </button></a>
@@ -245,10 +245,10 @@
 
               </div>
 
-                
+
                 <div class="row mt-3">
                   <div class="col-md-9">
-                     <span><h3 class="f-28 fw-bold">Recent Trips</h3></span> 
+                     <span><h3 class="f-28 fw-bold">Recent Trips</h3></span>
                   </div>
                   <div class="col-md-3">
                     <a href="{{ url('customer/trips') }}" class="btn btn-transparent text-primary btn-outline-primary btn-sm f-14 f-w-700">View All Trips <span><img src="{{ asset('assets/images/arrow-right-line.png') }}" alt=""></span></a>
@@ -299,7 +299,7 @@
       <!-- Zero Configuration  Ends-->
     </div>
                 </div>
-                
+
 
 
             </div>
@@ -404,8 +404,8 @@
          $('#dashboard_filter label').addClass('w-100');
          $('#dashboard_length label').addClass('float-end');
          },
-       
-       
+
+
         columns: [
           {data: 'trip_id', name: 'trip_id'},
           {data: 'cube_status', name: 'cube_status'},
@@ -421,7 +421,7 @@
           {data: 'action', name: 'action'},
 
 
-        ], 
+        ],
         order: [[1, 'desc']]
       }
         );
@@ -440,7 +440,7 @@
       let to = $('#to_date').val();
       loadTrips(from, to);
     });
-     
+
 
         function get_account_summary() {
             // var fromDate = $('#from_date').val();
@@ -661,7 +661,7 @@ var chart3 = new ApexCharts(
 
 chart3.render();
     </script> -->
-   
+
  <script src="{{asset('assets/js/chart/chartjs/chart.min.js')}}"></script>
     <script>
        var labels = @json($labels);
@@ -671,7 +671,7 @@ chart3.render();
        var lineGraphData = {
     labels: labels,
     datasets: [{
-       
+
         fillColor: "#FEEEEA",
         strokeColor: "#ff6600" ,
         pointColor: "#ff6600" ,
@@ -684,7 +684,7 @@ chart3.render();
  var lineGraphData1 = {
     labels: labels,
     datasets: [{
-       
+
         fillColor: "#FEEEEA",
         strokeColor: "#ff6600" ,
         pointColor: "#ff6600" ,
@@ -697,7 +697,7 @@ chart3.render();
  var lineGraphData2 = {
     labels: labels,
     datasets: [{
-       
+
         fillColor: "#FEEEEA",
         strokeColor: "#ff6600" ,
         pointColor: "#ff6600" ,
@@ -714,8 +714,8 @@ var lineGraphOptions = {
     scaleShowHorizontalLines: false,
     scaleShowVerticalLines: false,
     scaleShowLabels: false,
-    scaleShowLine: false,          
-    scaleFontSize: 0,              
+    scaleShowLine: false,
+    scaleFontSize: 0,
     bezierCurve: true,
     bezierCurveTension: 0.4,
     pointDot: false,
