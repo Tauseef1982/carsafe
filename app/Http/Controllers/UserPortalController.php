@@ -6,6 +6,7 @@ use App\Models\Account;
 use App\Models\AccountPayment;
 use App\Models\BatchPayment;
 use App\Models\CreditCard;
+use App\Models\CustomerBooking;
 use App\Models\Driver;
 use App\Models\Trip;
 use App\Models\Account_Complaint;
@@ -218,6 +219,39 @@ if (!$record) {
                     return $row->cube_pin_status;
                 }) ->addColumn('action', function ($row) {
                     return '<button class="btn bg-orange-g b-r-8 text-white bg openTripModal" data-trip="' . $row->trip_id . '">Add Complaint</button>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+
+        }
+        $account_id = Auth::guard('customer')->user()->account_id;
+        return view('customer.trips',compact('account_id'));
+    }
+
+    public function upcomingTrips(Request $request)
+    {
+
+        if($request->ajax()) {
+            $data = CustomerBooking::where('type','prebook')->where('account_id',$request->account_id);
+
+            return DataTables::of($data)
+                ->addIndexColumn()->addColumn('action', function ($row) {
+                    return '<button class="btn bg-orange-g b-r-8 text-white bg openTripModal" data-trip="' . $row->id . '">Cancel</button>';
+                })
+                ->addColumn('location_from', function ($row) {
+                    $bookingData = json_decode($row->booking_data, true);
+                    return $bookingData['order']['route']['nodes'][0]['location']['name'] ?? '-';
+                })
+                ->addColumn('location_to', function ($row) {
+                    $bookingData = json_decode($row->booking_data, true);
+                    return $bookingData['order']['route']['nodes'][1]['location']['name'] ?? '-';
+                })
+                ->addColumn('date', function ($row) {
+                    return \Carbon\Carbon::createFromDate($row->schedule_date_time)->format('H:i');
+                })
+                ->addColumn('time', function ($row) {
+                    return format_date($row->schedule_date_time);
+
                 })
                 ->rawColumns(['action'])
                 ->make(true);

@@ -51,7 +51,7 @@ class AddScheduledBooking extends Command
 
         $dueInvoices = CustomerBooking::where('status', 'prebook')
             ->where('order_id', 'pre')
-            ->whereBetween('due_date', [$now, $fiveMinutesLater])
+            ->whereBetween('schedule_date_time', [$now, $fiveMinutesLater])
             ->get();
 
         $token = TokenService::token();
@@ -73,6 +73,7 @@ class AddScheduledBooking extends Command
                     $orderId = $data['order']['order_id'] ?? null;
 
                     $dueinvoice->order_id = $orderId;
+                    $dueinvoice->type = 'changed';
                     $dueinvoice->data = json_encode($data);
                     $dueinvoice->save();
 
