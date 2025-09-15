@@ -14,9 +14,9 @@ class Kernel extends ConsoleKernel
     {
         //\Log::Info(now()->toDateTimeString().'-------serverTime');
        // $schedule->command('trips:sync')->everyThirtySeconds();
-        $schedule->command('drivers:sync')->everyFiveMinutes();
-        $schedule->command('pays:sync')->everyTwoMinutes();
-        $schedule->command('refill:accounts')->dailyAt('01:00');
+//        $schedule->command('drivers:sync')->everyFiveMinutes();
+//        $schedule->command('pays:sync')->everyTwoMinutes();
+//        $schedule->command('refill:accounts')->dailyAt('01:00');
  //       $schedule->command('contacts:sync')->everyFiveMinutes();
 //        $schedule->command('postPaidDeduction:accounts')->everyThreeMinutes();
  //     $schedule->command('postPaidDeduction:accounts')->sundays()->timezone('America/New_York')->between('09:00', '23:55')->everyFiveMinutes();
@@ -27,15 +27,15 @@ class Kernel extends ConsoleKernel
  //      $schedule->command('accounts:sync')->everyTenMinutes();
 //      $schedule->command('weeklyfees:sync')->sundays();
 
-//      $schedule->command('DueInvoices:accounts');
-             $schedule->command('cron:dispatcherUser')->dailyAt('02:00');
-             $schedule->command('prePaidInvoices:accounts')
-    ->timezone('America/New_York')
-    ->between('09:00', '23:55')
-    ->everyFiveMinutes()
-    ->when(function () {
-        return in_array(now()->day, [1]);
-    });
+      $schedule->command('CustomerBooking:scheduled');
+//             $schedule->command('cron:dispatcherUser')->dailyAt('02:00');
+//             $schedule->command('prePaidInvoices:accounts')
+//    ->timezone('America/New_York')
+//    ->between('09:00', '23:55')
+//    ->everyFiveMinutes()
+//    ->when(function () {
+//        return in_array(now()->day, [1]);
+//    });
 
 
 

@@ -173,6 +173,7 @@ class BookRideController extends Controller
                 'Content-Type' => 'application/json',
             ])->post('https://api.taxicaller.net/api/v1/booker/order', $bookingData);
 
+            Log::Info($response->json());
 
             if ($response->successful()) {
 
