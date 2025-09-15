@@ -55,7 +55,7 @@
                     </p>
 
                     </div>
-                    <form action="{{ url('customer/PreRideStore') }}" id="book_ride_form" method="POST">
+                    <form action="{{ url('customer/store_pre_ride') }}" id="book_ride_form" method="POST">
                         @csrf
 
                         <input type="hidden" name="account_id" value="{{$account->account_id}}">
