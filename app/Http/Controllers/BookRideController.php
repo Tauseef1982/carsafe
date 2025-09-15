@@ -210,6 +210,15 @@ class BookRideController extends Controller
         return view('customer.book-pre-ride', compact('account'));
 
     }
+    public function cancleRide($id){
+
+        $data = CustomerBooking::find($id);
+        $data->type = 'cancel';
+        $data->save();
+
+        return redirect()->back();
+
+    }
 
     public function PreRideStore(Request $request)
     {

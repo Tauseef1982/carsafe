@@ -280,6 +280,7 @@ Route::group(['prefix' => 'customer','as' => 'customer.'], function () {
     Route::get('/complaint/{id}', [\App\Http\Controllers\UserPortalController::class, 'show_single_complaint'])->name('complaints.show');});
     Route::post('/store_ride', [\App\Http\Controllers\BookRideController::class, 'store']);
     Route::post('/store_pre_ride', [\App\Http\Controllers\BookRideController::class, 'PreRideStore']);
+    Route::get('/cancel-booking/{id}', [\App\Http\Controllers\BookRideController::class, 'cancleRide']);
     Route::get('/upcomming-trips', [\App\Http\Controllers\UserPortalController::class, 'upcomingTrips']);
     Route::any('/invoice/preview' , [AccountController::class, 'show_invoice']);
 });

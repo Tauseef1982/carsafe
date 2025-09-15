@@ -49,7 +49,7 @@ class AddScheduledBooking extends Command
         $now = Carbon::now();
         $fiveMinutesLater = $now->copy()->addMinutes(5);
 
-        $dueInvoices = CustomerBooking::where('status', 'prebook')
+        $dueInvoices = CustomerBooking::where('type','prebook')
             ->where('order_id', 'pre')
             ->whereBetween('schedule_date_time', [$now, $fiveMinutesLater])
             ->get();
