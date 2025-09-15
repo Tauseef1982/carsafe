@@ -1,7 +1,6 @@
 @extends('customer.layouts.yajra')
 
 @section('css')
-<<<<<<< HEAD
     <style>
         .page-wrapper .page-body-wrapper .page-title {
             margin: 0 !important;
@@ -9,51 +8,41 @@
             border-bottom: 1px solid #D9D9E1 !important;
             box-shadow: none !important;
         }
-
         .card .card-body {
             padding: 13px;
 
         }
-
         .btn {
             padding: 0.375rem 0.79rem !important;
             width: 100%;
         }
-
-        .img-2 {
+        .img-2{
             width: 27px;
             height: 27px;
         }
-
         #dashboard {
             border-collapse: separate;
             border-spacing: 0;
             border-radius: 12px 12px 0 0;
             overflow: hidden;
         }
-
         #dashboard thead tr:first-child th:first-child {
             border-top-left-radius: 12px;
         }
-
         #dashboard thead tr:first-child th:last-child {
             border-top-right-radius: 12px;
         }
-
-        #dashboard_length {
+        #dashboard_length{
             display: none;
         }
-
-        #dashboard_filter {
+        #dashboard_filter{
             display: none;
         }
-
-        .even {
+        .even{
             background-color: #FEEEEA !important;
         }
-
-        .even > .sorting_1 {
-            background-color: #FEEEEA !important;
+        .even > .sorting_1{
+            background-color: #FEEEEA!important;
         }
     </style>
 @endsection
@@ -64,64 +53,6 @@
             <div class="row">
                 <div class="col-6">
                     <h3 class="f-28 fw-bold">Dashboard</h3>
-=======
-<style>
-.page-wrapper .page-body-wrapper .page-title {
-    margin: 0 !important;
-    background-color: none !important;
-    border-bottom: 1px solid #D9D9E1 !important;
-    box-shadow: none !important;
-}
-.card .card-body {
-     padding: 13px;
-
-}
-.btn {
-    padding: 0.375rem 0.79rem !important;
-    width: 100%;
-}
-.img-2{
-      width: 27px;
-    height: 27px;
-}
-  #dashboard {
-    border-collapse: separate;
-    border-spacing: 0;
-    border-radius: 12px 12px 0 0;
-    overflow: hidden;
-}
-  #dashboard thead tr:first-child th:first-child {
-    border-top-left-radius: 12px;
-}
-#dashboard thead tr:first-child th:last-child {
-    border-top-right-radius: 12px;
-}
-#dashboard_length{
-  display: none;
-}
-#dashboard_filter{
-  display: none;
-}
-   .even{
-    background-color: #FEEEEA !important;
-}
-.even > .sorting_1{
-    background-color: #FEEEEA!important;
-}
-</style>
-@endsection
-
-@section('content')
-<div class="card total-users">
-   <div class="page-title">
-                  <div class="row">
-                    <div class="col-6">
-                      <h3 class="f-28 fw-bold">Dashboard</h3>
-                    </div>
-
-                  </div>
-
->>>>>>> 9b67c86b9d7560cf14e43ef091900e5e71b6a6f4
                 </div>
 
             </div>
@@ -129,9 +60,40 @@
         </div>
         <div class="card-body pt-5 ">
 
-<<<<<<< HEAD
             <div class="row">
+            <!-- <div class="col-xl-4 col-lg-12 xl-50 morning-sec box-col-12">
+                <div class="card profile-greeting">
+                  <div class="card-body pb-0">
+                    <div class="media">
+                      <div class="media-body">
+                        <div class="greeting-user">
+                          <h4 class="f-w-600 font-primary" id="greeting">Good Morning </h4>
+                          <span><p>{{ $account->f_name }}</p></span>
+                          <p>Whats going on</p>
 
+                        </div>
+                      </div>
+                      <div class="badge-groups">
+                        <div class="badge f-10"><span ></span></div>
+                      </div>
+                    </div>
+                    <div class="cartoon"><img class="img-fluid" src="../assets/images/dashboard/cartoon.png" alt=""></div>
+                  </div>
+                </div>
+              </div> -->
+                <!-- <div class="col-md-6 pt-5">
+                    <div class="card p-5">
+                  <div class="bg-primary card p-10">
+                    <h5 class=" text-center font-dark">Total Trips</h5>
+                    <h6 class=" text-center font-dark" id="total_trips">...loading</h6>
+
+                  </div> -->
+                <!-- <div class="bg-dark card p-10">
+                  <h5 class="font-dark text-center txt-primary">Balance</h5>
+                  <h6 class="font-dark text-center txt-primary" id="account_balance">...loading</h6>
+                  <button class="btn text-primary" type="button" data-bs-toggle="modal" data-bs-target="#myModal">Add More Balance</button>
+
+                </div> -->
 
                 <div class="col-lg-3 col-md-4">
                     <div class="card">
@@ -142,8 +104,7 @@
                             </div>
                             <div class="d-flex justify-content-between">
                                 <h3 class="f-32 f-w-700 text-primary" id="account_balance">$0.00</h3>
-                                <button class="btn btn-transparent btn-xs text-primary" data-bs-toggle="modal"
-                                        data-bs-target="#myModal">
+                                <button class="btn btn-transparent btn-xs text-primary" data-bs-toggle="modal" data-bs-target="#myModal">
                                     <i class="fa fa-plus"></i>
                                     Add More
                                 </button>
@@ -201,6 +162,7 @@
                 </div>
 
 
+
             </div>
 
             <h3 class="f-24 fw-bold">Discover Our Features</h3>
@@ -215,13 +177,11 @@
                             </div>
                             <div class="">
                                 <p class="f-14 f-w-500  ">Safe rides, anytime.</p>
-                                <a href="{{ url('customer/book-ride') }}">
-                                    <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
+                                <a href="{{ url('customer/book-ride') }}"> <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
                                         Book a Ride
                                         <img src="{{ asset('assets/images/arrow-right-line.png') }}" alt="">
 
-                                    </button>
-                                </a>
+                                    </button></a>
                             </div>
                         </div>
                     </div>
@@ -231,18 +191,16 @@
                     <div class="card bg-primary">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
-                                <h3 class="f-18 f-w-700">Track Your Rides</h3>
+                                <h3 class="f-18 f-w-700">Future Rides</h3>
                                 <img class="img-fluid img-2" src="{{ asset('assets/images/Frame 40.png') }}" alt="">
                             </div>
                             <div class="">
                                 <p class="f-14 f-w-500  ">Track live. Ride safe.</p>
-                                <a href="">
-                                    <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
-                                        Track Your Rides
+                                <a href="{{ url('customer/book-pre-ride') }}"> <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
+                                        Book Future Ride
                                         <img src="{{ asset('assets/images/arrow-right-line.png') }}" alt="">
 
-                                    </button>
-                                </a>
+                                    </button></a>
                             </div>
                         </div>
                     </div>
@@ -257,13 +215,11 @@
                             </div>
                             <div class="">
                                 <p class="f-14 f-w-500  ">Compare fares instantly.</p>
-                                <a href="">
-                                    <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
+                                <a href=""> <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
                                         Check Prices
                                         <img src="{{ asset('assets/images/arrow-right-line.png') }}" alt="">
 
-                                    </button>
-                                </a>
+                                    </button></a>
                             </div>
                         </div>
                     </div>
@@ -277,13 +233,11 @@
                             </div>
                             <div class="">
                                 <p class="f-14 f-w-500  ">Instant invoice. Zero hassle.</p>
-                                <a href="{{ url('customer/invoices') }}">
-                                    <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
+                                <a href="{{ url('customer/invoices') }}"> <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
                                         Download Invoice
                                         <img src="{{ asset('assets/images/arrow-right-line.png') }}" alt="">
 
-                                    </button>
-                                </a>
+                                    </button></a>
                             </div>
                         </div>
                     </div>
@@ -297,9 +251,7 @@
                     <span><h3 class="f-28 fw-bold">Recent Trips</h3></span>
                 </div>
                 <div class="col-md-3">
-                    <a href="{{ url('customer/trips') }}"
-                       class="btn btn-transparent text-primary btn-outline-primary btn-sm f-14 f-w-700">View All Trips
-                        <span><img src="{{ asset('assets/images/arrow-right-line.png') }}" alt=""></span></a>
+                    <a href="{{ url('customer/trips') }}" class="btn btn-transparent text-primary btn-outline-primary btn-sm f-14 f-w-700">View All Trips <span><img src="{{ asset('assets/images/arrow-right-line.png') }}" alt=""></span></a>
                 </div>
             </div>
             <div class="row">
@@ -318,7 +270,7 @@
                         <div class="">
                             <div class="table-responsive ">
                                 <table class="display" id="dashboard">
-                                    <thead class="table-header-light">
+                                    <thead class="table-header-light" >
                                     <tr class="">
                                         <th>Trip ID</th>
                                         <th>Pin Status</th>
@@ -347,51 +299,57 @@
                 <!-- Zero Configuration  Ends-->
             </div>
 
-            <div class="row mt-3">
-                <div class="col-md-9">
-                    <span><h3 class="f-28 fw-bold">Upcomming Rides</h3></span>
-                </div>
-                <div class="col-md-3">
-{{--                    <a href="{{ url('customer/trips') }}"--}}
-{{--                       class="btn btn-transparent text-primary btn-outline-primary btn-sm f-14 f-w-700">View All Trips--}}
-{{--                        <span><img src="{{ asset('assets/images/arrow-right-line.png') }}" alt=""></span></a>--}}
-                </div>
-            </div>
-            <div class="row">
-                <!-- Zero Configuration  Starts-->
-                <div class="col-sm-12 m-0 pt-0">
-
-                    <div class="">
-
-                        <div class="">
-                            <div class="table-responsive ">
-                                <table class="display" id="upcomming_trips">
-                                    <thead class="table-header-light">
-                                    <tr class="">
-
-                                        <th>From</th>
-                                        <th>To</th>
-                                        <th>Date</th>
-                                        <th>Time</th>
-                                        <th>Action</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
 
 
-                                    </tbody>
-
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Zero Configuration  Ends-->
-            </div>
         </div>
 
 
+
     </div>
+
+
+    <div class="row mt-3">
+        <div class="col-md-9">
+            <span><h3 class="f-28 fw-bold">Upcomming Rides</h3></span>
+        </div>
+        <div class="col-md-3">
+            {{--                    <a href="{{ url('customer/trips') }}"--}}
+            {{--                       class="btn btn-transparent text-primary btn-outline-primary btn-sm f-14 f-w-700">View All Trips--}}
+            {{--                        <span><img src="{{ asset('assets/images/arrow-right-line.png') }}" alt=""></span></a>--}}
+        </div>
+    </div>
+    <div class="row">
+        <!-- Zero Configuration  Starts-->
+        <div class="col-sm-12 m-0 pt-0">
+
+            <div class="">
+
+                <div class="">
+                    <div class="table-responsive ">
+                        <table class="display" id="upcomming_trips">
+                            <thead class="table-header-light">
+                            <tr class="">
+
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Zero Configuration  Ends-->
+    </div>
+
     <!-- Modal-->
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog" role="document">
@@ -401,8 +359,7 @@
                     <!-- Close Button -->
                     <div class="modal-header bg-orange-g text-white">
                         <h5 class="text-white">Add Balance</h5>
-                        <button class="btn-close  btn-primary text-white" type="button" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
+                        <button class="btn-close  btn-primary text-white" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <!-- Modal Body -->
                     <div class="modal-body">
@@ -412,218 +369,26 @@
                                 <div class="">
                                     <input hidden name="account_id" value="{{$account->account_id}}">
                                     <input hidden name="refill_method" value="card">
-                                    <input class="card-number my-custom-class form-control" name="to_refill"
-                                           placeholder="Amount" value="">
+                                    <input class="card-number my-custom-class form-control" name="to_refill" placeholder="Amount" value="">
 
 
                                 </div>
 
 
                             </div>
-=======
-          <div class="row">
-          <!-- <div class="col-xl-4 col-lg-12 xl-50 morning-sec box-col-12">
-                <div class="card profile-greeting">
-                  <div class="card-body pb-0">
-                    <div class="media">
-                      <div class="media-body">
-                        <div class="greeting-user">
-                          <h4 class="f-w-600 font-primary" id="greeting">Good Morning </h4>
-                          <span><p>{{ $account->f_name }}</p></span>
-                          <p>Whats going on</p>
->>>>>>> 9b67c86b9d7560cf14e43ef091900e5e71b6a6f4
 
                         </div>
                     </div>
 
                     <div class="modal-footer ">
-                        <input type="submit" class="btn btn-dark mt-3 ms-auto bg-orange-g text-white"
-                               value="Add Balance">
+                        <input type="submit" class="btn btn-dark mt-3 ms-auto bg-orange-g text-white" value="Add Balance">
 
-<<<<<<< HEAD
                     </div>
             </form>
-=======
-              </div> -->
-
-              <div class="col-lg-3 col-md-4">
-                <div class="card">
-                  <div class="card-body">
-                   <div class="d-flex justify-content-between">
-                       <h3 class="f-16 f-w-700">Total Balance</h3>
-                       <img src="{{ asset('assets/images/Frame 25.png') }}" alt="">
-                   </div>
-                   <div class="d-flex justify-content-between">
-                       <h3 class="f-32 f-w-700 text-primary" id="account_balance">$0.00</h3>
-                       <button class="btn btn-transparent btn-xs text-primary" data-bs-toggle="modal" data-bs-target="#myModal">
-                        <i class="fa fa-plus"></i>
-                        Add More
-                       </button>
-                   </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-3 col-md-4">
-                <div class="card">
-                   <div class="card-body">
-                   <div class="d-flex justify-content-between">
-                       <h3 class="f-16 f-w-700">Total Trips</h3>
-                       <img src="{{ asset('assets/images/Frame 27.png') }}" alt="">
-                   </div>
-                   <div class="d-flex justify-content-between">
-                       <h3 class="f-32 f-w-700 text-primary" id="total_trips">0</h3>
-                        <canvas id="myGraph" style="height: 100px; width: 100px;"></canvas>
-
-                   </div>
-                  </div>
-
-                </div>
-              </div>
-              <div class="col-lg-3 col-md-4">
-                <div class="card">
-                   <div class="card-body">
-                   <div class="d-flex justify-content-between">
-                       <h3 class="f-16 f-w-700">Total Complaints</h3>
-                       <img src="{{ asset('assets/images/Frame 29.png') }}" alt="">
-                   </div>
-                   <div class="d-flex justify-content-between">
-                       <h3 class="f-32 f-w-700 text-primary" id="account_complaints">0</h3>
-                         <canvas id="myGraph1" style="height: 100px; width: 100px;"></canvas>
-
-                   </div>
-                  </div>
-
-                </div>
-              </div>
-              <div class="col-lg-3 col-md-4">
-                <div class="card">
-                   <div class="card-body">
-                   <div class="d-flex justify-content-between">
-                       <h3 class="f-16 f-w-700">Total Invoices</h3>
-                       <img src="{{ asset('assets/images/Frame 31.png') }}" alt="">
-                   </div>
-                   <div class="d-flex justify-content-between">
-                       <h3 class="f-32 f-w-700 text-primary" id="account_invoices">0</h3>
-                         <canvas id="myGraph2" style="height: 100px; width: 100px;"></canvas>
-
-                   </div>
-                  </div>
-
-                </div>
-              </div>
-
-
-
-              </div>
-
-             <h3 class="f-24 fw-bold">Discover Our Features</h3>
-
-              <div class="row mt-4">
-                  <div class="col-lg-3 col-md-4">
-                <div class="card bg-primary">
-                  <div class="card-body">
-                   <div class="d-flex justify-content-between">
-                       <h3 class="f-18 f-w-700">Book a Ride</h3>
-                       <img src="{{ asset('assets/images/Frame 25.png') }}" alt="">
-                   </div>
-                   <div class="">
-                       <p class="f-14 f-w-500  ">Safe rides, anytime.</p>
-                      <a href="{{ url('customer/book-ride') }}"> <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
-                        Book a Ride
-                                <img src="{{ asset('assets/images/arrow-right-line.png') }}" alt="">
-
-                       </button></a>
-                   </div>
-                  </div>
-                </div>
-              </div>
-
-               <div class="col-lg-3 col-md-4">
-                <div class="card bg-primary">
-                  <div class="card-body">
-                   <div class="d-flex justify-content-between">
-                       <h3 class="f-18 f-w-700">Future Rides</h3>
-                       <img class="img-fluid img-2" src="{{ asset('assets/images/Frame 40.png') }}" alt="">
-                   </div>
-                   <div class="">
-                       <p class="f-14 f-w-500  ">Track live. Ride safe.</p>
-                      <a href="{{ url('customer/book-pre-ride') }}"> <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
-                       Book Future Ride
-                                <img src="{{ asset('assets/images/arrow-right-line.png') }}" alt="">
-
-                       </button></a>
-                   </div>
-                  </div>
-                </div>
-              </div>
-
-               <div class="col-lg-3 col-md-4">
-                <div class="card bg-primary">
-                  <div class="card-body">
-                   <div class="d-flex justify-content-between">
-                       <h3 class="f-18 f-w-700">Check Prices</h3>
-                       <img src="{{ asset('assets/images/Frame 25.png') }}" alt="">
-                   </div>
-                   <div class="">
-                       <p class="f-14 f-w-500  ">Compare fares instantly.</p>
-                      <a href=""> <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
-                        Check Prices
-                                <img src="{{ asset('assets/images/arrow-right-line.png') }}" alt="">
-
-                       </button></a>
-                   </div>
-                  </div>
-                </div>
-              </div>
-               <div class="col-lg-3 col-md-4 ">
-                <div class="card bg-primary">
-                  <div class="card-body">
-                   <div class="d-flex justify-content-between">
-                       <h3 class="f-18 f-w-700">Download Invoice</h3>
-                       <img class="img-fluid img-2" src="{{ asset('assets/images/Frame 44.png') }}" alt="">
-                   </div>
-                   <div class="">
-                       <p class="f-14 f-w-500  ">Instant invoice. Zero hassle.</p>
-                      <a href="{{ url('customer/invoices') }}"> <button class="btn btn-sm  text-primary bg-light f-14 fw-bold">
-                     Download Invoice
-                                <img src="{{ asset('assets/images/arrow-right-line.png') }}" alt="">
-
-                       </button></a>
-                   </div>
-                  </div>
-                </div>
-              </div>
-
-              </div>
-
-
-                <div class="row mt-3">
-                  <div class="col-md-9">
-                     <span><h3 class="f-28 fw-bold">Recent Trips</h3></span>
-                  </div>
-                  <div class="col-md-3">
-                    <a href="{{ url('customer/trips') }}" class="btn btn-transparent text-primary btn-outline-primary btn-sm f-14 f-w-700">View All Trips <span><img src="{{ asset('assets/images/arrow-right-line.png') }}" alt=""></span></a>
-                  </div>
-                  </div>
-                  <div class="row">
-      <!-- Zero Configuration  Starts-->
-      <div class="col-sm-12 m-0 pt-0">
-        <div class="row mb-3 d-none">
-          <div class="col-md-3">
-      <input type="date" id="from_date" class="form-control">
-      </div>
-      <div class="col-md-3">
-      <input type="date" id="to_date" class="form-control">
-      </div>
->>>>>>> 9b67c86b9d7560cf14e43ef091900e5e71b6a6f4
         </div>
     </div>
-<<<<<<< HEAD
-=======
-                </div>
-
->>>>>>> 9b67c86b9d7560cf14e43ef091900e5e71b6a6f4
-
+    </div>
+    </div>
 
 @endsection
 @php
@@ -657,11 +422,11 @@
 
 
                         const customSearch = `
-                          <div class="input-group mt-3 mb-3">
-                            <span class="input-group-text bg-white border-end-0"><i class="fa fa-search text-muted"></i></span>
-                            <input type="search" id="custom-search" class="form-control border-start-0" placeholder="Search Trips" />
-                          </div>
-                          `;
+  <div class="input-group mt-3 mb-3">
+    <span class="input-group-text bg-white border-end-0"><i class="fa fa-search text-muted"></i></span>
+    <input type="search" id="custom-search" class="form-control border-start-0" placeholder="Search Trips" />
+  </div>
+  `;
 
 
                         $('#datatable_search_holder').html(customSearch);
@@ -672,7 +437,7 @@
                         });
 
 
-<<<<<<< HEAD
+
                         $('#dashboard_filter label').addClass('w-100');
                         $('#dashboard_length label').addClass('float-end');
                     },
@@ -684,38 +449,6 @@
                         {data: 'driver_id', name: 'driver_id'},
                         {data: 'location_from', name: 'location_from'},
                         {data: 'location_to', name: 'location_to'},
-=======
-
-         $('#dashboard_filter label').addClass('w-100');
-         $('#dashboard_length label').addClass('float-end');
-         },
-
-
-        columns: [
-          {data: 'trip_id', name: 'trip_id'},
-          {data: 'cube_status', name: 'cube_status'},
-          {data: 'driver_id', name: 'driver_id'},
-          {data: 'location_from', name: 'location_from'},
-          {data: 'location_to', name: 'location_to'},
-
-          {data: 'trip_cost', name: 'trip_cost'},
-
-          {data: 'date', name: 'date'},
-          {data: 'time', name: 'time'},
-
-          {data: 'action', name: 'action'},
-
-
-        ],
-        order: [[1, 'desc']]
-      }
-        );
-      };
-       let today = new Date().toISOString().split('T')[0];
-    let lastWeek = new Date();
-    lastWeek.setDate(lastWeek.getDate() - 7);
-    let lastWeekStr = lastWeek.toISOString().split('T')[0];
->>>>>>> 9b67c86b9d7560cf14e43ef091900e5e71b6a6f4
 
                         {data: 'trip_cost', name: 'trip_cost'},
 
@@ -730,21 +463,6 @@
                 }
             );
         }
-
-        let today = new Date().toISOString().split('T')[0];
-        let lastWeek = new Date();
-        lastWeek.setDate(lastWeek.getDate() - 7);
-        let lastWeekStr = lastWeek.toISOString().split('T')[0];
-
-        $('#from_date').val(lastWeekStr);
-        $('#to_date').val(today);
-        loadTrips(lastWeekStr, today);
-
-        $('#to_date').change(function () {
-            let from = $('#from_date').val();
-            let to = $('#to_date').val();
-            loadTrips(from, to);
-        });
 
         $(document).ready(function () {
 
@@ -774,15 +492,21 @@
 
         });
 
-<<<<<<< HEAD
-=======
-      $('#to_date').change(function () {
-      let from = $('#from_date').val();
-      let to = $('#to_date').val();
-      loadTrips(from, to);
-    });
+        let today = new Date().toISOString().split('T')[0];
+        let lastWeek = new Date();
+        lastWeek.setDate(lastWeek.getDate() - 7);
+        let lastWeekStr = lastWeek.toISOString().split('T')[0];
 
->>>>>>> 9b67c86b9d7560cf14e43ef091900e5e71b6a6f4
+        $('#from_date').val(lastWeekStr);
+        $('#to_date').val(today);
+        loadTrips(lastWeekStr, today);
+
+        $('#to_date').change(function () {
+            let from = $('#from_date').val();
+            let to = $('#to_date').val();
+            loadTrips(from, to);
+        });
+
 
         function get_account_summary() {
             // var fromDate = $('#from_date').val();
@@ -801,8 +525,8 @@
 
                     $('#total_trips').text(response.total_trips);
                     $('#account_balance').text('$' + response.total_payments);
-                    $('#account_complaints').text(response.total_complaints);
-                    $('#account_invoices').text(response.total_invoices);
+                    $('#account_complaints').text( response.total_complaints);
+                    $('#account_invoices').text( response.total_invoices);
 
                     // if (response.gocab_paid >= 0) {
                     //     $('#balance_heading').html('Amount owed to driver');
@@ -1004,7 +728,6 @@ var chart3 = new ApexCharts(
 chart3.render();
     </script> -->
 
-<<<<<<< HEAD
     <script src="{{asset('assets/js/chart/chartjs/chart.min.js')}}"></script>
     <script>
         var labels = @json($labels);
@@ -1016,39 +739,39 @@ chart3.render();
             datasets: [{
 
                 fillColor: "#FEEEEA",
-                strokeColor: "#ff6600",
-                pointColor: "#ff6600",
+                strokeColor: "#ff6600" ,
+                pointColor: "#ff6600" ,
                 pointStrokeColor: "#fff",
                 pointHighlightFill: "#fff",
                 pointHighlightStroke: "#000",
                 data: weeklyTripCounts
-            },]
+            }, ]
         };
         var lineGraphData1 = {
             labels: labels,
             datasets: [{
 
                 fillColor: "#FEEEEA",
-                strokeColor: "#ff6600",
-                pointColor: "#ff6600",
+                strokeColor: "#ff6600" ,
+                pointColor: "#ff6600" ,
                 pointStrokeColor: "#fff",
                 pointHighlightFill: "#fff",
                 pointHighlightStroke: "#000",
                 data: weeklyComplaints
-            },]
+            }, ]
         };
         var lineGraphData2 = {
             labels: labels,
             datasets: [{
 
                 fillColor: "#FEEEEA",
-                strokeColor: "#ff6600",
-                pointColor: "#ff6600",
+                strokeColor: "#ff6600" ,
+                pointColor: "#ff6600" ,
                 pointStrokeColor: "#fff",
                 pointHighlightFill: "#fff",
                 pointHighlightStroke: "#000",
                 data: weeklyInvoices
-            },]
+            }, ]
         };
         var lineGraphOptions = {
             scaleShowGridLines: false,
@@ -1078,80 +801,5 @@ chart3.render();
         new Chart(lineCtx).Line(lineGraphData, lineGraphOptions);
         new Chart(lineCtx1).Line(lineGraphData1, lineGraphOptions);
         new Chart(lineCtx2).Line(lineGraphData2, lineGraphOptions);
-=======
- <script src="{{asset('assets/js/chart/chartjs/chart.min.js')}}"></script>
-    <script>
-       var labels = @json($labels);
-       var weeklyTripCounts = @json($weeklyTripCounts);
-       var weeklyComplaints = @json($weeklyComplaints);
-       var weeklyInvoices = @json($weeklyInvoices);
-       var lineGraphData = {
-    labels: labels,
-    datasets: [{
-
-        fillColor: "#FEEEEA",
-        strokeColor: "#ff6600" ,
-        pointColor: "#ff6600" ,
-        pointStrokeColor: "#fff",
-        pointHighlightFill: "#fff",
-        pointHighlightStroke: "#000",
-        data: weeklyTripCounts
-    }, ]
-};
- var lineGraphData1 = {
-    labels: labels,
-    datasets: [{
-
-        fillColor: "#FEEEEA",
-        strokeColor: "#ff6600" ,
-        pointColor: "#ff6600" ,
-        pointStrokeColor: "#fff",
-        pointHighlightFill: "#fff",
-        pointHighlightStroke: "#000",
-        data: weeklyComplaints
-    }, ]
-};
- var lineGraphData2 = {
-    labels: labels,
-    datasets: [{
-
-        fillColor: "#FEEEEA",
-        strokeColor: "#ff6600" ,
-        pointColor: "#ff6600" ,
-        pointStrokeColor: "#fff",
-        pointHighlightFill: "#fff",
-        pointHighlightStroke: "#000",
-        data: weeklyInvoices
-    }, ]
-};
-var lineGraphOptions = {
-    scaleShowGridLines: false,
-    scaleGridLineColor: "rgba(0,0,0,.05)",
-    scaleGridLineWidth: 1,
-    scaleShowHorizontalLines: false,
-    scaleShowVerticalLines: false,
-    scaleShowLabels: false,
-    scaleShowLine: false,
-    scaleFontSize: 0,
-    bezierCurve: true,
-    bezierCurveTension: 0.4,
-    pointDot: false,
-    pointDotRadius: 4,
-    pointDotStrokeWidth: 1,
-    pointHitDetectionRadius: 20,
-    datasetStroke: true,
-    datasetStrokeWidth: 4,
-    datasetFill: true,
-    showLegend: false,
-    showTooltips: false,
-    legendTemplate: "",
-};
-var lineCtx = document.getElementById("myGraph").getContext("2d");
-var lineCtx1 = document.getElementById("myGraph1").getContext("2d");
-var lineCtx2 = document.getElementById("myGraph2").getContext("2d");
-new Chart(lineCtx).Line(lineGraphData, lineGraphOptions);
-new Chart(lineCtx1).Line(lineGraphData1, lineGraphOptions);
-new Chart(lineCtx2).Line(lineGraphData2, lineGraphOptions);
->>>>>>> 9b67c86b9d7560cf14e43ef091900e5e71b6a6f4
     </script>
 @endsection
