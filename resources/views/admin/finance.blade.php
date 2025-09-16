@@ -64,6 +64,13 @@
 
                                 </div>
                             </div>
+                            <div class="col-md-3">
+                                <div class="bg-danger card p-10">
+                                    <h5 class=" text-center font-dark">Total Card Trips</h5>
+                                    <h6 class=" text-center font-dark">${{$data['total_trip_account_method']}}</h6>
+
+                                </div>
+                            </div>
                             <div class="col-md-5">
 
 

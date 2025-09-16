@@ -110,7 +110,8 @@ class AdminController extends Controller
             ->whereNotIn('trip_id',$tripsidnotinc)
             ->selectRaw("SUM(CASE WHEN payper_trip = 1 THEN trip_cost ELSE 0 END) as total_papertrip,
                      SUM(trip_cost) as total_tripcost,
-                     SUM(CASE WHEN payment_method = 'card' THEN trip_cost ELSE 0 END) as total_trip_card_method")->first();
+                     SUM(CASE WHEN payment_method = 'card' THEN trip_cost ELSE 0 END) as total_trip_card_method
+                     SUM(CASE WHEN payment_method = 'account' THEN trip_cost ELSE 0 END) as total_trip_account_method")->first();
 
 
         $payment_data = Payment::where('is_delete', 0)
@@ -136,6 +137,7 @@ class AdminController extends Controller
         $data['total_papertrip'] = $trips_data->total_papertrip;
         $data['total_tripcost'] = $trips_data->total_tripcost;
         $data['total_trip_card_method'] =$trips_data->total_trip_card_method;
+        $data['total_trip_account_method'] =$trips_data->total_trip_account_method;
 
         $data['total_from_driver'] = $payment_data->total_from_driver;
         $data['to_driver'] = $payment_data->to_driver;
