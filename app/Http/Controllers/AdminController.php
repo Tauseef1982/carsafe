@@ -104,7 +104,9 @@ class AdminController extends Controller
 
 
         $trips_data = Trip::where('is_delete', 0)
-            ->whereBetween('date', [$fromlastweek, $tolastweek])
+            ->where('payment_method', '!=','cash')
+            ->where('date', '>=', $fromlastweek)
+            ->where('date', '<=', $tolastweek)
             ->whereNotIn('trip_id',$tripsidnotinc)
             ->selectRaw("SUM(CASE WHEN payper_trip = 1 THEN trip_cost ELSE 0 END) as total_papertrip,
                      SUM(trip_cost) as total_tripcost,
@@ -112,7 +114,8 @@ class AdminController extends Controller
 
 
         $payment_data = Payment::where('is_delete', 0)
-            ->whereBetween('payment_date', [$fromlastweek, $tolastweek])
+            ->where('payment_date', '>=', $fromlastweek)
+            ->where('payment_date', '<=', $tolastweek)
             ->selectRaw("
         SUM(CASE WHEN type = 'credit' AND user_type = 'admin' THEN amount ELSE 0 END) as total_from_driver,
         SUM(CASE WHEN type = 'debit' AND user_type = 'admin' THEN amount ELSE 0 END) as to_driver,
@@ -122,7 +125,8 @@ class AdminController extends Controller
 
 
         $prepaid = AccountPayment::where('account_type', 'prepaid')
-            ->whereBetween('payment_date', [$fromlastweek, $tolastweek])
+            ->where('payment_date', '>=', $fromlastweek)
+            ->where('payment_date', '<=', $tolastweek)
         ->whereNull('hash_id')
         ->sum('amount');
 
