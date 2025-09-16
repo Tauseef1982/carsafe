@@ -62,10 +62,16 @@ class AddScheduledBooking extends Command
 
             try {
                 $bookingData = json_decode($dueinvoice->booking_data, true);
+//                $response = Http::withHeaders([
+//                    'Authorization' => 'Bearer ' . $token,
+//                    'Content-Type' => 'application/json',
+//                ])->post('https://api.taxicaller.net/api/v1/booker/order', $bookingData);
+//
                 $response = Http::withHeaders([
                     'Authorization' => 'Bearer ' . $token,
                     'Content-Type' => 'application/json',
-                ])->post('https://api.taxicaller.net/api/v1/booker/order', $bookingData);
+                ])->withBody($dueinvoice->booking_data, 'application/json')
+                    ->post('https://api.taxicaller.net/api/v1/booker/order');
 
                 $message = "Trying Customer Scheduled Booking {$dueinvoice->id}";
                 Log::info($bookingData);
