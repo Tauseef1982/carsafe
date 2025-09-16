@@ -64,7 +64,27 @@
 
                                 </div>
                             </div>
+                            <div class="col-md-3">
+                                <div class="bg-danger card p-10">
+                                    <h5 class=" text-center font-dark">Total Cardnox Payments</h5>
+                                    <h6 class=" text-center font-dark">${{$data['total_trip_account_method'] + $data['prepaid_amount']}}</h6>
 
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="bg-danger card p-10">
+                                    <h5 class=" text-center font-dark">Total Cardnox Fee</h5>
+                                    @php
+                                    $fee = (float)($data['total_trip_account_method'] + $data['prepaid_amount']) * 0.03333333333 + .3;
+                                    $fee1 = (float)($data['total_trip_account_method'] + $data['prepaid_amount']) * 0.03333333333;
+                                    $fee3 = ((float)($data['total_trip_account_method'] + $data['prepaid_amount'])/100) * 3.63;
+                                    @endphp
+                                    <h6 class=" text-center font-dark">${{$fee}}</h6>
+                                    <h6 class=" text-center font-dark">${{$fee1}}</h6>
+                                    <h6 class=" text-center font-dark">${{$fee3}}</h6>
+
+                                </div>
+                            </div>
                             <div class="col-md-5">
 
 
