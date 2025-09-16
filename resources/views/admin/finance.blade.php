@@ -80,8 +80,8 @@
                                     $fee3 = ((float)($data['total_trip_account_method'] + $data['prepaid_amount'])/100) * 3.63;
                                     @endphp
                                     <h6 class=" text-center font-dark">${{$fee}}</h6>
-                                    <h6 class=" text-center font-dark">${{$fee1}}</h6>
-                                    <h6 class=" text-center font-dark">${{$fee3}}</h6>
+{{--                                    <h6 class=" text-center font-dark">${{$fee1}}</h6>--}}
+{{--                                    <h6 class=" text-center font-dark">${{$fee3}}</h6>--}}
 
                                 </div>
                             </div>
