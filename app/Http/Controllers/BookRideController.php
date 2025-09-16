@@ -173,6 +173,7 @@ class BookRideController extends Controller
                 'Content-Type' => 'application/json',
             ])->post('https://api.taxicaller.net/api/v1/booker/order', $bookingData);
 
+            Log::Info($response->json());
 
             if ($response->successful()) {
 
@@ -208,6 +209,15 @@ class BookRideController extends Controller
         $user = Auth::guard('customer')->user()->account_id;
         $account = Account::where('account_id', $user)->first();
         return view('customer.book-pre-ride', compact('account'));
+
+    }
+    public function cancleRide($id){
+
+        $data = CustomerBooking::find($id);
+        $data->type = 'cancel';
+        $data->save();
+
+        return redirect()->back();
 
     }
 

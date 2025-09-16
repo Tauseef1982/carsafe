@@ -46,26 +46,30 @@ class AddScheduledBooking extends Command
     public function handle()
     {
 
-        $now = Carbon::now();
-        $fiveMinutesLater = $now->copy()->addMinutes(5);
-
-        $dueInvoices = CustomerBooking::where('status', 'prebook')
-            ->where('order_id', 'pre')
-            ->whereBetween('schedule_date_time', [$now, $fiveMinutesLater])
+        $now = Carbon::now()->toDateTimeString();
+        $fiveMinutesLater = now()->addMinutes(5)->toDateTimeString();
+        Log::Info($fiveMinutesLater);
+        Log::Info($now);
+        $dueInvoices = CustomerBooking::where('type','prebook')
+            ->where('order_id','pre')
+            ->where('schedule_date_time','>=',$now)
+            ->where('schedule_date_time','<=',$fiveMinutesLater)
             ->get();
-
+        Log::Info(count($dueInvoices));
         $token = TokenService::token();
 
         foreach ($dueInvoices as $dueinvoice) {
+
             try {
                 $bookingData = json_decode($dueinvoice->booking_data, true);
-
                 $response = Http::withHeaders([
                     'Authorization' => 'Bearer ' . $token,
                     'Content-Type' => 'application/json',
                 ])->post('https://api.taxicaller.net/api/v1/booker/order', $bookingData);
 
                 $message = "Trying Customer Scheduled Booking {$dueinvoice->id}";
+                Log::info($bookingData);
+                Log::info($response->json());
 
                 if ($response->successful()) {
                     $data = $response->json();

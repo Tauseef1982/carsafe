@@ -236,7 +236,11 @@ if (!$record) {
 
             return DataTables::of($data)
                 ->addIndexColumn()->addColumn('action', function ($row) {
-                    return '<button class="btn bg-orange-g b-r-8 text-white bg openTripModal" data-trip="' . $row->id . '">Cancel</button>';
+                    return '<a href="/customer/cancel-booking/' . $row->id . '"
+           class="btn bg-orange-g b-r-8 text-white bg"
+           onclick="return confirm(\'Are you sure you want to cancel this?\')">
+           Cancel
+        </a>';
                 })
                 ->addColumn('location_from', function ($row) {
                     $bookingData = json_decode($row->booking_data, true);
