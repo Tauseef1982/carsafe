@@ -64,14 +64,14 @@
 
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3 d-none">
                                 <div class="bg-danger card p-10">
                                     <h5 class=" text-center font-dark">Total Cardnox Payments</h5>
                                     <h6 class=" text-center font-dark">${{$data['total_trip_account_method'] + $data['prepaid_amount']}}</h6>
 
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3 d-none">
                                 <div class="bg-danger card p-10">
                                     <h5 class=" text-center font-dark">Total Cardnox Fee</h5>
                                     @php
