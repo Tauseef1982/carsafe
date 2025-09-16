@@ -29,7 +29,7 @@
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="bg-primary card p-10">
-                                    <h5 class=" text-center font-dark">Total Payper Trips</h5>
+                                    <h5 class=" text-center font-dark">Total Payper Trips cost</h5>
                                     <h6 class=" text-center font-dark">{{$data['total_papertrip']}}</h6>
 
                                 </div>
@@ -37,19 +37,19 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="bg-secondary card p-10">
-                                    <h5 class="font-white text-center">Total Prepaid Payments</h5>
+                                    <h5 class="font-white text-center">Total Refill Payments</h5>
                                     <h6 class="font-white text-center">${{$data['prepaid_amount']}}</h6>
 
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="bg-success card p-10">
-                                    <h5 class="font-dark text-center">Total Prepaid Account Trips Amount</h5>
+                                    <h5 class="font-dark text-center">Total Account Trips cost</h5>
                                     <h6 class="font-dark text-center">${{$data['total_trip_account_method']}}</h6>
 
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3 d-none">
                                 <div class="bg-success card p-10">
                                     <h5 class="font-dark text-center">Total Payments Drivers</h5>
                                     <h6 class="font-dark text-center">${{ $data['to_driver'] }}
@@ -59,15 +59,15 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="bg-danger card p-10">
-                                    <h5 class=" text-center font-dark">Total Card Trips</h5>
+                                    <h5 class=" text-center font-dark">Total Card Trips cost</h5>
                                     <h6 class=" text-center font-dark">${{$data['total_trip_card_method']}}</h6>
 
                                 </div>
                             </div>
-                            <div class="col-md-3 d-none">
+                            <div class="col-md-3 ">
                                 <div class="bg-danger card p-10">
                                     <h5 class=" text-center font-dark">Total Cardnox Payments</h5>
-                                    <h6 class=" text-center font-dark">${{$data['total_trip_account_method'] + $data['prepaid_amount']}}</h6>
+                                    <h6 class=" text-center font-dark">${{$data['total_trip_card_method'] + $data['prepaid_amount']}}</h6>
 
                                 </div>
                             </div>
