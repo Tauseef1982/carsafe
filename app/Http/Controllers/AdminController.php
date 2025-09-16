@@ -110,7 +110,7 @@ class AdminController extends Controller
             ->whereNotIn('trip_id',$tripsidnotinc)
             ->selectRaw("SUM(CASE WHEN payper_trip = 1 THEN trip_cost ELSE 0 END) as total_papertrip,
                      SUM(trip_cost) as total_tripcost,
-                     SUM(CASE WHEN payment_method = 'card' THEN trip_cost ELSE 0 END) as total_trip_card_method
+                     SUM(CASE WHEN payment_method = 'card' THEN trip_cost ELSE 0 END) as total_trip_card_method,
                      SUM(CASE WHEN payment_method = 'account' THEN trip_cost ELSE 0 END) as total_trip_account_method")->first();
 
 
