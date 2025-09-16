@@ -111,6 +111,7 @@ class AdminController extends Controller
 
 
         $payment_data = Payment::where('is_delete', 0)
+            ->whereBetween('payment_date', [$fromlastweek, $tolastweek])
             ->selectRaw("
         SUM(CASE WHEN type = 'credit' AND user_type = 'admin' THEN amount ELSE 0 END) as total_from_driver,
         SUM(CASE WHEN type = 'debit' AND user_type = 'admin' THEN amount ELSE 0 END) as to_driver,
@@ -120,6 +121,7 @@ class AdminController extends Controller
 
 
         $prepaid = AccountPayment::where('account_type', 'prepaid')
+            ->whereBetween('payment_date', [$fromlastweek, $tolastweek])
         ->whereNull('hash_id')
         ->sum('amount');
 
