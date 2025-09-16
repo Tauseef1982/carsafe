@@ -332,8 +332,8 @@
 
                                 <th>From</th>
                                 <th>To</th>
-                                <th>Date</th>
                                 <th>Time</th>
+                                <th>Date</th>
                                 <th>Action</th>
                             </tr>
                             </thead>
