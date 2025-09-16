@@ -28,6 +28,7 @@ class Kernel extends ConsoleKernel
 //      $schedule->command('weeklyfees:sync')->sundays();
 
 //      $schedule->command('DueInvoices:accounts');
+      $schedule->command('CustomerBooking:scheduled');
              $schedule->command('cron:dispatcherUser')->dailyAt('02:00');
              $schedule->command('prePaidInvoices:accounts')
     ->timezone('America/New_York')
