@@ -94,7 +94,6 @@ class AdminController extends Controller
     public function finance(Request $request)
     {
 
-
         $fromlastweek = request()->from ? request()->from : Carbon::now()->subWeek()->startOfWeek(Carbon::SUNDAY)->toDateString();  // Start of last week (Sunday)
         $tolastweek = request()->to ? request()->to : Carbon::now()->subWeek()->endOfWeek(Carbon::SATURDAY)->toDateString();
 
