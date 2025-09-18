@@ -150,6 +150,7 @@ Route::group(['middleware' => 'admin.auth'], function () {
         Route::get('/delete-image/{id}', [CarImageController::class, 'destroy']);
         //exprt execl route
         Route::get('/export-drivers-earnings', [AdminController::class, 'export'])->name('export.drivers.earnings');
+        Route::get('/export-finance/{from}/{to}', [AdminController::class, 'exportfinance']);
 
         //coupon
 

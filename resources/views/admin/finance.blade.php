@@ -21,8 +21,13 @@
             <div class=" risk-col xl-100 box-col-12">
                 <div class="card total-users">
                     <div class="card-header card-no-border d-flex justify-content-between">
-                        <h5>Last week {{format_date($data['last_start'])}} to {{format_date($data['last_end'])}}</h5>
-{{--                        <a href="{{ url('admin/export-drivers-earnings') }}" class="btn btn-primary">Download Last Week Report</a>--}}
+                        <form action="" method="get">
+                        <input value="{{request()->from ? request()->from : $data['last_start']}}" type="date" name="from">
+                        <input value="{{request()->to ? request()->to : $data['last_end']}}" type="date" name="to">
+
+                        <input class="btn bt-sm btn-error" type="submit">
+                        </form>
+                        <a href="{{ url('admin/export-finance') }}/{{request()->from ? request()->from : $data['last_start']}}/{{request()->to ? request()->to : $data['last_end']}}" class="btn btn-primary">Download Last Week Report</a>
 
                     </div>
                     <div class="card-body pt-0 ">

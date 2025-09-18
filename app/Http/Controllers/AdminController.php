@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\FinanceEarningsExport;
 use App\Models\Account;
 use App\Models\AccountPayment;
 use App\Models\Adjustment;
@@ -94,8 +95,8 @@ class AdminController extends Controller
     {
 
 
-        $fromlastweek = Carbon::now()->subWeek()->startOfWeek(Carbon::SUNDAY)->toDateString();  // Start of last week (Sunday)
-        $tolastweek = Carbon::now()->subWeek()->endOfWeek(Carbon::SATURDAY)->toDateString();
+        $fromlastweek = request()->from ? request()->from : Carbon::now()->subWeek()->startOfWeek(Carbon::SUNDAY)->toDateString();  // Start of last week (Sunday)
+        $tolastweek = request()->to ? request()->to : Carbon::now()->subWeek()->endOfWeek(Carbon::SATURDAY)->toDateString();
 
         $tripsidnotinc = Trip::where(function ($query) {
             $query->where('status', 'like', '%Cancelled%')
@@ -1852,11 +1853,18 @@ class AdminController extends Controller
 
      }
 
-
-
     public function export()
     {
         return Excel::download(new DriversEarningsExport, 'drivers_earnings_last_week.xlsx');
+    }
+
+    public function exportfinance()
+    {
+        return Excel::download(
+            new FinanceEarningsExport(request()->from, request()->to),
+            'finance_earnings.xlsx'
+        );
+
     }
 
 }
