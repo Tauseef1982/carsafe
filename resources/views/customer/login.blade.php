@@ -2,9 +2,9 @@
  @extends('auth-layout')
  @section('css')
  <style>
-  
+
  </style>
- 
+
  @endsection
  @section('content')
 
@@ -13,7 +13,7 @@
         <div class="col-12 p-0" style="background-image:linear-gradient(to bottom, #FEEEEA, #FFFFFF)">
           <div class="login-card">
             <div>
-            
+
               <div class="login-main">
               @if (session('success'))
             <div class="alert alert-success">
@@ -27,9 +27,9 @@
         @endif
         <div class="row mt-5">
           <div class="col-md-6 bg-orange-g left-radius sm-radius text-center d-flex align-items-center" >
-               <div class="mx-auto">  
+               <div class="mx-auto">
             <img src="{{ asset('assets/images/logo/carsafe-logo.webp') }}" style="height:220px; width: 220px;" alt="">
-            <h3 class="f-32 text-white font-inter">Welcome to SafeCar Portal</h3>
+            <h3 class="f-32 text-white font-inter">Welcome to CarSafe Portal</h3>
             <p class="f-16 text-white font-inter">
               Simple. Secure. Safe everything you need to <br> protect your drive.
             </p>
@@ -57,7 +57,7 @@
                             <img src="{{ asset('assets/images/lock-line.png') }}" alt="">
                           </span>
                          <input class="form-control" placeholder="Enter Your password" id="password_field" name="password" type="password"  >
-                        
+
                           <span class="input-group-text" id="password_toggle" style="border-left:none !important; border-right: 1px solid #efefef; !important; cursor:pointer">
                              <img src="{{ asset('assets/images/eye-off-line.png') }}" alt="">
                           </span>
@@ -87,15 +87,15 @@
 
 
                 </form>
-                 <p class="mt-5 text-center text-muted">Don’t have an account? 
+                 <p class="mt-5 text-center text-muted">Don’t have an account?
                   <span> <a href="{{ url('register') }}" class="">Sign Up</a></span>
                 </p>
-               
-                
+
+
           </div>
 
         </div>
-  
+
               </div>
             </div>
           </div>
@@ -112,14 +112,14 @@
     const isPassword = passwordField.attr('type') === 'password';
 
     passwordField.attr('type', isPassword ? 'text' : 'password');
-    toggleIcon.attr('src', isPassword 
+    toggleIcon.attr('src', isPassword
         ? "{{ asset('assets/images/eye-line.png') }}"     // visible
         : "{{ asset('assets/images/eye-off-line.png') }}"  // hidden
     );
 });
 
-          
+
         })
       </script>
-      
+
       @endsection
