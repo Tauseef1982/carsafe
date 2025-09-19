@@ -101,6 +101,16 @@
                    </div>
                 </a>
                </li>
+                @if(Auth::guard('admin'))
+
+                    <li class="sidebar-main-title">
+                        <a href="{{url('admin/finance')}}">
+                            <div>
+                                Trip Excel
+                            </div>
+                        </a>
+                    </li>
+                @endif
                 <li class="sidebar-main-title">
 
                     <a href="{{route('admin.logout')}}">

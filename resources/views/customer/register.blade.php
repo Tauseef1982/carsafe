@@ -7,7 +7,7 @@
         margin-right: 20px;
       }
       .icon svg {
-       fill: #FF6600; 
+       fill: #FF6600;
      }
 
       .second_step{
@@ -42,7 +42,7 @@
     <div class="col-md-6 bg-orange-g left-radius sm-radius text-center d-flex align-items-center">
       <div class="mx-auto">
       <img src="{{ asset('assets/images/logo/carsafe-logo.webp') }}" style="height:220px; width: 220px;" alt="">
-      <h3 class="f-32 text-white font-inter">Welcome to SafeCar Portal</h3>
+      <h3 class="f-32 text-white font-inter">Welcome to CarSafe Portal</h3>
       <p class="f-16 text-white font-inter">
       Simple. Secure. Safe everything you need to <br> protect your drive.
       </p>
@@ -138,7 +138,7 @@
         <option value="passenger_phone">Passenger Phone Number</option>
         <option value="both_phone">Both Phone Numbers</option>
       </select>
-     </div> 
+     </div>
 
 
     </div>
@@ -270,7 +270,7 @@
 
 
         inputGroup.find('.removeBtn').click(function () {
-        inputGroup.remove(); 
+        inputGroup.remove();
         validatePinInputs();
 
         submitAllPinsViaAjax();
@@ -345,7 +345,7 @@
         $('#next-3rd').click(function(){
          $('.second_step').hide();
         $('.first_step').hide();
-        $('.third_step').show();   
+        $('.third_step').show();
         });
 
 

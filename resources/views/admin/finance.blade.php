@@ -21,15 +21,20 @@
             <div class=" risk-col xl-100 box-col-12">
                 <div class="card total-users">
                     <div class="card-header card-no-border d-flex justify-content-between">
-                        <h5>Last week {{format_date($data['last_start'])}} to {{format_date($data['last_end'])}}</h5>
-{{--                        <a href="{{ url('admin/export-drivers-earnings') }}" class="btn btn-primary">Download Last Week Report</a>--}}
+                        <form action="" method="get">
+                        <input value="{{request()->from ? request()->from : $data['last_start']}}" type="date" name="from">
+                        <input value="{{request()->to ? request()->to : $data['last_end']}}" type="date" name="to">
+
+                        <input class="btn bt-sm btn-error" type="submit">
+                        </form>
+                        <a href="{{ url('admin/export-finance') }}/{{request()->from ? request()->from : $data['last_start']}}/{{request()->to ? request()->to : $data['last_end']}}" class="btn btn-primary">Download Last Week Report</a>
 
                     </div>
                     <div class="card-body pt-0 ">
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="bg-primary card p-10">
-                                    <h5 class=" text-center font-dark">Total Payper Trips</h5>
+                                    <h5 class=" text-center font-dark">Total Payper Trips cost</h5>
                                     <h6 class=" text-center font-dark">{{$data['total_papertrip']}}</h6>
 
                                 </div>
@@ -37,19 +42,19 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="bg-secondary card p-10">
-                                    <h5 class="font-white text-center">Total Prepaid Payments</h5>
+                                    <h5 class="font-white text-center">Total Refill Payments</h5>
                                     <h6 class="font-white text-center">${{$data['prepaid_amount']}}</h6>
 
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="bg-success card p-10">
-                                    <h5 class="font-dark text-center">Total Prepaid Account Trips Amount</h5>
-                                    <h6 class="font-dark text-center">${{$data['customer_account']}}</h6>
+                                    <h5 class="font-dark text-center">Total Account Trips cost</h5>
+                                    <h6 class="font-dark text-center">${{$data['total_trip_account_method']}}</h6>
 
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3 d-none">
                                 <div class="bg-success card p-10">
                                     <h5 class="font-dark text-center">Total Payments Drivers</h5>
                                     <h6 class="font-dark text-center">${{ $data['to_driver'] }}
@@ -59,8 +64,29 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="bg-danger card p-10">
-                                    <h5 class=" text-center font-dark">Total Card Trips</h5>
+                                    <h5 class=" text-center font-dark">Total Card Trips cost</h5>
                                     <h6 class=" text-center font-dark">${{$data['total_trip_card_method']}}</h6>
+
+                                </div>
+                            </div>
+                            <div class="col-md-3 ">
+                                <div class="bg-danger card p-10">
+                                    <h5 class=" text-center font-dark">Total Cardnox Payments</h5>
+                                    <h6 class=" text-center font-dark">${{$data['total_trip_card_method'] + $data['prepaid_amount']}}</h6>
+
+                                </div>
+                            </div>
+                            <div class="col-md-3 d-none">
+                                <div class="bg-danger card p-10">
+                                    <h5 class=" text-center font-dark">Total Cardnox Fee</h5>
+                                    @php
+                                    $fee = (float)($data['total_trip_account_method'] + $data['prepaid_amount']) * 0.03333333333 + .3;
+                                    $fee1 = (float)($data['total_trip_account_method'] + $data['prepaid_amount']) * 0.03333333333;
+                                    $fee3 = ((float)($data['total_trip_account_method'] + $data['prepaid_amount'])/100) * 3.63;
+                                    @endphp
+                                    <h6 class=" text-center font-dark">${{$fee}}</h6>
+{{--                                    <h6 class=" text-center font-dark">${{$fee1}}</h6>--}}
+{{--                                    <h6 class=" text-center font-dark">${{$fee3}}</h6>--}}
 
                                 </div>
                             </div>

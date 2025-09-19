@@ -6,6 +6,7 @@ use App\Models\Account;
 use App\Models\AccountPayment;
 use App\Models\BatchPayment;
 use App\Models\CreditCard;
+use App\Models\CustomerBooking;
 use App\Models\Driver;
 use App\Models\Trip;
 use App\Models\Account_Complaint;
@@ -101,17 +102,17 @@ if (!$record) {
 
         $user = Account::where('account_id',$request->username)->first();
             if (!$user) {
-        return redirect()->back()->with('error', 'Invalid account number. Contact support for help.');
-    }
-        if($user->status == 0){
-           return redirect()->back()->with('error', 'Account inactive. Please contact support.');
+             return redirect()->back()->with('error', 'Invalid account number. Contact support for help.');
         }
+            //he said
+//        if($user->status == 0){
+//           return redirect()->back()->with('error', 'Account inactive. Please contact support.');
+//        }
         if ($user) {
 
             if(!empty($user->password)) {
                 if (Hash::check($request->password, $user->password)) {
                     Auth::guard('customer')->login($user);
-
 
                     if (Auth::guard('customer')->check()) {
 
@@ -219,6 +220,43 @@ if (!$record) {
                     return $row->cube_pin_status;
                 }) ->addColumn('action', function ($row) {
                     return '<button class="btn bg-orange-g b-r-8 text-white bg openTripModal" data-trip="' . $row->trip_id . '">Add Complaint</button>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+
+        }
+        $account_id = Auth::guard('customer')->user()->account_id;
+        return view('customer.trips',compact('account_id'));
+    }
+
+    public function upcomingTrips(Request $request)
+    {
+
+        if($request->ajax()) {
+            $data = CustomerBooking::where('type','prebook')->where('account_id',$request->account_id);
+
+            return DataTables::of($data)
+                ->addIndexColumn()->addColumn('action', function ($row) {
+                    return '<a href="/customer/cancel-booking/' . $row->id . '"
+           class="btn bg-orange-g b-r-8 text-white bg"
+           onclick="return confirm(\'Are you sure you want to cancel this?\')">
+           Cancel
+        </a>';
+                })
+                ->addColumn('location_from', function ($row) {
+                    $bookingData = json_decode($row->booking_data, true);
+                    return $bookingData['order']['route']['nodes'][0]['location']['name'] ?? '-';
+                })
+                ->addColumn('location_to', function ($row) {
+                    $bookingData = json_decode($row->booking_data, true);
+                    return $bookingData['order']['route']['nodes'][1]['location']['name'] ?? '-';
+                })
+                ->addColumn('date', function ($row) {
+                    return \Carbon\Carbon::createFromDate($row->schedule_date_time)->format('H:i');
+                })
+                ->addColumn('time', function ($row) {
+                    return format_date($row->schedule_date_time);
+
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -462,7 +500,7 @@ if (!$record) {
          // Retrieve the account
         if($request->refill_method == 'card'){
 
-                    $total_amonunt = $to_refill + 3.75;
+            $total_amonunt = $to_refill + 3.75;
 
             $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',1)->where('is_deleted', 0)->first();
 
@@ -548,6 +586,9 @@ if (!$record) {
                 //$to_refill = $to_refill - $total_payments;
                 if ($uaccount) {
                     $uaccount->balance += $to_refill;
+                    if($uaccount->account_type == 'postpaid') {
+                        $uaccount->status = 1;
+                    }
                     $uaccount->save();
 
 
@@ -668,7 +709,7 @@ if (!$record) {
 
                         $paying = (float)$trip->TotalCostDiscounted - $alreadyPaid;
 
-                        if ($paying > 0 && $paying <= $to_refill) {
+                        if ($paying > 0 && $paying <= $total_amonunt) {
 
                             $paymentDataBulk[] = [
                                 'driver_id' => $trip->driver_id,
@@ -683,7 +724,7 @@ if (!$record) {
                             ];
 
                             $total_payments += $paying;
-                            $to_refill -= $paying;
+                            $total_amonunt -= $paying;
 
                             $Trip_ids[] = $trip->trip_id;
                         }
