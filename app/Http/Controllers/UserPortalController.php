@@ -104,9 +104,10 @@ if (!$record) {
             if (!$user) {
              return redirect()->back()->with('error', 'Invalid account number. Contact support for help.');
         }
-        if($user->status == 0){
-           return redirect()->back()->with('error', 'Account inactive. Please contact support.');
-        }
+            //he said
+//        if($user->status == 0){
+//           return redirect()->back()->with('error', 'Account inactive. Please contact support.');
+//        }
         if ($user) {
 
             if(!empty($user->password)) {
@@ -499,7 +500,7 @@ if (!$record) {
          // Retrieve the account
         if($request->refill_method == 'card'){
 
-                    $total_amonunt = $to_refill + 3.75;
+            $total_amonunt = $to_refill + 3.75;
 
             $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',1)->where('is_deleted', 0)->first();
 
@@ -585,6 +586,9 @@ if (!$record) {
                 //$to_refill = $to_refill - $total_payments;
                 if ($uaccount) {
                     $uaccount->balance += $to_refill;
+                    if($uaccount->account_type == 'postpaid') {
+                        $uaccount->status = 1;
+                    }
                     $uaccount->save();
 
 
@@ -705,7 +709,7 @@ if (!$record) {
 
                         $paying = (float)$trip->TotalCostDiscounted - $alreadyPaid;
 
-                        if ($paying > 0 && $paying <= $to_refill) {
+                        if ($paying > 0 && $paying <= $total_amonunt) {
 
                             $paymentDataBulk[] = [
                                 'driver_id' => $trip->driver_id,
@@ -720,7 +724,7 @@ if (!$record) {
                             ];
 
                             $total_payments += $paying;
-                            $to_refill -= $paying;
+                            $total_amonunt -= $paying;
 
                             $Trip_ids[] = $trip->trip_id;
                         }

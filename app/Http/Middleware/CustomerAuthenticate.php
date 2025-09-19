@@ -13,10 +13,10 @@ class CustomerAuthenticate
         if (!Auth::guard('customer')->check()) {
             return redirect()->route('customer.login');
         }
-        if(Auth::guard('customer')->user()->status == 0){
-            Auth::guard('customer')->logout();
-            return redirect()->to('customer/login');
-        }
+//        if(Auth::guard('customer')->user()->status == 0){
+//            Auth::guard('customer')->logout();
+//            return redirect()->to('customer/login');
+//        }
         return $next($request);
     }
 }
