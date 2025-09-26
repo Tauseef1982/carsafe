@@ -532,7 +532,7 @@ class AccountController extends Controller
         $to_refill = $request->to_refill;
         $uaccount = Account::where('account_id', $account_id)->first(); // Retrieve the account
 
-        if($to_refill > 0 ) {
+        //
             if ($request->refill_method == 'cash') {
 
                 $account_payment = new AccountPayment();
@@ -571,6 +571,7 @@ class AccountController extends Controller
 
             } else {
 
+            if($to_refill > 0 ) {
                 $cardDetails = CreditCard::where('account_id', $account_id)->where('charge_priority', 1)->where('is_deleted', 0)->first();
 
                 if (empty($cardDetails)) {
@@ -634,10 +635,11 @@ class AccountController extends Controller
                 }
 
             }
-        }else{
+            else{
 
             return redirect()->back()->with(['status' => 'error', 'message' => 'Amount Should be Greater than zero']);
 
+        }
         }
 
         if (isset($uaccount)) {
