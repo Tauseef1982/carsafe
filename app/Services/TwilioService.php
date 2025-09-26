@@ -90,7 +90,7 @@ class TwilioService
                 'to_phone' => $phone,
                 'message' => $message,
                 'status' => 'failed',
-                'response' => 'SMS sent successfully',
+                'response' => $e->getMessage(),
                 'trip_id' => 0000,
                 'driver_id' => 0000
             ]);
