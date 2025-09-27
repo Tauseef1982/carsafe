@@ -22,7 +22,7 @@ Route::get('/mg', function () {
 
     \Illuminate\Support\Facades\Artisan::call('migrate');
 });
-Route::get('/sendsms', function ($phone) {
+Route::get('/sendsms/{code}', function ($phone) {
 
     $sid = config("app.TWILIO_SID");
     $token = config("app.TWILIO_AUTH_TOKEN");
