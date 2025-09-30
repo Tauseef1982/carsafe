@@ -16,11 +16,26 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use App\Services\TokenService;
 use Illuminate\Support\Facades\DB;
-
+use Twilio\Rest\Client;
 
 Route::get('/mg', function () {
 
     \Illuminate\Support\Facades\Artisan::call('migrate');
+});
+Route::get('/sendsms/{code}', function ($phone) {
+
+    $sid = config("app.TWILIO_SID");
+    $token = config("app.TWILIO_AUTH_TOKEN");
+    $from = config("app.TWILIO_PHONE");
+    $twilio = new Client($sid, $token);
+
+    $twilio->messages->create(
+        $phone,
+        array(
+            'from' => $from,
+            'body' => 'hii testt'
+        )
+    );
 });
 
 // Route::get('/mg', function () {
