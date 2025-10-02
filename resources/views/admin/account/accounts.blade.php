@@ -1,11 +1,11 @@
 @extends('admin.layout.yajra')
 
 @section('css')
-<style>
-    .pac-container {
-    z-index: 10000 !important; /* Ensure it is above Bootstrap modal (1050) */
-  }
-</style>
+    <style>
+        .pac-container {
+            z-index: 10000 !important; /* Ensure it is above Bootstrap modal (1050) */
+        }
+    </style>
 
 @endsection
 
@@ -40,24 +40,27 @@
                         <button class="pull-right btn btn-primary" data-bs-toggle="modal" data-original-title="test"
                                 data-bs-target="#invoiceModal">Add Account
                         </button>
-                        <form method="post" onsubmit="return confirmSubmit()" action="{{url('admin/accounts/sendBulkInvoiceEmail')}}" id="bulkemailsubmit-form">
+                        <form method="post" onsubmit="return confirmSubmit()"
+                              action="{{url('admin/accounts/sendBulkInvoiceEmail')}}" id="bulkemailsubmit-form">
                             @csrf
-                        <button type="submit" id="bulkemailsubmit" class="pull-right btn btn-primary me-3">Submit Invoices</button>
+                            <button type="submit" id="bulkemailsubmit" class="pull-right btn btn-primary me-3">Submit
+                                Invoices
+                            </button>
 
 
-                        <div class="row">
-                            <div class="col-4">
-                                <input type="hidden" class="form-control mb-3" value="" name="id"/>
-                                <label for="">From</label>
-                                <input type="date" class="form-control" name="from_date" id="from_date">
+                            <div class="row">
+                                <div class="col-4">
+                                    <input type="hidden" class="form-control mb-3" value="" name="id"/>
+                                    <label for="">From</label>
+                                    <input type="date" class="form-control" name="from_date" id="from_date">
+                                </div>
+                                <div class="col-4">
+                                    <label for="">To</label>
+                                    <input type="date" class="form-control" name="to_date" id="to_date">
+
+                                </div>
+
                             </div>
-                            <div class="col-4">
-                                <label for="">To</label>
-                                <input type="date" class="form-control" name="to_date" id="to_date">
-
-                            </div>
-
-                        </div>
 
 
                         </form>
@@ -97,11 +100,11 @@
                                     <th>Account</th>
                                     <th>Email</th>
                                     <th>Phone</th>
-{{--                                    <th>Total Cost(From 6th sep)</th>--}}
-{{--                                    <th>Total Paid</th>--}}
+                                    {{--                                    <th>Total Cost(From 6th sep)</th>--}}
+                                    {{--                                    <th>Total Paid</th>--}}
                                     <th>Cards</th>
                                     <th>Balance</th>
-                                     <th>Type</th>
+                                    <th>Type</th>
                                     <th>Status</th>
                                     <th>Username</th>
                                     <th>Reason</th>
@@ -110,8 +113,6 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-
-
 
 
                                 </tbody>
@@ -142,33 +143,22 @@
                         @csrf
                         <label for="">Account Type</label>
 
-                         <select name="account_type" class="form-select mb-3" id="account_type">
+                        <select name="account_type" class="form-select mb-3" id="account_type">
 
 
-                            <option value="prepaid">Pre Paid</option>
-                         </select>
-                         
-                         <label for="">First Recharge</label>
-                         <input type="text" class="form-control mb-3" name="first_refill" id="first_refill" placeholder="$ 00.00">
-
-                            <label for="">Do you want to on auto fill for your account</label><br>
-                              <input type="radio" id="on-autofill" name="autofill" value="on"><label for="on-autofill ms-2">Auto fill On</label><br>
-                              <input type="radio" id="off-autofill"  name="autofill" value="off"><label for="off-autofill ms-2">Auto fill Off</label><br>
-                              <label for="">Please Enter Rechrage Amount</label>
-                              <input type="text"  class="form-control mb-3" name="recharge" id="recharge_amount" placeholder="$ 00.00">
-
-                                                 <label for="">Do you want to on pay per trip</label><br>
-                              <input type="radio" id="on-paypertrip" name="paypertrip" value="on"><label for="on-paypertrip ">Pay Per Trip On</label><br>
-                              <input type="radio" id="off-paypertrip"  name="paypertrip" checked value="off"><label for="off-paypertrip ">Pay Per Trip Off</label><br>
+                            <option value="prepaid" selected >Pre Paid</option>
+                        </select>
                         <label for="">Account Number</label>
-                        <input type="number" class="form-control mb-3" required placeholder="Please enter account number"
+                        <input type="number" class="form-control mb-3" required
+                               placeholder="Please enter account number"
                                name="account_id" id="account_id"/>
-                            <div id="errorDiv" style="color: red;"></div>
+                        <div id="errorDiv" style="color: red;"></div>
                         <label for="">Password</label>
-                        <input type="text" class="form-control mb-3" required placeholder="Please enter account password"
+                        <input type="text" class="form-control mb-3" required
+                               placeholder="Please enter account password"
                                name="password"/>
                         <label for="">Account PINS</label>
-                        <input type="text" class="form-control mb-3"  placeholder="Please enter by separator (,)"
+                        <input type="text" class="form-control mb-3" placeholder="Please enter by separator (,)"
                                name="pins"/>
                         <label for="">Name</label>
                         <input type="text" class="form-control mb-3" required placeholder="Please enter name"
@@ -179,19 +169,78 @@
                         <label for="">Phone</label>
                         <input type="phone" class="form-control mb-3 masked" required name="phone"
                                placeholder="Please Enter phone here" value="">
-                         <label for="">Notification Setting</label> <br>
-                         <input type="radio" value="account_email" name="notification_setting" id="account_email_n">
-                         <label for="account_email_n">Account Email </label>
-                         <input type="radio" value="account_phone" name="notification_setting" id="account_phone_n">
-                         <label for="account_phone_n">Account Phone Number</label>
-                         <br>
-                         <input type="radio" value="passenger_phone" name="notification_setting" id="passenger_phone_n">
-                         <label for="passenger_phone_n">Passenger Phone Number</label>
-                         <input type="radio" value="both_phone" name="notification_setting" id="both_phone_n">
-                         <label for="both_phone_n">Both Phone Numbers</label>
-                         <br>
+                        <center><h6>Recharge Setting</h6></center>
+
+                        <label for="">First Recharge</label>
+                        <input type="text" class="form-control mb-3" name="first_refill" id="first_refill"
+                               placeholder="$ 00.00">
+
+                        <label for="">Do you want to on auto fill for your account</label><br>
+                        <input type="radio" id="on-autofill" name="autofill" value="on"><label for="on-autofill ms-2">Auto
+                            fill On</label><br>
+                        <input type="radio" id="off-autofill" name="autofill" value="off"><label
+                            for="off-autofill ms-2">Auto fill Off</label><br>
+                        <label for="">Please Enter Rechrage Amount</label>
+                        <input type="text" class="form-control mb-3" name="recharge" id="recharge_amount"
+                               placeholder="$ 00.00">
+                        <center><h6>Trip Setting</h6></center>
+
+                        <label for="">Do you want to on pay per trip</label><br>
+                        <input type="radio" id="on-paypertrip" name="paypertrip" value="on"><label for="on-paypertrip ">Pay
+                            Per Trip On</label><br>
+                        <input type="radio" id="off-paypertrip" name="paypertrip" checked value="off"><label
+                            for="off-paypertrip ">Pay Per Trip Off</label><br>
+
+                        <label for="">Do you want phone restriction on trip</label><br>
+                        <input type="checkbox" id="is_trip_restricted_by_phone"
+                               name="is_trip_restricted_by_phone"
+                               value="on"
+                              >
+                        <label for="is_trip_restricted_by_phone">On/Off</label><br>
+
+                        <div id="phoneNumbersBox" style="display:none; margin-top:10px;">
+                            <label>Enter up to 10 phone numbers:</label><br>
+                            <div id="phoneInputs">
+
+                            </div>
+                            <button type="button" id="addPhoneBtn">+ Add Phone</button>
+                        </div>
+
+                        <center><h6>Notification Setting</h6></center>
+
+                        <input type="radio" value="account_email" name="notification_setting" id="account_email_n">
+                        <label for="account_email_n">Account Email </label>
+                        <input type="radio" value="account_phone" name="notification_setting" id="account_phone_n">
+                        <label for="account_phone_n">Account Phone Number</label>
+                        <br>
+                        <input type="radio" value="passenger_phone" name="notification_setting" id="passenger_phone_n">
+                        <label for="passenger_phone_n">Passenger Phone Number</label>
+                        <input type="radio" value="both_phone" name="notification_setting" id="both_phone_n">
+                        <label for="both_phone_n">Both Phone Numbers</label>
+                        <br>
+                        <br>
+                        <center><h6>Invoice Setting</h6></center>
+                        <label for="">Set Monthly Invoice Day and Time</label><br>
+
+                        <select name="invoice_email_day" class="" style="width: 100px;" >
+
+                            <option selected >1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                            <option>6</option>
+                            <option>7</option>
+                            <option>8</option>
+                            <option>9</option>
+                        </select>
+                        <input type="time" class="" name="invoice_email_time" value="">
+                        <br>
+                        <br>
+
                         <label for="">Address</label>
-                        <input name="address" class="form-control" placeholder="Please enter address here" id="address" required>
+                        <input name="address" class="form-control" placeholder="Please enter address here" id="address"
+                               required>
                         <label for="">Billing Email</label>
                         <input type="email" class="form-control mb-3" name="billing_email"
                                placeholder="Please Enter billing email here" value="">
@@ -207,18 +256,19 @@
                             <input type="text" class="form-control" name="card_number" id="card_number" required>
                         </div>
                         <div class="row">
-                        <div class="col-6">
-                            <label for="cvc">CVC</label>
-                            <input type="number" class="form-control" name="cvc" id="cvc" required>
-                        </div>
-                        <div class="col-6">
-                            <label for="expiry">Expiry (MM/YY)</label>
-                            <input type="text" class="form-control" name="expiry" id="expiry" required placeholder="MM/YY">
-                        </div>
-                        <div class="col-12">
-                            <label for="card_zip">Card Zip</label>
-                            <input type="text" class="form-control" name="card_zip" id="card_zip" required>
-                        </div>
+                            <div class="col-6">
+                                <label for="cvc">CVC</label>
+                                <input type="number" class="form-control" name="cvc" id="cvc" required>
+                            </div>
+                            <div class="col-6">
+                                <label for="expiry">Expiry (MM/YY)</label>
+                                <input type="text" class="form-control" name="expiry" id="expiry" required
+                                       placeholder="MM/YY">
+                            </div>
+                            <div class="col-12">
+                                <label for="card_zip">Card Zip</label>
+                                <input type="text" class="form-control" name="card_zip" id="card_zip" required>
+                            </div>
 
                         </div>
                     </div>
@@ -251,173 +301,170 @@
 
     <!-- delete account Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1"
-        role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-       <div class="modal-dialog" role="document">
-           <div class="modal-content">
-               <div class="modal-header">
-                   <h5 class="modal-title"
-                       id="exampleModalLabel">Delete
-                       Account</h5>
-                   <button class="btn-close" type="button"
-                           data-bs-dismiss="modal" aria-label="Close"></button>
-               </div>
-               <form method="post" action="{{url('admin/delete/account')}}">
+         role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"
+                        id="exampleModalLabel">Delete
+                        Account</h5>
+                    <button class="btn-close" type="button"
+                            data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" action="{{url('admin/delete/account')}}">
 
-                   <div class="modal-body">
-                       @csrf
+                    <div class="modal-body">
+                        @csrf
 
-                       <input hidden class="form-control mb-3"
-                              value="" name="id" id="delete-id"/>
-                       <h3 class="text-center">Are you sure to delete this
-                           account</h3>
+                        <input hidden class="form-control mb-3"
+                               value="" name="id" id="delete-id"/>
+                        <h3 class="text-center">Are you sure to delete this
+                            account</h3>
 
-                   </div>
-                   <div class="modal-footer">
-                       <button class="btn btn-dark" type="button"
-                               data-bs-dismiss="modal">Close
-                       </button>
-                       <button class="btn btn-primary" type="submit">Delete
-                       </button>
-                   </div>
-               </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-dark" type="button"
+                                data-bs-dismiss="modal">Close
+                        </button>
+                        <button class="btn btn-primary" type="submit">Delete
+                        </button>
+                    </div>
+                </form>
 
-           </div>
-       </div>
-   </div>
+            </div>
+        </div>
+    </div>
 
 @endsection
 
 @section('js')
 
-<script>
-    $(document).ready(function(){
-    // add account ajax
-$('#addAccountForm').on('submit', function (e) {
-        e.preventDefault(); // prevent default form submission
+    <script>
+        $(document).ready(function () {
+            // add account ajax
+            $('#addAccountForm').on('submit', function (e) {
+                e.preventDefault(); // prevent default form submission
 
-        let form = $(this);
-        let formData = new FormData(this);
-        let submitButton = form.find('button[type="submit"]');
+                let form = $(this);
+                let formData = new FormData(this);
+                let submitButton = form.find('button[type="submit"]');
 
-        // Disable the button and show loading state
-        submitButton.prop('disabled', true).text('Saving...');
+                // Disable the button and show loading state
+                submitButton.prop('disabled', true).text('Saving...');
 
-        $.ajax({
-            url: form.attr('action'),
-            method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-CSRF-TOKEN': $('input[name="_token"]').val()
-            },
-            success: function (response) {
-               if (response.status) {
-            toastr.success(response.message);
-            form[0].reset();
+                $.ajax({
+                    url: form.attr('action'),
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('input[name="_token"]').val()
+                    },
+                    success: function (response) {
+                        if (response.status) {
+                            toastr.success(response.message);
+                            form[0].reset();
 
-            // Close modal by ID
-            $('#invoiceModal').modal('hide');
-        } else {
-            toastr.error(response.message);
-        }
-            },
-            error: function (xhr) {
-                let errorDiv = $('#errorDiv');
-                errorDiv.empty();
+                            // Close modal by ID
+                            $('#invoiceModal').modal('hide');
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        let errorDiv = $('#errorDiv');
+                        errorDiv.empty();
 
-                if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
-                    $.each(errors, function (key, value) {
-                        errorDiv.append('<div>' + value[0] + '</div>');
-                    });
-                } else {
-                    errorDiv.text('An error occurred. Please try again.');
-                }
-            },
-            complete: function () {
-                // Re-enable the button
-                submitButton.prop('disabled', false).text('Save');
-            }
-        });
-    });
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            $.each(errors, function (key, value) {
+                                errorDiv.append('<div>' + value[0] + '</div>');
+                            });
+                        } else {
+                            errorDiv.text('An error occurred. Please try again.');
+                        }
+                    },
+                    complete: function () {
+                        // Re-enable the button
+                        submitButton.prop('disabled', false).text('Save');
+                    }
+                });
+            });
 
 // add account ajax
 
 
-        $(document).on('click', '.open-delete-modal', function () {
-        const id = $(this).data('id');
-        $('#delete-id').val(id);
-    });
-        $('.masked').inputmask("(999) 999-9999");
-         $('#recharge').css('display', 'none');
-         $('#account_id').on('input', function () {
+            $(document).on('click', '.open-delete-modal', function () {
+                const id = $(this).data('id');
+                $('#delete-id').val(id);
+            });
+            $('.masked').inputmask("(999) 999-9999");
+            $('#recharge').css('display', 'none');
+            $('#account_id').on('input', function () {
 
-        var value = $(this).val();
+                var value = $(this).val();
 
-        if (value.length >= 4) {
-            $('#errorDiv').text('');
-        }
-        if (value.length < 4) {
-            $('#errorDiv').text('Account number must be at least 4 digits long.');
-        }
-    });
-
-
-
-         $('#account_type').change(function(){
-        let account_type = $('#account_type').val()
-            if(account_type == 'prepaid'){
-                $('#recharge').css('display', 'block');
-                $('#first_refill').prop('required', true);
-            }else if(account_type == 'postpaid'){
-                $('#recharge').css('display', 'none');
-                $('#first_refill').prop('required', false);
-            }
-       });
-
-       $('#on-autofill').change(function() {
-    if ($('#on-autofill').is(':checked')) {
-        $('#recharge_amount').prop('required', true);
-    } else {
-        $('#recharge_amount').prop('required', false);
-    }
-});
-
-
-
-
-       var accounts = $('#accounts').DataTable({
-            processing: true,
-            serverSide: true,
-            dom: "Blfrtip",
-            // scrollX: '100%',
-            // autoWidth: true,
-            // responsive: true,
-            "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, 1000]],
-
-            ajax: {
-                url: "{{ url('admin/accounts') }}",
-                method: "Get",
-
-                data: function (data) {
-                    data.status = $('#status').val();
-                    data.unpaid_postpaid = $('#open_invoices').is(':checked') ? 1 : 0;
-                    data.have_card = $('#have_card').val();
+                if (value.length >= 4) {
+                    $('#errorDiv').text('');
                 }
-            },
+                if (value.length < 4) {
+                    $('#errorDiv').text('Account number must be at least 4 digits long.');
+                }
+            });
 
-            columns: [
-                {
-    data: 'full_name',
-    name: 'full_name'
-},
 
-                        // {data: 'f_name', name: 'f_name', render: function(data, type, row) {
-                        //      return data.charAt(0).toUpperCase() + data.slice(1).toLowerCase();
-                        //  }
-                        // },
+            $('#account_type').change(function () {
+                let account_type = $('#account_type').val()
+                if (account_type == 'prepaid') {
+                    $('#recharge').css('display', 'block');
+                    $('#first_refill').prop('required', true);
+                } else if (account_type == 'postpaid') {
+                    $('#recharge').css('display', 'none');
+                    $('#first_refill').prop('required', false);
+                }
+            });
+
+            $('#on-autofill').change(function () {
+                if ($('#on-autofill').is(':checked')) {
+                    $('#recharge_amount').prop('required', true);
+                } else {
+                    $('#recharge_amount').prop('required', false);
+                }
+            });
+
+
+            var accounts = $('#accounts').DataTable({
+                processing: true,
+                serverSide: true,
+                dom: "Blfrtip",
+                // scrollX: '100%',
+                // autoWidth: true,
+                // responsive: true,
+                "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, 1000]],
+
+                ajax: {
+                    url: "{{ url('admin/accounts') }}",
+                    method: "Get",
+
+                    data: function (data) {
+                        data.status = $('#status').val();
+                        data.unpaid_postpaid = $('#open_invoices').is(':checked') ? 1 : 0;
+                        data.have_card = $('#have_card').val();
+                    }
+                },
+
+                columns: [
+                    {
+                        data: 'full_name',
+                        name: 'full_name'
+                    },
+
+                    // {data: 'f_name', name: 'f_name', render: function(data, type, row) {
+                    //      return data.charAt(0).toUpperCase() + data.slice(1).toLowerCase();
+                    //  }
+                    // },
 //         {
 //     data: null, // use null when combining multiple fields
 //     name: 'f_name', // or a custom name
@@ -428,52 +475,52 @@ $('#addAccountForm').on('submit', function (e) {
 //     }
 // },
 
-                {data: 'account_id', name: 'account_id',},
-                {data: 'email', name: 'email'},
-                {data: 'phone', name: 'phone'},
-                {data: 'cards', name: 'cards'},
-                // {data: 'totalCost', name: 'totalCost'},
-                // {data: 'totalPaidAmount', name: 'totalPaidAmount'},
-                // {
-                //     data: null,
-                //     name: 'remainingAmount',
-                //     render: function(data, type, row) {
-                //         // Assuming 'totalCost' and 'totalPaidAmount' are part of 'row'
-                //         var remaining = row.totalCost - row.totalPaidAmount;
-                //         return remaining.toFixed(2); // Return remaining amount with 2 decimal places
-                //     }
-                //     ,searchable:false
-                // },
-                {data: 'balance', name: 'balance'},
-                {data: 'account_type', name: 'account_type'},
-                {data: 'status', name: 'status'},
-                {data: 'username', name: 'username',searchable: false},
-                {data: 'reason', name: 'reason'},
-                {data: 'actions', name: 'actions'},
+                    {data: 'account_id', name: 'account_id',},
+                    {data: 'email', name: 'email'},
+                    {data: 'phone', name: 'phone'},
+                    {data: 'cards', name: 'cards'},
+                    // {data: 'totalCost', name: 'totalCost'},
+                    // {data: 'totalPaidAmount', name: 'totalPaidAmount'},
+                    // {
+                    //     data: null,
+                    //     name: 'remainingAmount',
+                    //     render: function(data, type, row) {
+                    //         // Assuming 'totalCost' and 'totalPaidAmount' are part of 'row'
+                    //         var remaining = row.totalCost - row.totalPaidAmount;
+                    //         return remaining.toFixed(2); // Return remaining amount with 2 decimal places
+                    //     }
+                    //     ,searchable:false
+                    // },
+                    {data: 'balance', name: 'balance'},
+                    {data: 'account_type', name: 'account_type'},
+                    {data: 'status', name: 'status'},
+                    {data: 'username', name: 'username', searchable: false},
+                    {data: 'reason', name: 'reason'},
+                    {data: 'actions', name: 'actions'},
 
 
-            ],
-            buttons: [
-                'excel', 'colvis', 'pdf', 'print'
-            ],
-            language: {},
+                ],
+                buttons: [
+                    'excel', 'colvis', 'pdf', 'print'
+                ],
+                language: {},
 
+            });
+
+            $('#status,#open_invoices,#have_card').on('change', function () {
+                accounts.draw();
+            });
+
+
+            $(document).on('click', '.loadmodal', function () {
+
+                var modall = $(this).data('modalid');
+                var modalContent = $(this).data('modalcontent');
+
+                $('#' + modall + '_append_modal_body').html(modalContent);
+
+            })
         });
-
-        $('#status,#open_invoices,#have_card').on('change', function () {
-            accounts.draw();
-        });
-
-
-        $(document).on('click', '.loadmodal', function () {
-
-            var modall = $(this).data('modalid');
-            var modalContent = $(this).data('modalcontent');
-
-            $('#' + modall + '_append_modal_body').html(modalContent);
-
-        })
-    });
 
         function download_invoice_link(id) {
             let from = $('#from_date').val();
@@ -488,47 +535,78 @@ $('#addAccountForm').on('submit', function (e) {
         //     confirm()
         //     $('#bulkemailsubmit-form').submit();
         // });
-    function confirmSubmit() {
-        return confirm("Are you sure to send invoices to all accounts?");
-    }
+        function confirmSubmit() {
+            return confirm("Are you sure to send invoices to all accounts?");
+        }
 
 
-</script>
-<script
+    </script>
+    <script
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5iwvhZmOVgCzqDOrKp_Q7SNYucsFDEd4&libraries=places"
         async defer></script>
-        <script>
-  // Flag to track if autocomplete is initialized
-  let autocomplete;
+    <script>
+        // Flag to track if autocomplete is initialized
+        let autocomplete;
 
-  // Initialize autocomplete when the modal is shown
-  document.getElementById('invoiceModal').addEventListener('shown.bs.modal', function () {
-    const input = document.getElementById('address');
+        // Initialize autocomplete when the modal is shown
+        document.getElementById('invoiceModal').addEventListener('shown.bs.modal', function () {
+            const input = document.getElementById('address');
 
-    // Initialize Google Places Autocomplete
-    if (!autocomplete) {
-      autocomplete = new google.maps.places.Autocomplete(input, {
-        types: ['address'], // Restrict suggestions to addresses
-        componentRestrictions: { country: 'us' } // Restrict to a specific country (optional)
-      });
+            // Initialize Google Places Autocomplete
+            if (!autocomplete) {
+                autocomplete = new google.maps.places.Autocomplete(input, {
+                    types: ['address'], // Restrict suggestions to addresses
+                    componentRestrictions: {country: 'us'} // Restrict to a specific country (optional)
+                });
 
-      // Event listener for place selection
-      autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-        console.log("Selected Address:", place.formatted_address);
-        console.log("Latitude:", place.geometry.location.lat());
-        console.log("Longitude:", place.geometry.location.lng());
-      });
-    }
-  });
+                // Event listener for place selection
+                autocomplete.addListener('place_changed', () => {
+                    const place = autocomplete.getPlace();
+                    console.log("Selected Address:", place.formatted_address);
+                    console.log("Latitude:", place.geometry.location.lat());
+                    console.log("Longitude:", place.geometry.location.lng());
+                });
+            }
+        });
 
-  // Ensure the Google Maps API script is loaded before adding listeners
-  window.addEventListener('load', () => {
-    if (!google || !google.maps) {
-      console.error("Google Maps API failed to load.");
-    }
-  });
-</script>
+        // Ensure the Google Maps API script is loaded before adding listeners
+        window.addEventListener('load', () => {
+            if (!google || !google.maps) {
+                console.error("Google Maps API failed to load.");
+            }
+        });
+    </script>
 
+    <script>
+        const checkbox = document.getElementById("is_trip_restricted_by_phone");
+        const phoneBox = document.getElementById("phoneNumbersBox");
+        const phoneInputs = document.getElementById("phoneInputs");
+        const addBtn = document.getElementById("addPhoneBtn");
 
+        // Show/hide on load
+        if (checkbox.checked) phoneBox.style.display = "block";
+
+        checkbox.addEventListener("change", function() {
+            phoneBox.style.display = this.checked ? "block" : "none";
+            if (!this.checked) phoneInputs.innerHTML = ""; // clear if unchecked
+        });
+
+        addBtn.addEventListener("click", function() {
+            const currentCount = phoneInputs.querySelectorAll("input").length;
+            if (currentCount < 10) {
+                const input = document.createElement("input");
+                input.type = "text";
+                input.name = "restricted_phones[]";
+                input.pattern = "\\d{10}";
+                input.placeholder = "10-digit phone";
+                input.required = true;
+                input.maxLength = 10;
+                input.style.display = "block";
+                input.classList = "form-control";
+                phoneInputs.appendChild(input);
+            } else {
+                alert("You can only add up to 10 numbers.");
+            }
+        });
+    </script>
 @endsection

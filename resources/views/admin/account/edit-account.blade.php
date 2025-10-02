@@ -291,5 +291,5 @@ $('#account_status').change(function () {
             }
         });
     </script>
-    </script>
+
 @endsection

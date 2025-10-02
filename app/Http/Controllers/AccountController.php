@@ -34,7 +34,6 @@ use App\Imports\UsersImport;
 use Maatwebsite\Excel\Facades\Excel;
 
 
-
 class AccountController extends Controller
 {
     /**
@@ -49,52 +48,51 @@ class AccountController extends Controller
 
             $accounts = Account::where('is_deleted', 0)->with(['trips']);
 
-           if(isset($request->unpaid_postpaid) && $request->unpaid_postpaid == 1) {
-               $unpaid_postpaid_accounts = AccountPayment::where('account_type', 'postpaid')
-                   ->where('status', 'unpaid')
-                   ->whereNotNull('hash_id')->pluck('account_id');
+            if (isset($request->unpaid_postpaid) && $request->unpaid_postpaid == 1) {
+                $unpaid_postpaid_accounts = AccountPayment::where('account_type', 'postpaid')
+                    ->where('status', 'unpaid')
+                    ->whereNotNull('hash_id')->pluck('account_id');
 
-               $accounts = $accounts->whereIn('account_id', $unpaid_postpaid_accounts);
-           }
-
-            if(isset($request->status)){
-            if($request->status != 'all'){
-                $accounts = $accounts->where('status',$request->status);
+                $accounts = $accounts->whereIn('account_id', $unpaid_postpaid_accounts);
             }
-            }
-            if(isset($request->have_card)){
-              if($request->have_card == 'yes'){
-                $accounts = Account::whereHas('cards', function ($query) {
-                    $query->where('is_deleted', 0);
-                })->get();
 
-              }elseif($request->have_card == 'no'){
-                $accounts = Account::whereDoesntHave('cards') // No cards at all
-    ->orWhereHas('cards', function ($query) {
-        $query->where('is_deleted', 1);
-    })->whereDoesntHave('cards', function ($query) {
-        $query->where('is_deleted', 0);
-    })->get();
-
-
-              }else{
-                $accounts = Account::where('is_deleted', 0)->with(['trips']);
-              }
-
-
+            if (isset($request->status)) {
+                if ($request->status != 'all') {
+                    $accounts = $accounts->where('status', $request->status);
                 }
+            }
+            if (isset($request->have_card)) {
+                if ($request->have_card == 'yes') {
+                    $accounts = Account::whereHas('cards', function ($query) {
+                        $query->where('is_deleted', 0);
+                    })->get();
+
+                } elseif ($request->have_card == 'no') {
+                    $accounts = Account::whereDoesntHave('cards') // No cards at all
+                    ->orWhereHas('cards', function ($query) {
+                        $query->where('is_deleted', 1);
+                    })->whereDoesntHave('cards', function ($query) {
+                        $query->where('is_deleted', 0);
+                    })->get();
+
+
+                } else {
+                    $accounts = Account::where('is_deleted', 0)->with(['trips']);
+                }
+
+
+            }
             return Datatables::of($accounts)
-            ->addColumn('full_name', function ($row) {
-                $fName = ucfirst(strtolower($row->f_name));
-                $lName = ucfirst(strtolower($row->lname));
-                return $fName . ' ' . $lName;
-            })
+                ->addColumn('full_name', function ($row) {
+                    $fName = ucfirst(strtolower($row->f_name));
+                    $lName = ucfirst(strtolower($row->lname));
+                    return $fName . ' ' . $lName;
+                })
                 ->addColumn('totalPaidAmount', function ($row) {
 //                    $totalPaid = $row->totalPaidAmountByCustomerFromAccount();
 
                     return number_format(0, 2, '.', ',');
                 })
-
                 ->addColumn('totalCost', function ($row) {
 //                    return number_format($row->totalcost(), 2, '.', ',');
                 })
@@ -109,18 +107,17 @@ class AccountController extends Controller
                         <i class="fa fa-eye"></i>
                     </a>
                     <a class="btn-sm btn-danger open-delete-modal" style="cursor:pointer;" data-bs-toggle="modal"
-                            data-original-title="test" data-id="'. $row->id .'" data-bs-target="#exampleModal">
+                            data-original-title="test" data-id="' . $row->id . '" data-bs-target="#exampleModal">
                         <i class="fa fa-trash"></i>
                     </a>';
 
-                        $html .= '<a class="btn-sm btn-success" onclick="download_invoice_link(' . $row->id . ')"
+                    $html .= '<a class="btn-sm btn-success" onclick="download_invoice_link(' . $row->id . ')"
                                 data-modalcontent="">
                             <i class="fa fa-download"></i>
                         </a>';
 
 
-
-                   return $html;
+                    return $html;
                 })
                 ->editColumn('status', function ($row) {
                     $status = $row->status == 1 ? 'Active' : 'Inactive';
@@ -129,7 +126,7 @@ class AccountController extends Controller
                 ->addColumn('cards', function ($row) {
                     return $row->cards()->where('is_deleted', 0)->exists() ? 'Yes' : 'No';
                 })
-                ->rawColumns(['total_cost', 'actions','cards'])
+                ->rawColumns(['total_cost', 'actions', 'cards'])
                 ->make();
 
 
@@ -137,18 +134,18 @@ class AccountController extends Controller
         return view('admin.account.accounts');
     }
 
-    public function invoices(Request $request){
+    public function invoices(Request $request)
+    {
 
         if ($request->ajax()) {
 
             $from = Carbon::createFromDate($request->from)->format('Y-m-d');
             $to = Carbon::createFromDate($request->to)->format('Y-m-d');
 
-            $accounts = AccountPayment::where('status','!=',null)->whereNotNull('hash_id')
-                ->whereDate('payment_date','>=',"$from")->whereDate('payment_date','<=',$to);
+            $accounts = AccountPayment::where('status', '!=', null)->whereNotNull('hash_id')
+                ->whereDate('payment_date', '>=', "$from")->whereDate('payment_date', '<=', $to);
 
             return Datatables::of($accounts)
-
                 ->addColumn('action', function ($row) {
 
 
@@ -202,11 +199,11 @@ class AccountController extends Controller
                 })
                 ->addColumn('account_id', function ($row) {
                     return '<a href="' . url('admin/show/account/' . $row->account->id) . '">'
-                   . $row->account->account_id . '</a>';
+                        . $row->account->account_id . '</a>';
 
                 })
-                ->rawColumns(['action','email_sends','deldel','charge10','account_id'])
-                ->filterColumn('account_id', function($query, $keyword) {
+                ->rawColumns(['action', 'email_sends', 'deldel', 'charge10', 'account_id'])
+                ->filterColumn('account_id', function ($query, $keyword) {
                     $query->whereRaw("account_id LIKE ?", ["%{$keyword}%"]);
                 })
                 ->make(true);
@@ -219,212 +216,197 @@ class AccountController extends Controller
             ->where('status', 'unpaid')
             ->whereNotNull('hash_id')->sum('amount');
 
-        return view('admin.account.invoices',compact('unpaid_sum'));
+        return view('admin.account.invoices', compact('unpaid_sum'));
 
     }
 
-    public function invoiceSendEmail($id){
+    public function invoiceSendEmail($id)
+    {
 
-        $invoice = AccountPayment::where('hash_id',$id)->first();
-        $account = Account::where('account_id',$invoice->account_id)->first();
-        EmailService::AccountInvoice($invoice,$account);
+        $invoice = AccountPayment::where('hash_id', $id)->first();
+        $account = Account::where('account_id', $invoice->account_id)->first();
+        EmailService::AccountInvoice($invoice, $account);
 
         return redirect()->back();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    private function generateUniqueAccountId()
+    public function create(Request $request)
     {
-        do {
-
-            $randomNumber = mt_rand(1000, 9999);
-
-
-            $exists = Account::where('account_id', $randomNumber)->exists();
-
-        } while ($exists);
-
-        return $randomNumber;
-    }
-
-
-   public function create(Request $request)
-{
-    if(isset($request->expiry)){
-         $expiry = $request->input('expiry');
-        if(count(explode('/', $expiry)) != 2){
-             return response()->json(['status' => false, 'message' => 'Incorrect Expiry Format.']);
-            //return redirect()->back()->with('error','Incorrect Expiry Format');
-        }
-        }
-
-    if (Account::where('account_id', $request->account_id)->exists()) {
-        return response()->json(['status' => false, 'message' => 'Already exists with same account number']);
-    }
-
-     if(isset($request->month) && isset($request->year)){
-                $month = $request->month;
-                $year = $request->year;
-                $expiryWithoutSlash = $month.$year;
-
-            }else{
-                list($month, $year) = explode('/', $expiry);
-                $expiryWithoutSlash = str_replace('/', '', $expiry);
-
+        if (isset($request->expiry)) {
+            $expiry = $request->input('expiry');
+            if (count(explode('/', $expiry)) != 2) {
+                return response()->json(['status' => false, 'message' => 'Incorrect Expiry Format.']);
+                //return redirect()->back()->with('error','Incorrect Expiry Format');
             }
+        }
+
+        if (Account::where('account_id', $request->account_id)->exists()) {
+            return response()->json(['status' => false, 'message' => 'Already exists with same account number']);
+        }
+
+        if (isset($request->month) && isset($request->year)) {
+            $month = $request->month;
+            $year = $request->year;
+            $expiryWithoutSlash = $month . $year;
+
+        } else {
+            list($month, $year) = explode('/', $expiry);
+            $expiryWithoutSlash = str_replace('/', '', $expiry);
+
+        }
         $fullYear = '20' . $year;
         $expiryDate = \Carbon\Carbon::createFromDate($fullYear, $month, 1)->toDateString();
 
-    $cardResponse = CardKnoxService::saveCard(
-        $request->account_id,
-        'credit',
-        $request->card_number,
-        $expiryWithoutSlash,
-        $request->card_zip
-    );
+        $cardResponse = CardKnoxService::saveCard(
+            $request->account_id,
+            'credit',
+            $request->card_number,
+            $expiryWithoutSlash,
+            $request->card_zip
+        );
 
-    if (!$cardResponse['status']) {
-          return response()->json(['status' => false, 'message' =>"Please try another card to proceed"]);
-    }
+        if (!$cardResponse['status']) {
+            return response()->json(['status' => false, 'message' => "Please try another card to proceed"]);
+        }
 
-    $creditCard = new CreditCard;
-    $creditCard->card_number = $request->card_number;
-    $creditCard->cvc = $request->cvc;
-    $creditCard->expiry = $expiryDate;
-    $creditCard->cardnox_token = $cardResponse['data']['xToken'];
+        $creditCard = new CreditCard;
+        $creditCard->card_number = $request->card_number;
+        $creditCard->cvc = $request->cvc;
+        $creditCard->expiry = $expiryDate;
+        $creditCard->cardnox_token = $cardResponse['data']['xToken'];
 
-    $account = new Account();
-    $account->account_type = $request->account_type;
-    $account->recharge = $request->recharge;
-    $account->autofill = $request->autofill;
-    $account->account_id = $request->account_id;
-    $account->f_name = $request->f_name;
-    $account->phone = $request->phone;
-    $account->email = $request->email;
-    $account->address = $request->address;
-    $account->company_name = $request->company_name;
-    $account->billing_email = $request->billing_email;
-    $account->notes = $request->notes;
-    $account->status = 1;
-   // $account->cash_type = $request->cash_type;
-    $account->first_refill = $request->first_refill;
-    $account->paypertrip = $request->paypertrip;
-    $account->notification_setting = $request->notification_setting;
-    $account->pins = $request->pins ?: null;
-    $account->password = Hash::make($request->password);
-   // $account->secondary_contact = $request->secondary_contact;
-    $account->save();
+        $account = new Account();
+        $account->account_type = 'prepaid';
+        $account->recharge = $request->recharge;
+        $account->autofill = $request->autofill;
+        $account->account_id = $request->account_id;
+        $account->f_name = $request->f_name;
+        $account->phone = $request->phone;
+        $account->email = $request->email;
+        $account->address = $request->address;
+        $account->company_name = $request->company_name;
+        $account->billing_email = $request->billing_email;
+        $account->notes = $request->notes;
+        $account->status = 1;
+        // $account->cash_type = $request->cash_type;
+        $account->first_refill = $request->first_refill;
+        $account->paypertrip = $request->paypertrip;
+        $account->notification_setting = $request->notification_setting;
+        $account->pins = $request->pins ?: null;
+        $account->password = Hash::make($request->password);
+        // $account->secondary_contact = $request->secondary_contact;
+        $account->invoice_email_day = $request->invoice_email_day ? $request->invoice_email_day : 1;
+        $account->invoice_email_time = $request->invoice_email_time ? now()->toDateString() . ' ' . $request->invoice_email_time : '2025-10-01 02:00:00';
+        $account->is_trip_restricted_by_phone = $request->is_trip_restricted_by_phone ? 1 : 0;
+        $account->restricted_phones = $request->is_trip_restricted_by_phone ? json_encode($request->restricted_phones) : null;
 
-    // Process card payment
-    $cardknoxToken = $creditCard->cardnox_token;
-    $fee = $account->first_refill * 0.03;
-    $amount = $fee + $account->first_refill;
+        $account->save();
 
-    $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $amount, $account->account_id);
+        // Process card payment
+        $cardknoxToken = $creditCard->cardnox_token;
+        $fee = $account->first_refill * 0.03;
+        $amount = $fee + $account->first_refill;
 
-    if ($cardknoxResponse['status'] !== 'approved') {
-        $account->delete();
-        return response()->json(['status' => false, 'message' => 'Payment declined.']);
-    }
+        $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $amount, $account->account_id);
 
-    // Send login info via email
-    $data['username'] = $request->account_id;
-    $data['password'] = $request->password;
-    Mail::to($request->email)->send(new CustomerLogins($data));
+        if ($cardknoxResponse['status'] !== 'approved') {
+            $account->delete();
+            return response()->json(['status' => false, 'message' => 'Payment declined.']);
+        }
+
+        // Send login info via email
+        $data['username'] = $request->account_id;
+        $data['password'] = $request->password;
+        Mail::to($request->email)->send(new CustomerLogins($data));
 
 
+        // Save payment
+        $account_payment = new AccountPayment();
+        $account_payment->account_id = $account->account_id;
+        $account_payment->account_type = $account->account_type;
+        $account_payment->amount = $account->first_refill;
+        $account_payment->transaction_id = $cardknoxResponse['transaction_id'];
+        $account_payment->payment_date = Carbon::today();
+        $account_payment->payment_type = 'card';
+        $account_payment->save();
 
-    // Save payment
-    $account_payment = new AccountPayment();
-    $account_payment->account_id = $account->account_id;
-    $account_payment->account_type = $account->account_type;
-    $account_payment->amount = $account->first_refill;
-    $account_payment->transaction_id = $cardknoxResponse['transaction_id'];
-    $account_payment->payment_date = Carbon::today();
-    $account_payment->payment_type = 'card';
-    $account_payment->save();
+        $account->balance += $account->first_refill;
+        $account->save();
 
-    $account->balance += $account->first_refill;
-    $account->save();
+        // Add discount
+        // $discount = new Discount;
+        // $discount->percentage = 10;
+        // $discount->start_date = Carbon::now();
+        // $discount->end_date = Carbon::now()->addDays(30);
+        // $discount->save();
+        // $discount->accounts()->attach($account->id);
 
-    // Add discount
-    // $discount = new Discount;
-    // $discount->percentage = 10;
-    // $discount->start_date = Carbon::now();
-    // $discount->end_date = Carbon::now()->addDays(30);
-    // $discount->save();
-    // $discount->accounts()->attach($account->id);
+        // Save primary card
+        $creditCard->account_id = $account->account_id;
+        $creditCard->save();
 
-    // Save primary card
-    $creditCard->account_id = $account->account_id;
-    $creditCard->save();
+        // Save secondary card
+        if ($request->secondary_card_number && $request->secondary_expiry) {
+            $secExpiryParts = explode('/', $request->secondary_expiry);
+            if (count($secExpiryParts) == 2) {
+                list($secMonth, $secYear) = $secExpiryParts;
+                $secFullYear = '20' . $secYear;
+                $secExpiryDate = \Carbon\Carbon::createFromDate($secFullYear, $secMonth, 1)->toDateString();
+                $secExpiryNoSlash = str_replace('/', '', $request->secondary_expiry);
 
-    // Save secondary card
-    if ($request->secondary_card_number && $request->secondary_expiry) {
-        $secExpiryParts = explode('/', $request->secondary_expiry);
-        if (count($secExpiryParts) == 2) {
-            list($secMonth, $secYear) = $secExpiryParts;
-            $secFullYear = '20' . $secYear;
-            $secExpiryDate = \Carbon\Carbon::createFromDate($secFullYear, $secMonth, 1)->toDateString();
-            $secExpiryNoSlash = str_replace('/', '', $request->secondary_expiry);
+                $secondaryResponse = CardKnoxService::saveCard(
+                    $request->account_id,
+                    'credit',
+                    $request->secondary_card_number,
+                    $secExpiryNoSlash,
+                    $request->secondary_card_zip
+                );
 
-            $secondaryResponse = CardKnoxService::saveCard(
-                $request->account_id,
-                'credit',
-                $request->secondary_card_number,
-                $secExpiryNoSlash,
-                $request->secondary_card_zip
-            );
-
-            if ($secondaryResponse['status']) {
-                $secondaryCard = new CreditCard();
-                $secondaryCard->card_number = $request->secondary_card_number;
-                $secondaryCard->cvc = $request->secondary_cvc;
-                $secondaryCard->expiry = $secExpiryDate;
-                $secondaryCard->cardnox_token = $secondaryResponse['data']['xToken'];
-                $secondaryCard->charge_priority = 0;
-                $secondaryCard->account_id = $account->account_id;
-                $secondaryCard->save();
+                if ($secondaryResponse['status']) {
+                    $secondaryCard = new CreditCard();
+                    $secondaryCard->card_number = $request->secondary_card_number;
+                    $secondaryCard->cvc = $request->secondary_cvc;
+                    $secondaryCard->expiry = $secExpiryDate;
+                    $secondaryCard->cardnox_token = $secondaryResponse['data']['xToken'];
+                    $secondaryCard->charge_priority = 0;
+                    $secondaryCard->account_id = $account->account_id;
+                    $secondaryCard->save();
+                }
             }
         }
+
+        return response()->json(['status' => true, 'message' => 'Account is added successfully with cards.']);
     }
-
-    return response()->json(['status' => true, 'message' => 'Account is added successfully with cards.']);
-}
-
 
     /**
      * Store a newly created resource in storage.
      */
-      public function status(Request $request, $id)
-        {
-            $account = Account::find($id);
+    public function status(Request $request, $id)
+    {
+        $account = Account::find($id);
 
-            if (!$account) {
-                return redirect()->back()->with('error', 'Account not found.');
-            }
-
-
-            if ($request->status == 1) {
-                $account->last_activated_at = now();
-
-            } else {
-                $account->last_inactive_at = now();
-
-            }
-
-            $account->status = $request->status;
-            $account->username = $request->username_change_status;
-            $account->reason = $request->reason_change_status;
-
-            $account->save();
-
-
-
-            return redirect()->back()->with('success', 'Account status is changed successfully.');
+        if (!$account) {
+            return redirect()->back()->with('error', 'Account not found.');
         }
+
+
+        if ($request->status == 1) {
+            $account->last_activated_at = now();
+
+        } else {
+            $account->last_inactive_at = now();
+
+        }
+
+        $account->status = $request->status;
+        $account->username = $request->username_change_status;
+        $account->reason = $request->reason_change_status;
+
+        $account->save();
+
+
+        return redirect()->back()->with('success', 'Account status is changed successfully.');
+    }
 
     /**
      * Display the specified resource.
@@ -432,10 +414,10 @@ class AccountController extends Controller
     public function show($id)
     {
         $account = Account::find($id);
-        $invoices = AccountPayment::where('status','!=',null)
-        ->where('account_id', $account->account_id)->whereNotNull('hash_id')->get();
+        $invoices = AccountPayment::where('status', '!=', null)
+            ->where('account_id', $account->account_id)->whereNotNull('hash_id')->get();
 
-        return view('admin.account-show', compact('account','invoices'));
+        return view('admin.account-show', compact('account', 'invoices'));
     }
 
     /**
@@ -471,30 +453,30 @@ class AccountController extends Controller
         $account->billing_email = $request->billing_email;
         $account->notes = $request->notes;
         $account->status = $request->status;
-        $account->username = $request->username ? $request->username: null;
+        $account->username = $request->username ? $request->username : null;
         $account->reason = $request->reason ? $request->reason : null;
         $account->notification_setting = $request->notification_setting;
         $account->pins = $request->pins ? $request->pins : null;
         $account->invoice_email_day = $request->invoice_email_day ? $request->invoice_email_day : 1;
-        $account->invoice_email_time = $request->invoice_email_time ? now()->toDateString().' '.$request->invoice_email_time : '2025-10-01 02:00:00';
+        $account->invoice_email_time = $request->invoice_email_time ? now()->toDateString() . ' ' . $request->invoice_email_time : '2025-10-01 02:00:00';
         $account->is_trip_restricted_by_phone = $request->is_trip_restricted_by_phone ? 1 : 0;
         $account->restricted_phones = $request->is_trip_restricted_by_phone ? json_encode($request->restricted_phones) : null;
 
-        if(isset($request->change_pass)) {
+        if (isset($request->change_pass)) {
             $account->password = Hash::make($request->password);
         }
         $account->save();
 
 
-            if($request->status == 0){
+        if ($request->status == 0) {
 
-    //            CubeContact::deleteAccount($account->account_id);
-               // $cube_resp =  CubeContact::updateCubeAccount($account->account_id,"Your Account Is Closed","Inactive",true);
+            //            CubeContact::deleteAccount($account->account_id);
+            // $cube_resp =  CubeContact::updateCubeAccount($account->account_id,"Your Account Is Closed","Inactive",true);
 
-            }else{
-              //  $cube_resp  = CubeContact::updateCubeAccount($account->account_id,null,"active",true);
+        } else {
+            //  $cube_resp  = CubeContact::updateCubeAccount($account->account_id,null,"active",true);
 
-            }
+        }
 
 
         DB::commit();
@@ -502,7 +484,6 @@ class AccountController extends Controller
         return redirect()->route('admin.show_account')->with('success', 'Account is updated successfully');
 
     }
-
 
     public function paymentToRefill(Request $request)
     {
@@ -512,45 +493,45 @@ class AccountController extends Controller
         $uaccount = Account::where('account_id', $account_id)->first(); // Retrieve the account
 
         //
-            if ($request->refill_method == 'cash') {
+        if ($request->refill_method == 'cash') {
 
-                $account_payment = new AccountPayment();
-                $account_payment->account_id = $uaccount->account_id;
-                $account_payment->account_type = $uaccount->account_type;
-                $account_payment->amount = $to_refill;
-                $account_payment->payment_date = Carbon::today();
-                $account_payment->payment_type = 'cash';
-                $account_payment->save();
+            $account_payment = new AccountPayment();
+            $account_payment->account_id = $uaccount->account_id;
+            $account_payment->account_type = $uaccount->account_type;
+            $account_payment->amount = $to_refill;
+            $account_payment->payment_date = Carbon::today();
+            $account_payment->payment_type = 'cash';
+            $account_payment->save();
 
-                if ($uaccount) {
-                    $uaccount->balance += $to_refill;
-                    $uaccount->save();
+            if ($uaccount) {
+                $uaccount->balance += $to_refill;
+                $uaccount->save();
 
 
-                    if ($uaccount->account_type == 'prepaid') {
-                        if ($uaccount->balance > 0) {
-                            $uaccount->status = 1;
-                            $uaccount->save();
-                        }
+                if ($uaccount->account_type == 'prepaid') {
+                    if ($uaccount->balance > 0) {
+                        $uaccount->status = 1;
+                        $uaccount->save();
                     }
-
-                } else {
-                    return redirect()->back()->with(['status' => 'error', 'message' => 'Account not found.']);
-
                 }
-                $logdata = [
-                    'from' => 'customer',
-                    'payment' => $to_refill,
-                    'message' => 'Refill Payment added using Cash for Account#' . $account_id . ' Amount: ' . $to_refill
-                ];
-                LogService::saveLog($logdata);
-
-
-                DB::commit();
 
             } else {
+                return redirect()->back()->with(['status' => 'error', 'message' => 'Account not found.']);
 
-            if($to_refill > 0 ) {
+            }
+            $logdata = [
+                'from' => 'customer',
+                'payment' => $to_refill,
+                'message' => 'Refill Payment added using Cash for Account#' . $account_id . ' Amount: ' . $to_refill
+            ];
+            LogService::saveLog($logdata);
+
+
+            DB::commit();
+
+        } else {
+
+            if ($to_refill > 0) {
                 $cardDetails = CreditCard::where('account_id', $account_id)->where('charge_priority', 1)->where('is_deleted', 0)->first();
 
                 if (empty($cardDetails)) {
@@ -613,30 +594,29 @@ class AccountController extends Controller
 
                 }
 
+            } else {
+
+                return redirect()->back()->with(['status' => 'error', 'message' => 'Amount Should be Greater than zero']);
+
             }
-            else{
-
-            return redirect()->back()->with(['status' => 'error', 'message' => 'Amount Should be Greater than zero']);
-
-        }
         }
 
         if (isset($uaccount)) {
 
-            $message = "Your CarSafe Account ".$uaccount->account_id." Has Been Credited With Amount $".$to_refill;
+            $message = "Your CarSafe Account " . $uaccount->account_id . " Has Been Credited With Amount $" . $to_refill;
 
             if ($uaccount->notification_setting == 'account_email') {
 
-                EmailService::sendtext($uaccount->email,$message);
+                EmailService::sendtext($uaccount->email, $message);
 
-            }elseif ($uaccount->notification_setting == 'account_phone') {
+            } elseif ($uaccount->notification_setting == 'account_phone') {
 
                 $phone = preg_replace('/[^0-9]/', '', $uaccount->phone);
 
                 if (!Str::startsWith($phone, '+1')) {
                     $phone = '+1' . $phone;
                 }
-                TwilioService::sendRawSms($phone,$message);
+                TwilioService::sendRawSms($phone, $message);
 
 
             }
@@ -647,8 +627,6 @@ class AccountController extends Controller
 
 
     }
-
-
 
     public function paymentToGocab(Request $request)
     {
@@ -721,7 +699,6 @@ class AccountController extends Controller
 
     }
 
-
     public function payFromAccountToCab(Request $request)
     {
 
@@ -775,37 +752,36 @@ class AccountController extends Controller
 //                    $gocabPaid = Trip::where('id', $trip['trip_id'])->value('trip_cost');
 
 //                    $trip['gocab_paid'] = $gocabPaid ?? 0;
-                    if ($live_amount < 0) {
-                        return response()->json(['status' => 'error', 'message' => 'Amount should not be negative']);
+                if ($live_amount < 0) {
+                    return response()->json(['status' => 'error', 'message' => 'Amount should not be negative']);
 
-                    }
+                }
 
-                    $originalAmount = $trip['amount'];
-                    $paymentSum = Payment::where('trip_id', $trip['trip_id'])->where('user_type', 'customer')->where('type', 'debit')->sum('amount') ?? 0;
+                $originalAmount = $trip['amount'];
+                $paymentSum = Payment::where('trip_id', $trip['trip_id'])->where('user_type', 'customer')->where('type', 'debit')->sum('amount') ?? 0;
 
-                    $remainingAmount = $originalAmount - $paymentSum;
-                    if ($remainingAmount > $originalAmount) {
-                        return response()->json(['status' => 'error', 'message' => 'Remaining trip amount should less than Trip total amount']);
+                $remainingAmount = $originalAmount - $paymentSum;
+                if ($remainingAmount > $originalAmount) {
+                    return response()->json(['status' => 'error', 'message' => 'Remaining trip amount should less than Trip total amount']);
 
-                    }
-                    if ($live_amount < $remainingAmount) {
-                        $remainingAmount = $live_amount;
-                    }
+                }
+                if ($live_amount < $remainingAmount) {
+                    $remainingAmount = $live_amount;
+                }
 
-                    $totalAmount = $remainingAmount;
+                $totalAmount = $remainingAmount;
 
-                    if ($totalAmount > 0) {
+                if ($totalAmount > 0) {
 
-                        $pay_data = $this->addpay($trip, $request, $remainingAmount, $batch_id);
+                    $pay_data = $this->addpay($trip, $request, $remainingAmount, $batch_id);
 
-                        $live_amount -= $remainingAmount;
+                    $live_amount -= $remainingAmount;
 
 
+                } else {
+                    return response()->json(['status' => 'success', 'message' => 'Payments processed successfully.']);
 
-                    } else {
-                        return response()->json(['status' => 'success', 'message' => 'Payments processed successfully.']);
-
-                    }
+                }
 
 
             }
@@ -848,53 +824,6 @@ class AccountController extends Controller
 
         // return redirect('/admin/accounts')->with('success', 'Payments processed successfully.');
     }
-
-
-    public function addpay_customer($trip, $request)
-    {
-        $new = new Payment();
-        $new->driver_id = $trip->driver_id;
-        $new->trip_id = $trip->trip_id;
-        $new->payment_date = now()->toDateString();
-        $new->amount = (float)$trip->trip_cost;
-        $new->user_id = $request['id'];
-        $new->user_type = 'customer';
-        $new->type = 'debit';
-        $new->batch_id = $request['batch_id'];
-        $new->description = 'customer_pay_to_account' . $request['account_id'];
-        $new->account_id = $trip->account_number;
-        $new->save();
-
-        return $new;
-    }
-
-
-//    public function addpay($trip, $request, $total_amount_paid, $batch_id)
-//    {
-//
-//        $new = new Payment();
-//        $new->driver_id = $trip['driver_id'];
-//        $new->trip_id = $trip['trip_id'];
-//        $new->batch_id = $batch_id;
-//        $new->payment_date = now()->toDateString();
-//        $new->amount = (float)$total_amount_paid;
-//        $new->user_id = $trip['driver_id'];
-//        $new->user_type = 'customer';
-//        $new->type = 'debit';
-//        $new->description = 'customer_pay_to_account' . $request->id;
-//
-//
-//        $new->save();
-//
-//        $batch = BatchPayment::find($batch_id);
-//        if ($batch) {
-//            $batch->amount += $total_amount_paid;
-//            $batch->save();
-//        }
-//
-//        return $new;
-//    }
-
 
     public function show_invoice(Request $request)
     {
@@ -948,7 +877,7 @@ class AccountController extends Controller
                             $request->card_zip
                         );
 
-                    }elseif($payment_type == 'ach'){
+                    } elseif ($payment_type == 'ach') {
 
 
                         $cardResponse = CardKnoxService::saveAch(
@@ -960,7 +889,7 @@ class AccountController extends Controller
                         );
 
 
-                    }else{
+                    } else {
 
 
                         return redirect()->back()->with(['errors' => 'Nothing Happened']);
@@ -1043,14 +972,13 @@ class AccountController extends Controller
                     if ($already_acc_payment) {
 
 
-                        if($total_cost >= $already_acc_payment->amount){
+                        if ($total_cost >= $already_acc_payment->amount) {
 
                             $already_acc_payment->status = 'paid';
                             $already_acc_payment->save();
 
 
-
-                        }else{
+                        } else {
                             $already_acc_payment = false;
                         }
 
@@ -1058,11 +986,11 @@ class AccountController extends Controller
                     }
 
 
-                        $batch_p = new BatchPayment();
-                        $batch_p->account_id = $account->account_id;
-                        $batch_p->from = 'customer_by_admin';
-                        $batch_p->amount = $total_cost;
-                        $batch_p->save();
+                    $batch_p = new BatchPayment();
+                    $batch_p->account_id = $account->account_id;
+                    $batch_p->from = 'customer_by_admin';
+                    $batch_p->amount = $total_cost;
+                    $batch_p->save();
 
                     $request->merge(['batch_id' => $batch_p->id]);
                     $request->merge(['account_id' => $account->account_id]);
@@ -1074,8 +1002,8 @@ class AccountController extends Controller
                             strpos($trip->status, 'Cancelled') === false &&
                             strpos($trip->status, 'canceled') === false &&
                             $trip->is_delete == 0 &&
-                                $trip->date >= $from_date &&
-                                $trip->date <= $to_date;
+                            $trip->date >= $from_date &&
+                            $trip->date <= $to_date;
                     });
                     foreach ($trips_to_be_paid as $paytrip) {
 
@@ -1093,7 +1021,7 @@ class AccountController extends Controller
                     $batch_p->amount = $total_payments;
                     $batch_p->save();
 
-                    if(!$already_acc_payment) {
+                    if (!$already_acc_payment) {
 
                         $account_payment = new AccountPayment();
                         $account_payment->account_id = $account->account_id;
@@ -1105,7 +1033,7 @@ class AccountController extends Controller
                         $account_payment->payment_type = $payment_type;
                         $account_payment->save();
 
-                    }else{
+                    } else {
 
 
                         $already_acc_payment->batch_id = $batch_p->id;
@@ -1147,6 +1075,50 @@ class AccountController extends Controller
 
     }
 
+    public function addpay_customer($trip, $request)
+    {
+        $new = new Payment();
+        $new->driver_id = $trip->driver_id;
+        $new->trip_id = $trip->trip_id;
+        $new->payment_date = now()->toDateString();
+        $new->amount = (float)$trip->trip_cost;
+        $new->user_id = $request['id'];
+        $new->user_type = 'customer';
+        $new->type = 'debit';
+        $new->batch_id = $request['batch_id'];
+        $new->description = 'customer_pay_to_account' . $request['account_id'];
+        $new->account_id = $trip->account_number;
+        $new->save();
+
+        return $new;
+    }
+
+
+//    public function addpay($trip, $request, $total_amount_paid, $batch_id)
+//    {
+//
+//        $new = new Payment();
+//        $new->driver_id = $trip['driver_id'];
+//        $new->trip_id = $trip['trip_id'];
+//        $new->batch_id = $batch_id;
+//        $new->payment_date = now()->toDateString();
+//        $new->amount = (float)$total_amount_paid;
+//        $new->user_id = $trip['driver_id'];
+//        $new->user_type = 'customer';
+//        $new->type = 'debit';
+//        $new->description = 'customer_pay_to_account' . $request->id;
+//
+//
+//        $new->save();
+//
+//        $batch = BatchPayment::find($batch_id);
+//        if ($batch) {
+//            $batch->amount += $total_amount_paid;
+//            $batch->save();
+//        }
+//
+//        return $new;
+//    }
 
     /**
      * Remove the specified resource from storage.
@@ -1158,12 +1130,11 @@ class AccountController extends Controller
         $account->is_deleted = 1;
         $account->cube_id = null;
 //        CubeContact::deleteAccount($account->account_id);
-     //   CubeContact::updateCubeAccount($account->account_id,"Your Account Is Closed","Inactive");
+        //   CubeContact::updateCubeAccount($account->account_id,"Your Account Is Closed","Inactive");
 
         $account->save();
         return redirect()->back()->with('success', 'Account is deleted successfully');
     }
-
 
     public function getPaymentsAccount(Request $request)
     {
@@ -1198,32 +1169,32 @@ class AccountController extends Controller
     {
         if ($request->ajax()) {
 
-            $account =  Account::where('account_id', $request->account_id)->first();
-           if($account->account_type == 'postpaid'){
-            $batchPayments = BatchPayment::where('account_id', $request->account_id)
-            ->where('from', 'customer_by_admin')
-            ->where('amount', '>', 0);
+            $account = Account::where('account_id', $request->account_id)->first();
+            if ($account->account_type == 'postpaid') {
+                $batchPayments = BatchPayment::where('account_id', $request->account_id)
+                    ->where('from', 'customer_by_admin')
+                    ->where('amount', '>', 0);
 
                 return DataTables::of($batchPayments)
                     ->addIndexColumn()
-                    ->addColumn('payment_type',function ($row) {
+                    ->addColumn('payment_type', function ($row) {
 
-                        return $row->accountPay ? ($row->accountPay->payment_type == 'card' ? 'card-Ref#'.$row->accountPay->transaction_id.'' : 'cash') : '' ;
-            })
-            ->make(true);
-           }else{
+                        return $row->accountPay ? ($row->accountPay->payment_type == 'card' ? 'card-Ref#' . $row->accountPay->transaction_id . '' : 'cash') : '';
+                    })
+                    ->make(true);
+            } else {
 
-            $batchPayments = AccountPayment::where('account_id',$account->account_id)
-            ->whereNull('hash_id')->get();
-            return DataTables::of($batchPayments)
-            ->addIndexColumn()
-            ->editColumn('created_at', function ($row) {
-                return Carbon::parse($row->created_at)
-                    ->setTimezone('America/New_York')
-                    ->format('Y-m-d h:i A');
-            })
-            ->make(true);
-        }
+                $batchPayments = AccountPayment::where('account_id', $account->account_id)
+                    ->whereNull('hash_id')->get();
+                return DataTables::of($batchPayments)
+                    ->addIndexColumn()
+                    ->editColumn('created_at', function ($row) {
+                        return Carbon::parse($row->created_at)
+                            ->setTimezone('America/New_York')
+                            ->format('Y-m-d h:i A');
+                    })
+                    ->make(true);
+            }
 
         }
 
@@ -1244,7 +1215,6 @@ class AccountController extends Controller
         }
     }
 
-
     public function ajaxGetTotals(Request $request)
     {
         if ($request->ajax()) {
@@ -1253,7 +1223,7 @@ class AccountController extends Controller
                 'to_date' => 'nullable|date',
             ]);
 
-           $data = AccountService::AccountSummary($request);
+            $data = AccountService::AccountSummary($request);
             return response()->json([
                 'total_trips' => $data['total_trips'],
                 'total_payments' => $data['total_payments'],
@@ -1261,27 +1231,28 @@ class AccountController extends Controller
         }
 
     }
-    public function accountPayments(){
+
+    public function accountPayments()
+    {
 
         $payments = AccountPayment::all();
         return view('admin.account-payments', compact('payments'));
     }
 
+    public function invoiceViewOrPay($id)
+    {
 
-
-    public function invoiceViewOrPay($id){
-
-        $invoice = AccountPayment::where('hash_id',$id)->first();
+        $invoice = AccountPayment::where('hash_id', $id)->first();
 
         // $trip_ids = $invoice->trip_ids != null ? json_decode($invoice->trip_ids) : null;
         $trip_ids = $invoice && $invoice->trip_ids ? json_decode($invoice->trip_ids) : null;
 
-        if($invoice){
-            $account = Account::where('account_id',$invoice->account_id)->first();
+        if ($invoice) {
+            $account = Account::where('account_id', $invoice->account_id)->first();
 
-            if($trip_ids == null) {
+            if ($trip_ids == null) {
                 $trips = $account->trips->where('payment_method', '=', 'account')->where('date', '>=', $invoice->invoice_from_date)->where('date', '<=', $invoice->invoice_to_date)->where('is_delete', 0);
-            }else {
+            } else {
                 $trips = $account->trips->whereIn('trip_id', $trip_ids)->filter(function ($trip) use ($invoice) {
                     return $trip->payment_method === 'account' &&
                         strpos($trip->status, 'Cancelled') === false &&
@@ -1291,21 +1262,21 @@ class AccountController extends Controller
                         $trip->date <= $invoice->invoice_to_date;
                 });
             }
-            if($account->account_type == 'prepaid'){
-                return view('invoices.prepaid_unauth_invoice_view',compact('account','trips','invoice'));
+            if ($account->account_type == 'prepaid') {
+                return view('invoices.prepaid_unauth_invoice_view', compact('account', 'trips', 'invoice'));
 
-            }else{
-                return view('invoices.unauth_invoice_view',compact('account','trips','invoice'));
+            } else {
+                return view('invoices.unauth_invoice_view', compact('account', 'trips', 'invoice'));
 
             }
 
         }
 
 
-
     }
-    public function invoicePay(Request $request,$id){
 
+    public function invoicePay(Request $request, $id)
+    {
 
 
         // auto save as a secondary card
@@ -1315,18 +1286,18 @@ class AccountController extends Controller
 
         $fullYear = '20' . $year;
         $expiryDate = \Carbon\Carbon::createFromDate($fullYear, $month, 1)->toDateString();
-        $expiryWithoutSlash = $month.$year;
+        $expiryWithoutSlash = $month . $year;
 
-        $account_payment = AccountPayment::where('hash_id',$id)->first();
-        if(!$account_payment){
-            return redirect()->back()->with('error','Incorrect Invoice Submitting');
+        $account_payment = AccountPayment::where('hash_id', $id)->first();
+        if (!$account_payment) {
+            return redirect()->back()->with('error', 'Incorrect Invoice Submitting');
 
         }
 
         //validation end
         $token = null;
 
-        if(isset($request->payment_type) && $request->payment_type == 'ach'){
+        if (isset($request->payment_type) && $request->payment_type == 'ach') {
 
             $cardResponse = CardKnoxService::saveAch(
                 'ach-account-from-outside',
@@ -1336,7 +1307,7 @@ class AccountController extends Controller
 
             );
 
-        }else{
+        } else {
 
 
             $cardResponse = CardKnoxService::saveCard(
@@ -1351,11 +1322,11 @@ class AccountController extends Controller
         }
 
 
-        $account = Account::where('account_id',$account_payment->account_id)->first();
+        $account = Account::where('account_id', $account_payment->account_id)->first();
         if ($cardResponse['status']) {
 
 
-            if(isset($request->save_card) && $request->save_card == 1){
+            if (isset($request->save_card) && $request->save_card == 1) {
 
 //                if($account->card){
 //
@@ -1368,14 +1339,14 @@ class AccountController extends Controller
 //
 //                }else{
 
-                    $new = new CreditCard;
-                    $new->account_id = $account->account_id;
-                    $new->card_number = $request->card_number;
-                    $new->cvc = $request->cvc;
-                    $new->cardnox_token = $cardResponse['data']['xToken'];
-                    $new->expiry = $expiryDate;
-                    $new->charge_priority = 0;
-                    $new->save();
+                $new = new CreditCard;
+                $new->account_id = $account->account_id;
+                $new->card_number = $request->card_number;
+                $new->cvc = $request->cvc;
+                $new->cardnox_token = $cardResponse['data']['xToken'];
+                $new->expiry = $expiryDate;
+                $new->charge_priority = 0;
+                $new->save();
 //                }
 
             }
@@ -1383,9 +1354,9 @@ class AccountController extends Controller
             $token = $cardResponse['data']['xToken'];
 
 
-        }else{
+        } else {
 
-            return redirect()->back()->with('error',$cardResponse['msg']);
+            return redirect()->back()->with('error', $cardResponse['msg']);
 
         }
 
@@ -1400,8 +1371,8 @@ class AccountController extends Controller
                 strpos($trip->status, 'Cancelled') === false &&
                 strpos($trip->status, 'canceled') === false &&
                 $trip->is_delete == 0 &&
-                    $trip->date >= $account_payment->invoice_from_date &&
-                    $trip->date <= $account_payment->invoice_to_date;
+                $trip->date >= $account_payment->invoice_from_date &&
+                $trip->date <= $account_payment->invoice_to_date;
         });
 
         $paymeny_data_Bulk = array();
@@ -1428,19 +1399,18 @@ class AccountController extends Controller
             }
 
         }
-        if(isset($request->payment_type) && $request->payment_type == 'ach') {
+        if (isset($request->payment_type) && $request->payment_type == 'ach') {
 
             $fee = 0;
 
-        }else{
+        } else {
 
             $fee = number_format($total_payments * 0.0375, 2, '.', '');
 
 
         }
-            $amuntWithfee = $total_payments + $fee;
+        $amuntWithfee = $total_payments + $fee;
         $fill_and_deduct = CardKnoxService::processCardknoxPaymentRefill($token, $amuntWithfee, $account->account_id);
-
 
 
         if ($fill_and_deduct['status'] == 'approved') {
@@ -1468,17 +1438,17 @@ class AccountController extends Controller
             $account_payment->batch_id = $batch_p->id;
 
             PaymentSaveService::save($paymeny_data_send);
-            $message ='Account:Payment deducted by Cron using Cardknox BatchPayment-ID#' . $batch_p->id . ' Amount: ' . $batch_p->amount;
+            $message = 'Account:Payment deducted by Cron using Cardknox BatchPayment-ID#' . $batch_p->id . ' Amount: ' . $batch_p->amount;
 
-         //   CubeContact::updateCubeAccount($account->account_id,null,"active");
+            //   CubeContact::updateCubeAccount($account->account_id,null,"active");
 
 
-        }else{
+        } else {
 
-            Log::info('no'.$total_payments);
+            Log::info('no' . $total_payments);
             $message = 'Account:Payment Failed by Cron using Cardknox';
-            if($try > 3){
-            //    CubeContact::updateCubeAccount($account->account_id,"Account is inactive due to unpaid invoices","Inactive");
+            if ($try > 3) {
+                //    CubeContact::updateCubeAccount($account->account_id,"Account is inactive due to unpaid invoices","Inactive");
                 EmailService::AccountInActive($account);
 
             }
@@ -1493,78 +1463,79 @@ class AccountController extends Controller
             'from' => 'customer',
             'payment' => $amuntWithfee,
             'cardknox_response' => $fill_and_deduct,
-            'message'=>$message
+            'message' => $message
         ];
 
         LogService::saveLog($logdata);
 
-        EmailService::AccountInvoice($account_payment,$account);
+        EmailService::AccountInvoice($account_payment, $account);
 
         return redirect()->back()->with(['success' => 'Paid Amount ' . $total_payments . ' Against This Invoice']);
 
     }
 
-
-
-    public function sendBulkInvoiceEmail(Request $request){
+    public function sendBulkInvoiceEmail(Request $request)
+    {
 
         $request->validate([
             'from_date' => 'required',
             'to_date' => 'required',
         ]);
 
-        $accounts = Account::where('account_type','!=','prepaid')->where('is_deleted',0)->get();
+        $accounts = Account::where('account_type', '!=', 'prepaid')->where('is_deleted', 0)->get();
         foreach ($accounts as $account) {
 
-                    $data['from_date'] = $request->from_date;
-                    $data['to_date'] = $request->to_date;
-                    $data['account'] = $account;
+            $data['from_date'] = $request->from_date;
+            $data['to_date'] = $request->to_date;
+            $data['account'] = $account;
 
-                        EmailService::sendBulkInvoices($data);
+            EmailService::sendBulkInvoices($data);
 
 
         }
     }
 
-
-    public function deleteDInvcoie($id){
+    public function deleteDInvcoie($id)
+    {
 
         // dd('restrict');
-        $data = AccountPayment::where('id',$id)
+        $data = AccountPayment::where('id', $id)
             // ->where('invoice_from_date','2025-01-01')
             // ->where('invoice_to_date','2024-01-15')
-            ->where('account_type','postpaid')->first();
-        if($data){
+            ->where('account_type', 'postpaid')->first();
+        if ($data) {
 
-                DB::beginTransaction();
+            DB::beginTransaction();
 
-                $batch_id = $data->batch_id;
-                if($batch_id != null) {
+            $batch_id = $data->batch_id;
+            if ($batch_id != null) {
 
 
-                    $countt = Payment::where('batch_id',$batch_id)->where('account_id','!=',null)->count();
-                    if($countt > 0) {
-                        Payment::where('batch_id',$batch_id)->where('account_id','!=',null)->delete();
-                    }
-
-                    BatchPayment::where('id',$batch_id)->delete();
-
+                $countt = Payment::where('batch_id', $batch_id)->where('account_id', '!=', null)->count();
+                if ($countt > 0) {
+                    Payment::where('batch_id', $batch_id)->where('account_id', '!=', null)->delete();
                 }
 
-                $data->delete();
-
-                DB::commit();
-
-                dd('deleted');
-
+                BatchPayment::where('id', $batch_id)->delete();
 
             }
 
-            dd('notfount');
+            $data->delete();
+
+            DB::commit();
+
+            dd('deleted');
+
+
+        }
+
+        dd('notfount');
 
 
     }
-    public function invoices_retry($id){
+
+    public function invoices_retry($id)
+    {
 
 
         $accountPayment = AccountPayment::find($id);
@@ -1573,14 +1544,14 @@ class AccountController extends Controller
         $today = Carbon::today();
         $pay_date = now()->toDateString();
 
-        if($accountPayment->status == 'unpaid'){
+        if ($accountPayment->status == 'unpaid') {
 
             $from_date = $accountPayment->invoice_from_date;
             $to_date = $accountPayment->invoice_to_date;
 
             $account = Account::with(['trips' => function ($query) use ($from_date, $to_date) {
                 $query->where('payment_method', 'account')
-                    ->where('is_delete',0)
+                    ->where('is_delete', 0)
                     ->whereBetween('date', [$from_date, $to_date]);
             }])->where('account_type', 'postpaid')
                 ->where('account_id', $accountPayment->account_id)->first();
@@ -1589,8 +1560,8 @@ class AccountController extends Controller
             // Step 1: Arrange data
 //            $token = $account->card ? $account->card->cardnox_token : null;
             $tokens = $account->cards ? $account->cards : [];
-            if($tokens) {
-                $tokens = $tokens->where('is_deleted',0)  // Filter out deleted records
+            if ($tokens) {
+                $tokens = $tokens->where('is_deleted', 0)  // Filter out deleted records
                 ->sortByDesc('charge_priority')  // Sort by priority (1 first)
                 ->values();
             }
@@ -1658,13 +1629,12 @@ class AccountController extends Controller
                 $paymentDataBulk = $data['payment_data_bulk'];
 
 
-
 //                $fillAndDeduct = CardKnoxService::processCardknoxPaymentRefill(
 //                    $token,
 //                    $amuntWithfee,
 //                    $account->account_id . '-amountActual' . $total_payments
 //                );
-                if(count($tokens) > 0) {
+                if (count($tokens) > 0) {
                     foreach ($tokens as $token) {
                         if ($token->type == 'credit') {
                             $fillAndDeduct = CardKnoxService::processCardknoxPaymentRefill(
@@ -1680,7 +1650,7 @@ class AccountController extends Controller
                         }
 
                     }
-                }else{
+                } else {
                     $fillAndDeduct = CardKnoxService::processCardknoxPaymentRefill(
                         null,
                         $amuntWithfee,
@@ -1689,16 +1659,15 @@ class AccountController extends Controller
                 }
 
 
-
-                Log::Info('retryResp:'.json_encode($fillAndDeduct));
+                Log::Info('retryResp:' . json_encode($fillAndDeduct));
                 $deduct_status = $fillAndDeduct['status'] === 'approved';
                 $transaction_id = $deduct_status ? $fillAndDeduct['transaction_id'] : null;
                 //dd($fillAndDeduct);
                 // Save account payment
-                $try = $accountPayment->try+1;
+                $try = $accountPayment->try + 1;
 
                 if ($deduct_status) {
-                        Log::info('single retry payment done');
+                    Log::info('single retry payment done');
 
                     // Save batch payment
                     $batchPayment = BatchPayment::create([
@@ -1731,17 +1700,17 @@ class AccountController extends Controller
 
 
                     $emailData[] = $accountPayment;
-                   // CubeContact::updateCubeAccount($account->account_id,null,"active");
+                    // CubeContact::updateCubeAccount($account->account_id,null,"active");
 
-                }else{
+                } else {
 
-                   $msg = json_encode($fillAndDeduct);
-                    if($try > 3){
-                     //   CubeContact::updateCubeAccount($account->account_id,"Account is inactive due to unpaid invoices","Inactive");
+                    $msg = json_encode($fillAndDeduct);
+                    if ($try > 3) {
+                        //   CubeContact::updateCubeAccount($account->account_id,"Account is inactive due to unpaid invoices","Inactive");
                         EmailService::AccountInActive($account);
 
                     }
-                 return redirect()->back()->with('error', ''.$msg);
+                    return redirect()->back()->with('error', '' . $msg);
 
                 }
 
@@ -1762,16 +1731,15 @@ class AccountController extends Controller
         }
 
 
-
         return redirect()->back()->with('success', 'Payment Done');
 
 
+    }
 
- }
-
-    public function saveAch(){
+    public function saveAch()
     {
-        $curl = curl_init();
+        {
+            $curl = curl_init();
             curl_setopt_array($curl, array(
                 CURLOPT_URL => env('CARDKNOX_ENDPOINT'),
                 CURLOPT_RETURNTRANSFER => true,
@@ -1782,7 +1750,7 @@ class AccountController extends Controller
                     "xVersion" => "4.5.9",
                     "xSoftwareName" => env('APP_NAME'),
                     "xSoftwareVersion" => "1.0.0",
-                    "xCommand"=>"check:Save",
+                    "xCommand" => "check:Save",
                     "xCustom01" => "gocab-account_id",
                     "xRouting" => "021000021",
                     "xAccount" => "1234567890",
@@ -1802,7 +1770,7 @@ class AccountController extends Controller
                     "xToken" => $response->xToken,
                     "xDate" => $response->xDate,
                     "xMaskedAccountNumber" => $response->xMaskedAccountNumber,
-                   "xName" => $response->xName ?? null,
+                    "xName" => $response->xName ?? null,
 
                 ];
 
@@ -1811,22 +1779,23 @@ class AccountController extends Controller
             } else {
                 return ['msg' => $response->xError, 'status' => false];
             }
+        }
     }
-   }
 
-    public function saleAch(){
+    public function saleAch()
+    {
 
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => env('CARDKNOX_ENDPOINT'),
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => '{
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => env('CARDKNOX_ENDPOINT'),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => '{
                           "xToken": "9h5q8qqq2214h07nmph792m37q7p99n1",
                           "xKey": "' . env('CARDKNOX_XKEY') . '",
                           "xVersion": "4.5.9",
@@ -1839,116 +1808,120 @@ class AccountController extends Controller
                           "xCustom01": "Account-0089",
                       }',
 
-        CURLOPT_HTTPHEADER => array(
-            'Content-Type: text/plain'
-        ),
-    ));
-    $response = curl_exec($curl);
-    curl_close($curl);
-    $response = json_decode($response);
-    return $response ;
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: text/plain'
+            ),
+        ));
+        $response = curl_exec($curl);
+        curl_close($curl);
+        $response = json_decode($response);
+        return $response;
 
-}
+    }
 
     public function uploadExcel(Request $request)
-{
-    // Validate the file
-    $request->validate([
-        'file' => 'required|mimes:csv,txt,xlsx,xls',
-    ]);
+    {
+        // Validate the file
+        $request->validate([
+            'file' => 'required|mimes:csv,txt,xlsx,xls',
+        ]);
 
-    // Check if the file exists and is valid
-    if ($request->hasFile('file') && $request->file('file')->isValid()) {
-        // Get the uploaded file
-        $file = $request->file('file');
+        // Check if the file exists and is valid
+        if ($request->hasFile('file') && $request->file('file')->isValid()) {
+            // Get the uploaded file
+            $file = $request->file('file');
 
-        $targetPath = storage_path('app/uploads/' . $file->getClientOriginalName());
-
-
-        $file->move(storage_path('app/uploads'), $file->getClientOriginalName());
+            $targetPath = storage_path('app/uploads/' . $file->getClientOriginalName());
 
 
-        $fullFilePath = $targetPath;
+            $file->move(storage_path('app/uploads'), $file->getClientOriginalName());
 
 
+            $fullFilePath = $targetPath;
 
-        $extension = $file->getClientOriginalExtension();
-        $type = \Maatwebsite\Excel\Excel::CSV;
 
-        if (in_array($extension, ['xlsx', 'xls'])) {
-            $type = \Maatwebsite\Excel\Excel::XLSX;
+            $extension = $file->getClientOriginalExtension();
+            $type = \Maatwebsite\Excel\Excel::CSV;
+
+            if (in_array($extension, ['xlsx', 'xls'])) {
+                $type = \Maatwebsite\Excel\Excel::XLSX;
+            }
+
+
+            $data = Excel::toArray(new UsersImport, $fullFilePath, null, $type);
+
+            $passengerPhones = collect($data[0])->pluck(0)->toArray();
+
+            $this->account_ids($passengerPhones);
+
+            return redirect()->back()->with('success', 'File uploaded and processed successfully.');
+        } else {
+            return back()->withErrors(['file' => 'File is required or invalid.']);
         }
-
-
-        $data = Excel::toArray(new UsersImport, $fullFilePath, null, $type);
-
-        $passengerPhones = collect($data[0])->pluck(0)->toArray();
-
-        $this->account_ids($passengerPhones);
-
-        return redirect()->back()->with('success', 'File uploaded and processed successfully.');
-    } else {
-        return back()->withErrors(['file' => 'File is required or invalid.']);
     }
-}
 
     private function account_ids($passengerPhones)
-{
-    foreach ($passengerPhones as $passengerPhone) {
+    {
+        foreach ($passengerPhones as $passengerPhone) {
 
-        echo "Processing phone: $passengerPhone<br>\n";
-
-
-        $accountNumber = DB::table('trips')
-            ->where('passenger_phone', $passengerPhone)
-            ->where(function ($query) {
-                $query->whereNotNull('account_number')
-                      ->where('account_number', '!=', '');
-            })
-            ->value('account_number');
+            echo "Processing phone: $passengerPhone<br>\n";
 
 
-        if ($accountNumber) {
-            echo "Account number found: $accountNumber for phone: $passengerPhone<br>\n";
-        } else {
-            echo "No valid account number found for phone: $passengerPhone<br>\n";
-            continue;
+            $accountNumber = DB::table('trips')
+                ->where('passenger_phone', $passengerPhone)
+                ->where(function ($query) {
+                    $query->whereNotNull('account_number')
+                        ->where('account_number', '!=', '');
+                })
+                ->value('account_number');
+
+
+            if ($accountNumber) {
+                echo "Account number found: $accountNumber for phone: $passengerPhone<br>\n";
+            } else {
+                echo "No valid account number found for phone: $passengerPhone<br>\n";
+                continue;
+            }
+
+
+            $trip = DB::table('trips')
+                ->where('passenger_phone', $passengerPhone)
+                ->where('payment_method', 'account')
+                ->where(function ($query) {
+                    $query->where('account_number', '')
+                        ->orWhereNull('account_number');
+                })
+                ->update(['account_number' => $accountNumber]);
+
+
+            if ($trip) {
+                echo "Updated trips for passenger phone: $passengerPhone with account number: $accountNumber.<br>\n";
+            } else {
+                echo "No trips found to update for passenger phone: $passengerPhone.<br>\n";
+            }
         }
 
-
-        $trip = DB::table('trips')
-            ->where('passenger_phone', $passengerPhone)
-            ->where('payment_method', 'account')
-            ->where(function($query) {
-                $query->where('account_number', '')
-                      ->orWhereNull('account_number');
-            })
-            ->update(['account_number' => $accountNumber]);
-
-
-        if ($trip) {
-            echo "Updated trips for passenger phone: $passengerPhone with account number: $accountNumber.<br>\n";
-        } else {
-            echo "No trips found to update for passenger phone: $passengerPhone.<br>\n";
-        }
+        dd("Trips updated successfully.");
     }
 
-    dd("Trips updated successfully.");
-}
-
-    public function  account_complaint(Request $request,$id){
-    $account_payment = AccountPayment::where('hash_id',$id)->first();
-    return view('account_complaint', compact('account_payment'));
+    public function account_complaint(Request $request, $id)
+    {
+        $account_payment = AccountPayment::where('hash_id', $id)->first();
+        return view('account_complaint', compact('account_payment'));
     }
-      public function disable_stops(Request $request){
+
+    public function disable_stops(Request $request)
+    {
         $id = $request->account_id;
         $account = Account::find($id);
         $account->disable_stops = $request->has('disable_stops');
         $account->save();
         return back()->with('success', 'Account stops are updated.');
 
-      }
-       public function disable_account_payment(Request $request){
+    }
+
+    public function disable_account_payment(Request $request)
+    {
 
         $id = $request->account_id;
         $account = Account::find($id);
@@ -1959,99 +1932,114 @@ class AccountController extends Controller
 
         return back()->with('success', 'Account payment method is updated.');
 
-      }
-    public function account_restriction(Request $request){
+    }
+
+    public function account_restriction(Request $request)
+    {
         $id = $request->account_id;
         $account = Account::find($id);
         $account->address_restriction = $request->has('address_restriction');
         $account->save();
 
 
-
         if ($account->address_restriction && $request->filled('addresses')) {
-        foreach ($request->addresses as $address) {
-            if (!empty($address)) {
-                $account->allowedAddresses()->create(['address' => $address]);
+            foreach ($request->addresses as $address) {
+                if (!empty($address)) {
+                    $account->allowedAddresses()->create(['address' => $address]);
+                }
             }
         }
+
+        return back()->with('success', 'Account allowed addresses are updated.');
     }
 
-    return back()->with('success', 'Account allowed addresses are updated.');
+    public function deleteAllowedAddress($id)
+    {
+
+
+        $address = AllowedAddress::where('id', $id)->first();
+
+        if (!$address) {
+            return response()->json(['message' => 'Address not found or unauthorized.'], 404);
+        }
+
+        $address->delete();
+
+        return response()->json(['message' => 'Address deleted successfully.']);
     }
 
-    public function deleteAllowedAddress($id){
+    public function checkAccountId(Request $request)
+    {
+        $exists = Account::where('account_id', $request->account_id)->exists();
 
-
-    $address = AllowedAddress::where('id', $id)->first();
-
-    if (!$address) {
-        return response()->json(['message' => 'Address not found or unauthorized.'], 404);
+        return response()->json(['exists' => $exists]);
     }
 
-    $address->delete();
+    public function checkAccountStops(Request $request)
+    {
+        $account = Account::where('account_id', $request->account)->first();
 
-    return response()->json(['message' => 'Address deleted successfully.']);
-    }
+        if (!$account) {
+            return response()->json(['disable_stops' => true, 'error' => 'Account not found']);
+        }
 
-
-public function checkAccountId(Request $request){
- $exists = Account::where('account_id', $request->account_id)->exists();
-
-    return response()->json(['exists' => $exists]);
-}
-
-public function checkAccountStops(Request $request)
-{
-    $account = Account::where('account_id', $request->account)->first();
-
-    if (!$account) {
-        return response()->json(['disable_stops' => true, 'error' => 'Account not found']);
-    }
-
-    return response()->json([
-        'disable_stops' => (bool) $account->disable_stops
-    ]);
-}
-
-
-public function checkAccountPaymnetMethod(Request $request)
-{
-   $account = Account::where('account_id', $request->account)->first();
-
-if ($account) {
-   if ($account->disable_account_payment) {
-
-    $order = CustomerBooking::where('account_id', $account->account_id)
-        ->where('order_id', $request->order_id)
-        ->first();
-
-
-   if ($order) {
         return response()->json([
-            'disable_account_payment' => false,
-
-
+            'disable_stops' => (bool)$account->disable_stops
         ]);
-    }else{
-        return response()->json([
-        'disable_account_payment' => true,
-        'error' => 'Account is restricted for account payments.'
-    ]);
     }
-}else{
-    return response()->json([
-            'disable_account_payment' => false,
-            'error' => 'Account not found'
-        ]);
-}
 
-}
+    public function checkAccountPaymnetMethod(Request $request)
+    {
+        $account = Account::where('account_id', $request->account)->first();
+
+        if ($account) {
+            if ($account->disable_account_payment) {
+
+                $order = CustomerBooking::where('account_id', $account->account_id)
+                    ->where('order_id', $request->order_id)
+                    ->first();
 
 
+                if ($order) {
+                    return response()->json([
+                        'disable_account_payment' => false,
 
 
+                    ]);
+                } else {
+                    return response()->json([
+                        'disable_account_payment' => true,
+                        'error' => 'Account is restricted for account payments.'
+                    ]);
+                }
+            } else {
+                return response()->json([
+                    'disable_account_payment' => false,
+                    'error' => 'Account not found'
+                ]);
+            }
 
-}
+        }
+
+
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    private function generateUniqueAccountId()
+    {
+        do {
+
+            $randomNumber = mt_rand(1000, 9999);
+
+
+            $exists = Account::where('account_id', $randomNumber)->exists();
+
+        } while ($exists);
+
+        return $randomNumber;
+    }
 
 
 }
