@@ -399,32 +399,32 @@ class AccountController extends Controller
      * Store a newly created resource in storage.
      */
       public function status(Request $request, $id)
-{
-    $account = Account::find($id);
+        {
+            $account = Account::find($id);
 
-    if (!$account) {
-        return redirect()->back()->with('error', 'Account not found.');
-    }
-
-
-    if ($request->status == 1) {
-        $account->last_activated_at = now();
-
-    } else {
-        $account->last_inactive_at = now();
-
-    }
-
-    $account->status = $request->status;
-    $account->username = $request->username_change_status;
-    $account->reason = $request->reason_change_status;
-
-    $account->save();
+            if (!$account) {
+                return redirect()->back()->with('error', 'Account not found.');
+            }
 
 
+            if ($request->status == 1) {
+                $account->last_activated_at = now();
 
-    return redirect()->back()->with('success', 'Account status is changed successfully.');
-}
+            } else {
+                $account->last_inactive_at = now();
+
+            }
+
+            $account->status = $request->status;
+            $account->username = $request->username_change_status;
+            $account->reason = $request->reason_change_status;
+
+            $account->save();
+
+
+
+            return redirect()->back()->with('success', 'Account status is changed successfully.');
+        }
 
     /**
      * Display the specified resource.
@@ -455,34 +455,10 @@ class AccountController extends Controller
 
         $account = Account::find($id);
 
-        if($account->account_type == 'postpaid') {
-        if($request->account_type == 'prepaid') {
-
-            $balnce = $account->totalcost() - $account->totalPaidAmountByCustomerFromAccount();
-            if($balnce <= 0){
-
-                $account->balance = 0;
-//                $account->balance = 0-$balnce;
-            }else{
-                Session::flash('error','Cannot be convert to prepaid balance not 0');
-                return  redirect()->back();
-
-            }
-        }
-        }
-        if($account->account_type == 'prepaid') {
-            if($request->account_type == 'postpaid') {
-                $balnce = $account->balance;
-                if($balnce > 0){
-                    Session::flash('error','Cannot be convert to prepaid balance not 0');
-                    return redirect()->back();
-                }
-            }
-        }
 
         DB::beginTransaction();
 
-        $account->account_type = $request->account_type;
+        $account->account_type = 'prepaid';
         $account->recharge = $request->recharge;
         $account->autofill = $request->autofill;
         $account->first_refill = $request->first_refill;
@@ -499,6 +475,11 @@ class AccountController extends Controller
         $account->reason = $request->reason ? $request->reason : null;
         $account->notification_setting = $request->notification_setting;
         $account->pins = $request->pins ? $request->pins : null;
+        $account->invoice_email_day = $request->invoice_email_day ? $request->invoice_email_day : 1;
+        $account->invoice_email_time = $request->invoice_email_time ? now()->toDateString().' '.$request->invoice_email_time : '2025-10-01 02:00:00';
+        $account->is_trip_restricted_by_phone = $request->is_trip_restricted_by_phone ? 1 : 0;
+        $account->restricted_phones = $request->is_trip_restricted_by_phone ? json_encode($request->restricted_phones) : null;
+
         if(isset($request->change_pass)) {
             $account->password = Hash::make($request->password);
         }
@@ -514,8 +495,6 @@ class AccountController extends Controller
               //  $cube_resp  = CubeContact::updateCubeAccount($account->account_id,null,"active",true);
 
             }
-
-
 
 
         DB::commit();

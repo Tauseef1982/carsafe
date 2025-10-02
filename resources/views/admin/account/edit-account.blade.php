@@ -33,31 +33,13 @@
                                 @csrf
                                 <label for="">Account Type</label>
 
-                            <select name="account_type" class="form-select mb-3" id="account_type" required>
-                          
+                            <select name="account_type" class="form-select mb-3" id="account_type" disabled required>
+
 
 
                             <option value="prepaid" @if($account->account_type == 'prepaid') selected @endif>Pre Paid</option>
                          </select>
 
-                                <div id="recharge">
-                                <label for="">First Recharge</label>
-                                <input type="text" class="form-control mb-3" name="first_refill" id="first_refill" value="{{$account->first_refill}}" placeholder="$ 00.00">
-
-                                    <label for="">Do you want to on auto fill for your account</label><br>
-                                    <input type="radio" id="on-autofill" name="autofill" value="on"
-                                           @if($account->autofill == 'on') checked @endif><label for="on-autofill ms-2">Auto
-                                        fill On</label><br>
-                                    <input type="radio" id="off-autofill" name="autofill" value="off"
-                                           @if($account->autofill == 'off') checked @endif><label
-                                        for="off-autofill ms-2">Auto fill Off</label> <br>
-                                        <label for="">Please Enter Rechrage Amount</label>
-                                         <input type="text" class="form-control mb-3" id="recharge_amount" name="recharge"
-                                           value="{{$account->recharge}}" placeholder="$ 00.00">
-                                    </div>
-                              <label for="">Do you want to on pay per trip</label><br>
-                              <input type="radio" id="on-paypertrip" name="paypertrip" @if($account->paypertrip == 'on') checked @endif value="on"><label for="on-paypertrip ">Pay Per Trip On</label><br>
-                              <input type="radio" id="off-paypertrip"  name="paypertrip" @if($account->paypertrip == 'off') checked @endif value="off"><label for="off-paypertrip ">Pay Per Trip Off</label><br>
                                 <label for="">Account Number</label>
                                 <input type="text" class="form-control mb-3" disabled value="{{$account->account_id}}"
                                        name="account_id"/>
@@ -85,14 +67,59 @@
                                 <label for="">Account PINS</label>
 
                                 <input type="text" class="form-control mb-3"  placeholder="Please enter by separator (,)"
-                                name="pins" value="{{$account->pins}}" />
+                                       name="pins" value="{{$account->pins}}" />
                                 <label for="">Email</label>
                                 <input type="email" class="form-control mb-3" name="email"
                                        placeholder="Please Enter email here" value="{{$account->email}}">
                                 <label for="">Phone</label>
                                 <input type="phone" class="form-control mb-3" name="phone"
                                        placeholder="Please Enter phone here" value="{{$account->phone}}">
-                                <label for="">Notification Setting</label> <br>
+                                <center><h6>Recharge Setting</h6></center>
+
+                                <div id="recharge">
+                                <label for="">First Recharge</label>
+                                <input type="text" class="form-control mb-3" name="first_refill" id="first_refill" value="{{$account->first_refill}}" placeholder="$ 00.00">
+
+                                    <label for="">Do you want to on auto fill for your account</label><br>
+                                    <input type="radio" id="on-autofill" name="autofill" value="on"
+                                           @if($account->autofill == 'on') checked @endif><label for="on-autofill ms-2">Auto
+                                        fill On</label><br>
+                                    <input type="radio" id="off-autofill" name="autofill" value="off"
+                                           @if($account->autofill == 'off') checked @endif><label
+                                        for="off-autofill ms-2">Auto fill Off</label> <br>
+                                        <label for="">Please Enter Rechrage Amount</label>
+                                         <input type="text" class="form-control mb-3" id="recharge_amount" name="recharge"
+                                           value="{{$account->recharge}}" placeholder="$ 00.00">
+                                    </div>
+                                <center><h6>Trip Setting</h6></center>
+                              <label for="">Do you want to on pay per trip</label><br>
+                              <input type="radio" id="on-paypertrip" name="paypertrip" @if($account->paypertrip == 'on') checked @endif value="on"><label for="on-paypertrip "> On</label>
+                              <input type="radio" id="off-paypertrip"  name="paypertrip" @if($account->paypertrip == 'off') checked @endif value="off"><label for="off-paypertrip "> Off</label><br>
+
+                                <label for="">Do you want phone restriction on trip</label><br>
+                                <input type="checkbox" id="is_trip_restricted_by_phone"
+                                       name="is_trip_restricted_by_phone"
+                                       value="on"
+                                       @if($account->is_trip_restricted_by_phone == '1') checked @endif>
+                                <label for="is_trip_restricted_by_phone">On/Off</label><br>
+
+                                <div id="phoneNumbersBox" style="display:none; margin-top:10px;">
+                                    <label>Enter up to 10 phone numbers:</label><br>
+                                    <div id="phoneInputs">
+
+                                        @if(!empty($account->restricted_phones))
+                                        @foreach(json_decode($account->restricted_phones) as $restPhone)
+                                        <input type="text" name="restricted_phones[]" pattern="\d{10}" placeholder="10-digit phone" required value="{{$restPhone}}" maxlength="10" class="form-control" style="display: block;">
+                                        @endforeach
+                                        @endif
+
+                                    </div>
+                                    <button type="button" id="addPhoneBtn">+ Add Phone</button>
+                                </div>
+
+
+                                <center><h6>Notification Setting</h6></center>
+
                                 <input type="radio" @if($account->notification_setting == 'account_email') checked
                                        @endif value="account_email" name="notification_setting" id="account_email_n">
                                 <label for="account_email_n">Account Email </label>
@@ -109,6 +136,26 @@
                                        @endif name="notification_setting" id="both_phone_n">
                                 <label for="both_phone_n">Both Phone Numbers</label>
                                 <br>
+                                <br>
+                                <center><h6>Invoice Setting</h6></center>
+                                <label for="">Set Monthly Invoice Day and Time</label><br>
+
+                                <select name="invoice_email_day" class="" style="width: 100px;" >
+
+                                    <option selected>{{$account->invoice_email_day}}</option>
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                    <option>6</option>
+                                    <option>7</option>
+                                    <option>8</option>
+                                    <option>9</option>
+                                </select>
+                                <input type="time" class="" name="invoice_email_time" value="{{\Illuminate\Support\Carbon::createFromDate($account->invoice_email_time)->toTimeString()}}">
+                                <br>
+                                <br>
                                 <label for="">Address</label>
                                 <input name="address" class="form-control mb-3" placeholder="Please enter address here"
                                        id="address" value="{{$account->address}}">
@@ -122,6 +169,10 @@
                                 <label for="">Notes</label>
                                 <textarea name="notes" class="form-control" placeholder="Please enter notes here"
                                           id="">{{$account->notes}}</textarea>
+
+                                 <br>
+                                <br>
+                                <br>
 
                                 <button class="btn btn-primary mt-3" type="submit">Update</button>
 
@@ -207,5 +258,38 @@ $('#account_status').change(function () {
             });
         });
 
+    </script>
+    <script>
+        const checkbox = document.getElementById("is_trip_restricted_by_phone");
+        const phoneBox = document.getElementById("phoneNumbersBox");
+        const phoneInputs = document.getElementById("phoneInputs");
+        const addBtn = document.getElementById("addPhoneBtn");
+
+        // Show/hide on load
+        if (checkbox.checked) phoneBox.style.display = "block";
+
+        checkbox.addEventListener("change", function() {
+            phoneBox.style.display = this.checked ? "block" : "none";
+            if (!this.checked) phoneInputs.innerHTML = ""; // clear if unchecked
+        });
+
+        addBtn.addEventListener("click", function() {
+            const currentCount = phoneInputs.querySelectorAll("input").length;
+            if (currentCount < 10) {
+                const input = document.createElement("input");
+                input.type = "text";
+                input.name = "restricted_phones[]";
+                input.pattern = "\\d{10}";
+                input.placeholder = "10-digit phone";
+                input.required = true;
+                input.maxLength = 10;
+                input.style.display = "block";
+                input.classList = "form-control";
+                phoneInputs.appendChild(input);
+            } else {
+                alert("You can only add up to 10 numbers.");
+            }
+        });
+    </script>
     </script>
 @endsection
