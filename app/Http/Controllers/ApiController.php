@@ -237,7 +237,7 @@ class ApiController extends Controller
                                         $ickedup = !empty($trip['icked up']) ? date("Y-m-d H:i:s", strtotime($trip['icked up'])) : null;
                                         $existingTrip->update([
                                             'location_from' => $trip['route.pick_up_text'],
-                                            'location_to' => $to_location,
+                                            //'location_to' => $to_location,
                                             'date' => $date,
                                             'time' => $time,
                                             'trip_cost' => !empty($trip['fx.trip_base']) && $trip['fx.trip_base'] != 0 ? $trip['fx.trip_base'] : $trip['estimatedPrice'],
