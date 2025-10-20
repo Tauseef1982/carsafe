@@ -114,7 +114,7 @@ class EmailService
             }else {
                 PDF::loadView('email.accountinvoice_pdf', ['data' => $data2])->save($path);
             }
-            return true;
+//            return true;
 //            Log::info($pathPdf);
             $data3['path'] = $path;
             $data3['message'] = $message;
