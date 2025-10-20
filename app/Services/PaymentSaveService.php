@@ -100,7 +100,7 @@ class PaymentSaveService
                 $account->balance += $to_refill;
                 $account->save();
 
-               
+
 
 
                 $logData = [
@@ -211,7 +211,7 @@ class PaymentSaveService
                 }
                 $Trip_ids = [];
 
-                if ($loop_limit > 10) {
+                if ($loop_limit > 2) {
                     break;
                 }
             }
@@ -240,7 +240,7 @@ class PaymentSaveService
                                 $amuntWithfee,
                                 $account->account_id . '-amountActual' . $total_payments
                             );
-                            Log::info('token tryingg = ' . $token->cardnox_token . ' charged ' . $fillAndDeduct['status']);
+                            Log::Info('token tryingg = ' . $token->cardnox_token . ' charged ' . $fillAndDeduct['status']);
 
                             if ($fillAndDeduct['status'] === 'approved') {
                                 break;

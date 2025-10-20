@@ -271,6 +271,23 @@ class TripController extends Controller
                 }
 
             }
+
+
+            if ($account->is_trip_restricted_by_phone == 1) {
+                if (!empty($account->restricted_phones)) {
+
+                    $to_match = $trip->passenger_phone;
+                    $allowed_phones = json_decode($account->restricted_phones, true); // decode to array
+
+                    $matched = in_array($to_match, $allowed_phones);
+
+                    if (!$matched) {
+                        return redirect()->back()->with('error', 'Trip is not allowed based on your phone restriction.');
+                    }
+                }
+            }
+
+
             $pins = array_map('trim', explode(',', $account->pins)); // Split and clean
             $enteredPin = trim($request->input('account_pin')); // Clean user input
             if (isset($request->is_driver)) {

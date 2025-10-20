@@ -296,7 +296,7 @@ class AccountController extends Controller
         $account->password = Hash::make($request->password);
         // $account->secondary_contact = $request->secondary_contact;
         $account->invoice_email_day = $request->invoice_email_day ? $request->invoice_email_day : 1;
-        $account->invoice_email_time = $request->invoice_email_time ? now()->toDateString() . ' ' . $request->invoice_email_time : '2025-10-01 02:00:00';
+        $account->invoice_email_time = $request->invoice_email_time ? 1 : 0;
         $account->is_trip_restricted_by_phone = $request->is_trip_restricted_by_phone ? 1 : 0;
         $account->restricted_phones = $request->is_trip_restricted_by_phone ? json_encode($request->restricted_phones) : null;
 
@@ -458,7 +458,7 @@ class AccountController extends Controller
         $account->notification_setting = $request->notification_setting;
         $account->pins = $request->pins ? $request->pins : null;
         $account->invoice_email_day = $request->invoice_email_day ? $request->invoice_email_day : 1;
-        $account->invoice_email_time = $request->invoice_email_time ? now()->toDateString() . ' ' . $request->invoice_email_time : '2025-10-01 02:00:00';
+        $account->invoice_email_time = $request->invoice_email_time ? 1 : 0;
         $account->is_trip_restricted_by_phone = $request->is_trip_restricted_by_phone ? 1 : 0;
         $account->restricted_phones = $request->is_trip_restricted_by_phone ? json_encode($request->restricted_phones) : null;
 

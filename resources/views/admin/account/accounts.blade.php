@@ -220,21 +220,9 @@
                         <br>
                         <br>
                         <center><h6>Invoice Setting</h6></center>
-                        <label for="">Set Monthly Invoice Day and Time</label><br>
+                        <label for="">Show Time on Invoice</label><br>
 
-                        <select name="invoice_email_day" class="" style="width: 100px;" >
-
-                            <option selected >1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4</option>
-                            <option>5</option>
-                            <option>6</option>
-                            <option>7</option>
-                            <option>8</option>
-                            <option>9</option>
-                        </select>
-                        <input type="time" class="" name="invoice_email_time" value="">
+                        <input type="checkbox" class="" name="invoice_email_time" checked />
                         <br>
                         <br>
 
