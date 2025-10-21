@@ -336,8 +336,7 @@ class ApiController extends Controller
 
     //         }
 
-
-    public function getWebHookTrip(Request $request)
+public function getWebHookTrip(Request $request)
 {
     try {
         // --- Step 1: Get and log raw webhook content ---
@@ -488,6 +487,7 @@ class ApiController extends Controller
         return response()->json(['error' => 'Internal server error'], 500);
     }
 }
+
 
 
    public function voiceCall(Request $request){
