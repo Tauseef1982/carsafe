@@ -190,7 +190,7 @@ class ApiController extends Controller
 
         $logdata = LogService::saveLog($data);
         $trip = json_decode( $tripContent, true);
-        Log::info('Webhook received from Taxicaller', ['trip' => $trip]);
+        //Log::info('Webhook received from Taxicaller', ['trip' => $trip]);
 
         if(!isset($trip['start']) || $trip == null){
 
@@ -243,7 +243,14 @@ class ApiController extends Controller
                                            // Also, in cursafe the destination in any Web book should never be updated by Future weather. We should always only have saved the first destination from first pueblo, and in any future Web book we should ignore and not update the updated the destinationHow can this happen I don't understand because this was a skip trip I guess and from Adam's side we cannot create skip trips so let me know
                                             'date' => $date,
                                             'time' => $time,
-                                            'trip_cost' => !empty($trip['fx.trip_base']) && $trip['fx.trip_base'] != 0 ? $trip['fx.trip_base'] : $trip['estimatedPrice'],
+                                            // 'trip_cost' => !empty($trip['fx.trip_base']) && $trip['fx.trip_base'] != 0 ? $trip['fx.trip_base'] : $trip['estimatedPrice'],
+                                        'trip_cost' => (
+                                            isset($trip['Grand Total']) && $trip['Grand Total'] > 0
+                                            ? $trip['Grand Total']
+                                            : ((isset($trip['fx.trip_base']) && $trip['fx.trip_base'] != 0)
+                                                ? $trip['fx.trip_base']
+                                                : ($trip['estimatedPrice'] ?? 0))
+                                        ),
 
                                             'driver_id' => $trip['driverId'],
                                             'account_number' => $trip['account.name'],
