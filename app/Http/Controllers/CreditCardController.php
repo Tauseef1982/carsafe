@@ -84,32 +84,69 @@ class CreditCardController extends Controller
             $creditCard->card_number = $maskedCard;
             $creditCard->cvc = $request->cvc;
             // Process expiry date
-            $expiry = $request->input('expiry');
+            // $expiry = $request->input('expiry');
 
-            if(isset($request->month) && isset($request->year)){
-                $month = $request->month;
-                $year = $request->year;
-                $expiryWithoutSlash = $month.$year;
+            // if(isset($request->month) && isset($request->year)){
+            //     $month = $request->month;
+            //     $year = $request->year;
+            //     $expiryWithoutSlash = $month.$year;
 
-            }else{
+            // }else {
                 // list($month, $year) = explode('/', $expiry);
                 // $expiryWithoutSlash = str_replace('/', '', $expiry);
-                if (strpos($expiry, '/') !== false) {
-    [$month, $year] = explode('/', $expiry);
+                // if (strpos($expiry, '/') !== false) {
+                //     [$month, $year] = explode('/', $expiry);
+                // } else {
+                    // Fallback: assume expiry is like "1225"
+                //     $month = substr($expiry, 0, 2);
+                //     $year = substr($expiry, -2);
+                // }
+
+            //     $expiryWithoutSlash = $month . $year;
+
+
+            // }
+
+            // $fullYear = '20' . $year;
+            // $expiryDate = \Carbon\Carbon::createFromDate($fullYear, $month, 1)->toDateString();
+            // $creditCard->expiry = $expiryDate;
+
+            // Process expiry date
+$expiry = $request->input('expiry');
+
+if (isset($request->month) && isset($request->year)) {
+    $month = (int) $request->month;
+    $year = (int) $request->year;
 } else {
-    // Fallback: assume expiry is like "1225"
-    $month = substr($expiry, 0, 2);
-    $year = substr($expiry, -2);
+    $expiry = trim($expiry);
+
+    if (strpos($expiry, '/') !== false) {
+        [$month, $year] = explode('/', $expiry);
+    } else {
+        // Handle formats like 1225 or 122025
+        $month = substr($expiry, 0, 2);
+        $year = substr($expiry, -2);
+    }
+
+    $month = (int) ltrim($month, '0');
+    $year = (int) ltrim($year, '0');
 }
 
-$expiryWithoutSlash = $month . $year;
+// Validate month range
+if ($month < 1 || $month > 12) {
+    return back()->with('error', 'Invalid expiry month format.');
+}
 
+// Convert to 4-digit year
+$fullYear = ($year < 100) ? (2000 + $year) : $year;
 
-            }
+// Create expiry date for DB
+$expiryDate = \Carbon\Carbon::createFromDate($fullYear, $month, 1)->toDateString();
+$creditCard->expiry = $expiryDate;
 
-            $fullYear = '20' . $year;
-            $expiryDate = \Carbon\Carbon::createFromDate($fullYear, $month, 1)->toDateString();
-            $creditCard->expiry = $expiryDate;
+// Format expiry without slash for CardKnox
+$expiryWithoutSlash = sprintf('%02d%02d', $month, $year);
+
 
             // Remove the slash from expiry for CardKnoxService
 
