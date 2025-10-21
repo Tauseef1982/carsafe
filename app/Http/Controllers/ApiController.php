@@ -177,167 +177,318 @@ class ApiController extends Controller
 
     }
 
-    public function getWebHookTrip(Request $request){
+    // public function getWebHookTrip(Request $request){
 
 
+    //     $tripContent = $request->getContent();
+
+    //       $data = [
+    //         'from' => 'taxicaller',
+    //         'message' => 'Webhook received from taxicaller -' . $request->comments,
+    //         'data' => $tripContent,
+    //     ];
+
+    //     $logdata = LogService::saveLog($data);
+    //     $tripContent = preg_replace('/"Grand Total":\s*([,}])/', '"Grand Total": ""$1', $tripContent);
+    //     $trip = json_decode( $tripContent, true);
+
+
+    //    if (!is_array($trip) || empty($trip)) {
+    //     Log::error('trip-web-hook-error: $trip is null or invalid JSON', [
+    //         'raw' => $tripContent,
+    //     ]);
+    //     return response()->json(['error' => 'Invalid trip data'], 400);
+    // }
+
+    //     if(!isset($trip['start']) || $trip == null){
+
+    //         $tripdata = json_decode($logdata->data, true);
+    //        $tripdata = str_replace(["\t", "\n"], '', $tripdata['data']);
+
+    //         $tripdata = json_decode($tripdata,true);
+    //         $trip = $tripdata;
+
+
+
+    //     }
+
+
+    //     try {
+
+
+    //             if ($trip['start'] != '-' && $trip['start'] != '') {
+
+    //                 if (isset($trip['driverId'])) {
+    //                     if ($trip['driverId'] != '') {
+
+
+    //                         $dateTime = Carbon::createFromFormat('m/d/Y h:i A', $trip['start']);
+    //                         $date = $dateTime->format('Y-m-d');
+    //                         $time = $dateTime->format('H:i:s');
+
+    //                         $existingTrip = Trip::where('trip_id', $trip['id'])->first();
+
+    //                         $to_location = $trip['route.drop_off_text'];
+    //                         $order_id = null;
+    //                         if(isset($trip['OrderId'])){
+    //                             $customer_order = CustomerBooking::where('order_id',$trip['OrderId'])->first();
+    //                             if($customer_order){
+    //                                 $customer_order->status = 'web_hook_recieved';
+    //                                 $customer_order->save();
+    //                                 $order_id = $customer_order->order_id;
+    //                             }
+    //                         }
+
+    //                         if ($existingTrip) {
+
+    //                             if ($existingTrip->payment_method === 'cash') {
+    //                                 if ($existingTrip->temp_data == null || $existingTrip->temp_data == '') {
+    //                             $tsDelivered = (!empty($trip['ts.delivered']) && $trip['ts.delivered'] !== '-')
+    //                                 ? date("Y-m-d H:i:s", strtotime($trip['ts.delivered']))
+    //                                 : null;
+    //                                     if (!empty($trip['Stops'])) {
+
+    //                                  $stops = str_replace("\n", ', ', $trip['Stops']);
+    //                                  } else {
+    //                                             $stops = null;
+    //                                   }
+    //                                     $ickedup = !empty($trip['icked up']) ? date("Y-m-d H:i:s", strtotime($trip['icked up'])) : null;
+    //                                     $existingTrip->update([
+    //                                         'location_from' => $trip['route.pick_up_text'],
+    //                                          'date' => $date,
+    //                                         'time' => $time,
+    //                                         'trip_cost' => (
+    //                                         isset($trip['Grand Total']) && is_numeric($trip['Grand Total']) && $trip['Grand Total'] > 0
+    //                                         ? $trip['Grand Total']
+    //                                         : ((isset($trip['fx.trip_base']) && is_numeric($trip['fx.trip_base']) && $trip['fx.trip_base'] > 0)
+    //                                             ? $trip['fx.trip_base']
+    //                                             : ($trip['estimatedPrice'] ?? 0))
+    //                                     ),
+
+
+    //                                         'driver_id' => $trip['driverId'],
+    //                                         'account_number' => $trip['account.name'],
+    //                                         'passenger_phone' => $trip['passenger.phone'].'',
+    //                                         'estimated_cost' => !empty($trip['fx.trip_base']) && $trip['fx.trip_base'] != 0 ? $trip['fx.trip_base'] : $trip['estimatedPrice'],
+    //                                         'status' => $trip['event'],
+    //                                         'ts_delivered' => $tsDelivered,
+    //                                         'icked_up' => $ickedup,
+    //                                         'order_id' => $order_id,
+    //                                         'stop_location' => $stops,
+
+    //                                     ]);
+    //                                     return response()->json('updated');
+
+    //                                 }
+    //                             }
+    //                         } else {
+
+    //                     $ickedup = !empty($trip['icked up']) ? date("Y-m-d H:i:s", strtotime($trip['icked up'])) : null;
+    //                     $tsDelivered = (!empty($trip['ts.delivered']) && $trip['ts.delivered'] !== '-')
+    //                         ? date("Y-m-d H:i:s", strtotime($trip['ts.delivered']))
+    //                         : null;
+
+    //                          if (!empty($trip['Stops'])) {
+
+    //                                  $stops = str_replace("\n", ', ', $trip['Stops']);
+    //                                  } else {
+    //                                             $stops = null;
+    //                                   }
+
+    //                             Trip::create([
+    //                                 'trip_id' => (int)$trip['id'],
+    //                                 'location_from' => $trip['route.pick_up_text'],
+    //                                 'location_to' => $to_location,
+    //                                 'date' => $date,
+    //                                 'time' => $time,
+    //                                 'trip_cost' => !empty($trip['fx.grand_total']) && $trip['fx.grand_total'] != 0 ? $trip['fx.grand_total'] : $trip['estimatedPrice'],
+    //                                 'extra_charges' => !empty($trip['fx.trip_extras']) && $trip['fx.trip_extras'] != 0 ? $trip['fx.trip_extras'] : 0,
+    //                                 'driver_id' => $trip['driverId'],
+    //                                 'account_number' => $trip['account.name'],
+    //                                 'passenger_phone' => $trip['passenger.phone'],
+    //                                 'estimated_cost' => !empty($trip['fx.trip_base']) && $trip['fx.trip_base'] != 0 ? $trip['fx.trip_base'] : $trip['estimatedPrice'],
+    //                                 'status' => $trip['event'],
+    //                                 'ts_delivered' => $tsDelivered,
+    //                                 'icked_up' => $ickedup,
+    //                                 'order_id' => $order_id,
+    //                                 'stop_location' => $stops,
+
+
+    //                             ]);
+
+    //                           return response()->json('created');
+
+    //                         }
+
+
+
+    //                     }
+    //                 }
+
+    //             }
+    //     } catch (\Exception $e) {
+
+
+    //         Log::error('trip-web-hook-error: ' . $e->getMessage());
+    //     }
+
+
+
+    //         }
+
+
+    public function getWebHookTrip(Request $request)
+{
+    try {
+        // --- Step 1: Get and log raw webhook content ---
         $tripContent = $request->getContent();
 
-          $data = [
+        $data = [
             'from' => 'taxicaller',
-            'message' => 'Webhook received from taxicaller -' . $request->comments,
+            'message' => 'Webhook received from taxicaller -' . ($request->comments ?? ''),
             'data' => $tripContent,
         ];
 
         $logdata = LogService::saveLog($data);
+
+        // --- Step 2: Clean invalid "Grand Total" entries ---
         $tripContent = preg_replace('/"Grand Total":\s*([,}])/', '"Grand Total": ""$1', $tripContent);
-        $trip = json_decode( $tripContent, true);
-        //Log::info('Webhook received from Taxicaller', ['trip' => $trip]);
 
-       if (!is_array($trip) || empty($trip)) {
-        Log::error('trip-web-hook-error: $trip is null or invalid JSON', [
-            'raw' => $tripContent,
-        ]);
-        return response()->json(['error' => 'Invalid trip data'], 400);
-    }
+        // --- Step 3: Safe JSON decode (handles double-encoded cases) ---
+        $trip = json_decode($tripContent, true);
+        if (is_string($trip)) {
+            $trip = json_decode($trip, true);
+        }
 
-        if(!isset($trip['start']) || $trip == null){
+        // --- Step 4: Validate JSON structure ---
+        if (!is_array($trip) || empty($trip)) {
+            Log::error('trip-web-hook-error: $trip is null or invalid JSON', [
+                'raw' => $tripContent,
+            ]);
+            return response()->json(['error' => 'Invalid trip data'], 400);
+        }
 
+        // --- Step 5: Fallback if "start" is missing ---
+        if (!isset($trip['start']) || $trip['start'] === null) {
             $tripdata = json_decode($logdata->data, true);
-           $tripdata = str_replace(["\t", "\n"], '', $tripdata['data']);
-
-            $tripdata = json_decode($tripdata,true);
-            $trip = $tripdata;
-//            $this->fetchtrip($tripId);
-
-
-        }
-
-
-        try {
-
-        // Check if 'start' is valid
-                if ($trip['start'] != '-' && $trip['start'] != '') {
-
-                    if (isset($trip['driverId'])) {
-                        if ($trip['driverId'] != '') {
-
-
-                            $dateTime = Carbon::createFromFormat('m/d/Y h:i A', $trip['start']);
-                            $date = $dateTime->format('Y-m-d'); // e.g., '2024-09-01'
-                            $time = $dateTime->format('H:i:s'); // e.g., '12:25:00'
-
-                            $existingTrip = Trip::where('trip_id', $trip['id'])->first();
-
-                            $to_location = $trip['route.drop_off_text'];
-                            $order_id = null;
-                            if(isset($trip['OrderId'])){
-                                $customer_order = CustomerBooking::where('order_id',$trip['OrderId'])->first();
-                                if($customer_order){
-                                    $customer_order->status = 'web_hook_recieved';
-                                    $customer_order->save();
-                                    $order_id = $customer_order->order_id;
-                                }
-                            }
-
-                            if ($existingTrip) {
-                                // Check if the payment method is cash
-                                if ($existingTrip->payment_method === 'cash') {
-                                    if ($existingTrip->temp_data == null || $existingTrip->temp_data == '') {
-                                $tsDelivered = (!empty($trip['ts.delivered']) && $trip['ts.delivered'] !== '-')
-                                    ? date("Y-m-d H:i:s", strtotime($trip['ts.delivered']))
-                                    : null;
-                                        if (!empty($trip['Stops'])) {
-
-                                     $stops = str_replace("\n", ', ', $trip['Stops']);
-                                     } else {
-                                                $stops = null;
-                                      }
-                                        $ickedup = !empty($trip['icked up']) ? date("Y-m-d H:i:s", strtotime($trip['icked up'])) : null;
-                                        $existingTrip->update([
-                                            'location_from' => $trip['route.pick_up_text'],
-                                            //'location_to' => $to_location,
-                                           // Also, in cursafe the destination in any Web book should never be updated by Future weather. We should always only have saved the first destination from first pueblo, and in any future Web book we should ignore and not update the updated the destinationHow can this happen I don't understand because this was a skip trip I guess and from Adam's side we cannot create skip trips so let me know
-                                            'date' => $date,
-                                            'time' => $time,
-                                            // 'trip_cost' => !empty($trip['fx.trip_base']) && $trip['fx.trip_base'] != 0 ? $trip['fx.trip_base'] : $trip['estimatedPrice'],
-                                        'trip_cost' => (
-                                            isset($trip['Grand Total']) && is_numeric($trip['Grand Total']) && $trip['Grand Total'] > 0
-                                            ? $trip['Grand Total']
-                                            : ((isset($trip['fx.trip_base']) && is_numeric($trip['fx.trip_base']) && $trip['fx.trip_base'] > 0)
-                                                ? $trip['fx.trip_base']
-                                                : ($trip['estimatedPrice'] ?? 0))
-                                        ),
-
-
-                                            'driver_id' => $trip['driverId'],
-                                            'account_number' => $trip['account.name'],
-                                            'passenger_phone' => $trip['passenger.phone'].'',
-                                            'estimated_cost' => !empty($trip['fx.trip_base']) && $trip['fx.trip_base'] != 0 ? $trip['fx.trip_base'] : $trip['estimatedPrice'],
-                                            'status' => $trip['event'],
-                                            'ts_delivered' => $tsDelivered,
-                                            'icked_up' => $ickedup,
-                                            'order_id' => $order_id,
-                                            'stop_location' => $stops,
-
-                                        ]);
-                                        return response()->json('updated');
-
-                                    }
-                                }
-                            } else {
-
-                        $ickedup = !empty($trip['icked up']) ? date("Y-m-d H:i:s", strtotime($trip['icked up'])) : null;
-                        $tsDelivered = (!empty($trip['ts.delivered']) && $trip['ts.delivered'] !== '-')
-                            ? date("Y-m-d H:i:s", strtotime($trip['ts.delivered']))
-                            : null;
-
-                             if (!empty($trip['Stops'])) {
-
-                                     $stops = str_replace("\n", ', ', $trip['Stops']);
-                                     } else {
-                                                $stops = null;
-                                      }
-
-                                Trip::create([
-                                    'trip_id' => (int)$trip['id'],
-                                    'location_from' => $trip['route.pick_up_text'],
-                                    'location_to' => $to_location,
-                                    'date' => $date,
-                                    'time' => $time,
-                                    'trip_cost' => !empty($trip['fx.grand_total']) && $trip['fx.grand_total'] != 0 ? $trip['fx.grand_total'] : $trip['estimatedPrice'],
-                                    'extra_charges' => !empty($trip['fx.trip_extras']) && $trip['fx.trip_extras'] != 0 ? $trip['fx.trip_extras'] : 0,
-                                    'driver_id' => $trip['driverId'],
-                                    'account_number' => $trip['account.name'],
-                                    'passenger_phone' => $trip['passenger.phone'],
-                                    'estimated_cost' => !empty($trip['fx.trip_base']) && $trip['fx.trip_base'] != 0 ? $trip['fx.trip_base'] : $trip['estimatedPrice'],
-                                    'status' => $trip['event'],
-                                    'ts_delivered' => $tsDelivered,
-                                    'icked_up' => $ickedup,
-                                    'order_id' => $order_id,
-                                    'stop_location' => $stops,
-
-
-                                ]);
-
-                              return response()->json('created');
-
-                            }
-
-
-
-                        }
-                    }
-
-                }
-        } catch (\Exception $e) {
-
-
-            Log::error('trip-web-hook-error: ' . $e->getMessage());
-        }
-
-
-
+            $tripdata = str_replace(["\t", "\n"], '', $tripdata['data'] ?? '');
+            $tripdata = json_decode($tripdata, true);
+            if (is_array($tripdata)) {
+                $trip = $tripdata;
             }
+        }
+
+        // --- Step 6: Skip invalid "start" values ---
+        if (!isset($trip['start']) || in_array($trip['start'], ['-', '', null], true)) {
+            return response()->json(['message' => 'Invalid start time, skipping'], 200);
+        }
+
+        // --- Step 7: Required driverId check ---
+        if (empty($trip['driverId'])) {
+            return response()->json(['message' => 'Missing driverId, skipping'], 200);
+        }
+
+        // --- Step 8: Parse date/time safely ---
+        try {
+            $dateTime = Carbon::createFromFormat('m/d/Y h:i A', $trip['start']);
+            $date = $dateTime->format('Y-m-d');
+            $time = $dateTime->format('H:i:s');
+        } catch (\Exception $e) {
+            Log::warning('Invalid date format in trip start: ' . $trip['start']);
+            return response()->json(['message' => 'Invalid date format, skipping'], 200);
+        }
+
+        // --- Step 9: Prepare key variables ---
+        $tripId = (int)($trip['id'] ?? 0);
+        $to_location = $trip['route.drop_off_text'] ?? '';
+        $order_id = null;
+
+        // --- Step 10: Link order if exists ---
+        if (!empty($trip['OrderId'])) {
+            $customer_order = CustomerBooking::where('order_id', $trip['OrderId'])->first();
+            if ($customer_order) {
+                $customer_order->status = 'web_hook_recieved';
+                $customer_order->save();
+                $order_id = $customer_order->order_id;
+            }
+        }
+
+        // --- Step 11: Find existing trip ---
+        $existingTrip = Trip::where('trip_id', $tripId)->first();
+
+        // --- Step 12: Common clean values ---
+        $tsDelivered = (!empty($trip['ts.delivered']) && $trip['ts.delivered'] !== '-')
+            ? date("Y-m-d H:i:s", strtotime($trip['ts.delivered']))
+            : null;
+
+        $ickedup = (!empty($trip['icked up']) && $trip['icked up'] !== '-')
+            ? date("Y-m-d H:i:s", strtotime($trip['icked up']))
+            : null;
+
+        $stops = !empty($trip['Stops'])
+            ? str_replace("\n", ', ', $trip['Stops'])
+            : null;
+
+        // --- Step 13: Determine trip cost safely ---
+        $tripCost = (
+            isset($trip['Grand Total']) && is_numeric(trim($trip['Grand Total'])) && trim($trip['Grand Total']) > 0
+                ? trim($trip['Grand Total'])
+                : ((isset($trip['fx.trip_base']) && is_numeric(trim($trip['fx.trip_base'])) && trim($trip['fx.trip_base']) > 0)
+                    ? trim($trip['fx.trip_base'])
+                    : ($trip['estimatedPrice'] ?? 0))
+        );
+
+        // --- Step 14: Update or create trip record ---
+        if ($existingTrip) {
+            if ($existingTrip->payment_method === 'cash' && empty($existingTrip->temp_data)) {
+                $existingTrip->update([
+                    'location_from' => $trip['route.pick_up_text'] ?? '',
+                    'date' => $date,
+                    'time' => $time,
+                    'trip_cost' => $tripCost,
+                    'driver_id' => $trip['driverId'] ?? '',
+                    'account_number' => $trip['account.name'] ?? '',
+                    'passenger_phone' => ($trip['passenger.phone'] ?? '') . '',
+                    'estimated_cost' => !empty($trip['fx.trip_base']) ? $trip['fx.trip_base'] : ($trip['estimatedPrice'] ?? 0),
+                    'status' => $trip['event'] ?? '',
+                    'ts_delivered' => $tsDelivered,
+                    'icked_up' => $ickedup,
+                    'order_id' => $order_id,
+                    'stop_location' => $stops,
+                ]);
+                return response()->json('updated', 200);
+            }
+        } else {
+            Trip::create([
+                'trip_id' => $tripId,
+                'location_from' => $trip['route.pick_up_text'] ?? '',
+                'location_to' => $to_location,
+                'date' => $date,
+                'time' => $time,
+                'trip_cost' => $tripCost,
+                'extra_charges' => !empty($trip['fx.trip_extras']) && is_numeric($trip['fx.trip_extras'])
+                    ? $trip['fx.trip_extras']
+                    : 0,
+                'driver_id' => $trip['driverId'] ?? '',
+                'account_number' => $trip['account.name'] ?? '',
+                'passenger_phone' => $trip['passenger.phone'] ?? '',
+                'estimated_cost' => !empty($trip['fx.trip_base']) ? $trip['fx.trip_base'] : ($trip['estimatedPrice'] ?? 0),
+                'status' => $trip['event'] ?? '',
+                'ts_delivered' => $tsDelivered,
+                'icked_up' => $ickedup,
+                'order_id' => $order_id,
+                'stop_location' => $stops,
+            ]);
+            return response()->json('created', 201);
+        }
+
+        return response()->json('no action', 200);
+    } catch (\Exception $e) {
+        Log::error('trip-web-hook-error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+        return response()->json(['error' => 'Internal server error'], 500);
+    }
+}
+
 
    public function voiceCall(Request $request){
 
