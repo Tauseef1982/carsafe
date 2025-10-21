@@ -325,7 +325,7 @@ class ApiController extends Controller
         } catch (\Exception $e) {
 
 
-            Log::Info('trip-web-hook-error');
+            Log::error('trip-web-hook-error: ' . $e->getMessage());
         }
 
 
