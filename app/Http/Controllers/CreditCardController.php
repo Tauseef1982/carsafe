@@ -92,8 +92,18 @@ class CreditCardController extends Controller
                 $expiryWithoutSlash = $month.$year;
 
             }else{
-                list($month, $year) = explode('/', $expiry);
-                $expiryWithoutSlash = str_replace('/', '', $expiry);
+                // list($month, $year) = explode('/', $expiry);
+                // $expiryWithoutSlash = str_replace('/', '', $expiry);
+                if (strpos($expiry, '/') !== false) {
+    [$month, $year] = explode('/', $expiry);
+} else {
+    // Fallback: assume expiry is like "1225"
+    $month = substr($expiry, 0, 2);
+    $year = substr($expiry, -2);
+}
+
+$expiryWithoutSlash = $month . $year;
+
 
             }
 
