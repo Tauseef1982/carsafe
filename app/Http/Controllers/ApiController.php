@@ -181,7 +181,7 @@ class ApiController extends Controller
 
 
         $tripContent = $request->getContent();
-        Log::info("webhook from taxicaller",$tripContent);
+      
           $data = [
             'from' => 'taxicaller',
             'message' => 'Webhook received from taxicaller -' . $request->comments,
