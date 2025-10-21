@@ -192,7 +192,12 @@ class ApiController extends Controller
         $trip = json_decode( $tripContent, true);
         //Log::info('Webhook received from Taxicaller', ['trip' => $trip]);
 
-
+       if (!is_array($trip) || empty($trip)) {
+        Log::error('trip-web-hook-error: $trip is null or invalid JSON', [
+            'raw' => $tripContent,
+        ]);
+        return response()->json(['error' => 'Invalid trip data'], 400);
+    }
 
         if(!isset($trip['start']) || $trip == null){
 
