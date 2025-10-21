@@ -192,13 +192,18 @@ class ApiController extends Controller
         $trip = json_decode( $tripContent, true);
         //Log::info('Webhook received from Taxicaller', ['trip' => $trip]);
 
+
+
         if(!isset($trip['start']) || $trip == null){
 
             $tripdata = json_decode($logdata->data, true);
-            $tripdata = str_replace("\t".'','',$tripdata['data']);
+           $tripdata = str_replace(["\t", "\n"], '', $tripdata['data']);
+
             $tripdata = json_decode($tripdata,true);
             $trip = $tripdata;
 //            $this->fetchtrip($tripId);
+
+
         }
 
 
@@ -235,7 +240,12 @@ class ApiController extends Controller
                                 $tsDelivered = (!empty($trip['ts.delivered']) && $trip['ts.delivered'] !== '-')
                                     ? date("Y-m-d H:i:s", strtotime($trip['ts.delivered']))
                                     : null;
+                                        if (!empty($trip['Stops'])) {
 
+                                     $stops = str_replace("\n", ', ', $trip['Stops']);
+                                     } else {
+                                                $stops = null;
+                                      }
                                         $ickedup = !empty($trip['icked up']) ? date("Y-m-d H:i:s", strtotime($trip['icked up'])) : null;
                                         $existingTrip->update([
                                             'location_from' => $trip['route.pick_up_text'],
@@ -260,6 +270,7 @@ class ApiController extends Controller
                                             'ts_delivered' => $tsDelivered,
                                             'icked_up' => $ickedup,
                                             'order_id' => $order_id,
+                                            'stop_location' => $stops,
 
                                         ]);
                                         return response()->json('updated');
@@ -272,6 +283,13 @@ class ApiController extends Controller
                         $tsDelivered = (!empty($trip['ts.delivered']) && $trip['ts.delivered'] !== '-')
                             ? date("Y-m-d H:i:s", strtotime($trip['ts.delivered']))
                             : null;
+
+                             if (!empty($trip['Stops'])) {
+
+                                     $stops = str_replace("\n", ', ', $trip['Stops']);
+                                     } else {
+                                                $stops = null;
+                                      }
 
                                 Trip::create([
                                     'trip_id' => (int)$trip['id'],
@@ -289,6 +307,7 @@ class ApiController extends Controller
                                     'ts_delivered' => $tsDelivered,
                                     'icked_up' => $ickedup,
                                     'order_id' => $order_id,
+                                    'stop_location' => $stops,
 
 
                                 ]);
