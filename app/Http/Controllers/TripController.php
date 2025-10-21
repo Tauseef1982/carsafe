@@ -52,11 +52,19 @@ class TripController extends Controller
                 ->where('status', 'NOT LIKE', '%Client canceled%')
                 ->whereNotNull('icked_up')
                 ->where('icked_up', '!=', '')
+                // ->where(function ($query) {
+                //     $query->whereNull('ts_delivered')
+                //         ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
+                //         ->orWhereBetween('ts_delivered', [now()->subMinutes(15)->format('Y-m-d H:i:s'), now()->format('Y-m-d H:i:s')]);
+                // })
                 ->where(function ($query) {
-                    $query->whereNull('ts_delivered')
-                        ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
-                        ->orWhereBetween('ts_delivered', [now()->subMinutes(15)->format('Y-m-d H:i:s'), now()->format('Y-m-d H:i:s')]);
-                })
+                        $query->whereNull('ts_delivered')
+                            ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
+                            ->orWhereBetween('ts_delivered', [
+                                now()->subMinutes(15)->format('Y-m-d H:i:s'),
+                                now()->format('Y-m-d H:i:s')
+                            ]);
+                    })
                 ->whereNotExists(function ($query) use ($driverId) {
                     $query->select(DB::raw(1))
                         ->from('trips as future_trips')
