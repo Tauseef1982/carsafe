@@ -189,6 +189,7 @@ class ApiController extends Controller
         ];
 
         $logdata = LogService::saveLog($data);
+        $tripContent = preg_replace('/"Grand Total":\s*([,}])/', '"Grand Total": ""$1', $tripContent);
         $trip = json_decode( $tripContent, true);
         //Log::info('Webhook received from Taxicaller', ['trip' => $trip]);
 
