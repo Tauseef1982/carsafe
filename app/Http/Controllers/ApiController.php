@@ -190,7 +190,7 @@ class ApiController extends Controller
 
         $logdata = LogService::saveLog($data);
         $trip = json_decode( $tripContent, true);
-      
+        Log::info('Webhook received from Taxicaller', ['trip' => $trip]);
 
         if(!isset($trip['start']) || $trip == null){
 
