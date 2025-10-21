@@ -351,6 +351,8 @@ public function getWebHookTrip(Request $request)
         $logdata = LogService::saveLog($data);
 
         // --- Step 2: Clean invalid "Grand Total" entries ---
+        $tripContent = str_replace(["\r", "\n"], '', $tripContent); // remove newlines
+         $tripContent = preg_replace('/,\s*}/', '}', $tripContent);
         $tripContent = preg_replace('/"Grand Total":\s*([,}])/', '"Grand Total": ""$1', $tripContent);
 
         // --- Step 3: Safe JSON decode (handles double-encoded cases) ---
