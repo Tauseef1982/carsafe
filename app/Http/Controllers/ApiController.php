@@ -261,12 +261,13 @@ class ApiController extends Controller
                                             'time' => $time,
                                             // 'trip_cost' => !empty($trip['fx.trip_base']) && $trip['fx.trip_base'] != 0 ? $trip['fx.trip_base'] : $trip['estimatedPrice'],
                                         'trip_cost' => (
-                                            isset($trip['Grand Total']) && $trip['Grand Total'] > 0
+                                            isset($trip['Grand Total']) && is_numeric($trip['Grand Total']) && $trip['Grand Total'] > 0
                                             ? $trip['Grand Total']
-                                            : ((isset($trip['fx.trip_base']) && $trip['fx.trip_base'] != 0)
+                                            : ((isset($trip['fx.trip_base']) && is_numeric($trip['fx.trip_base']) && $trip['fx.trip_base'] > 0)
                                                 ? $trip['fx.trip_base']
                                                 : ($trip['estimatedPrice'] ?? 0))
                                         ),
+
 
                                             'driver_id' => $trip['driverId'],
                                             'account_number' => $trip['account.name'],
