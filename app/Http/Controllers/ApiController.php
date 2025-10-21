@@ -721,33 +721,60 @@ class ApiController extends Controller
 
             if (isset($driver_v_number[1]) && $driver_v_number[1] == $vehicle_number) {
 
-                $trip = Trip::where('trips.is_delete', 0)
-                    ->where('trips.driver_id', $driver->driver_id)
-                    ->where('trips.date', '>', now()->subDays(3))
-                    ->where('trips.payment_method', 'cash')
-                    ->where('status', 'NOT LIKE', '%Cancelled%')
-                    ->where('status', 'NOT LIKE', '%Client canceled%')
-                    ->whereNotNull('icked_up') // Fixed typo
-                    ->where('icked_up', '!=', '')
-                    ->where(function ($query) {
-                        $query->whereNull('ts_delivered')
-                            ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
-                            ->orWhereBetween('ts_delivered', [
-                                now()->subMinutes(15)->format('Y-m-d H:i:s'),
-                                now()->format('Y-m-d H:i:s')
-                            ]);
-                    })
-                    ->whereNotExists(function ($query) {
-                        $query->select(DB::raw(1))
-                            ->from('trips as future_trips')
-                            ->whereColumn('future_trips.driver_id', 'trips.driver_id')
-                            ->where('future_trips.icked_up', '>', DB::raw('trips.icked_up'));
-                    })
-                    ->select('trips.*')
-                    ->orderBy('trips.date', 'desc')
-                    ->orderBy('trips.time', 'desc')
-                    ->limit(1)
-                    ->first();
+                // $trip = Trip::where('trips.is_delete', 0)
+                //     ->where('trips.driver_id', $driver->driver_id)
+                //     ->where('trips.date', '>', now()->subDays(3))
+                //     ->where('trips.payment_method', 'cash')
+                //     ->where('status', 'NOT LIKE', '%Cancelled%')
+                //     ->where('status', 'NOT LIKE', '%Client canceled%')
+                //     ->whereNotNull('icked_up')
+                //     ->where('icked_up', '!=', '')
+                //     ->where(function ($query) {
+                //         $query->whereNull('ts_delivered')
+                //             ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
+                //             ->orWhereBetween('ts_delivered', [
+                //                 now()->subMinutes(15)->format('Y-m-d H:i:s'),
+                //                 now()->format('Y-m-d H:i:s')
+                //             ]);
+                //     })
+                //     ->whereNotExists(function ($query) {
+                //         $query->select(DB::raw(1))
+                //             ->from('trips as future_trips')
+                //             ->whereColumn('future_trips.driver_id', 'trips.driver_id')
+                //             ->where('future_trips.icked_up', '>', DB::raw('trips.icked_up'));
+                //     })
+                //     ->select('trips.*')
+                //     ->orderBy('trips.date', 'desc')
+                //     ->orderBy('trips.time', 'desc')
+                //     ->limit(1)
+                //     ->first();
+                $trip = Trip::query()
+    ->where('trips.is_delete', 0)
+    ->where('trips.driver_id', $driver->driver_id)
+    ->where('trips.date', '>', now()->subDays(3))
+    ->where('trips.payment_method', 'cash')
+    ->where('status', 'NOT LIKE', '%Cancelled%')
+    ->where('status', 'NOT LIKE', '%Client canceled%')
+    ->whereNotNull('icked_up')
+    ->where('icked_up', '!=', '')
+    ->where(function ($query) {
+        $query->whereNull('ts_delivered')
+            ->orWhereRaw("COALESCE(ts_delivered, '') = ''")
+            ->orWhereBetween('ts_delivered', [
+                now()->subMinutes(15)->format('Y-m-d H:i:s'),
+                now()->format('Y-m-d H:i:s')
+            ]);
+    })
+    ->whereNotExists(function ($query) {
+        $query->select(DB::raw(1))
+            ->from('trips as future_trips')
+            ->whereColumn('future_trips.driver_id', 'trips.driver_id')
+            ->where('future_trips.icked_up', '>', DB::raw('trips.icked_up'));
+    })
+    ->orderBy('trips.date', 'desc')
+    ->orderBy('trips.time', 'desc')
+    ->first();
+
 
                 if ($trip) {
                     $trip_time = Carbon::parse($trip->time);
