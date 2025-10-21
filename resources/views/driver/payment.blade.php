@@ -55,7 +55,11 @@ $util = new \App\Utils\dateUtil();
                                     {{ session('error') }}
                                 </div>
                             @endif
-                            <a href="{{ url('update_price') }}" class="btn btn-primary float-end">Get updated Price</a>
+                            <!-- <a href="{{ url('update_price') }}" class="btn btn-primary float-end">Get updated Price</a> -->
+                        <a href="javascript:void(0);" onclick="location.reload();" class="btn btn-primary float-end">
+                            Get updated Price
+                        </a>
+
                         </div>
                         <form action="{{url('add-payment')}}" method="post" id="payment_form" onsubmit="disableButton()">
                             @csrf
