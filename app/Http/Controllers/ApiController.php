@@ -916,14 +916,14 @@ public function getWebHookTrip(Request $request)
 
                     $diffInMinutes = $trip_time->diffInMinutes($current_time, false); // false = signed diff
 
-                    if ($diffInMinutes >= -30 && $diffInMinutes <= 30) {
+                   
                         return response()->json([
                             'valid' => true,
                             'trip_id' => $trip->trip_id,
                             'driver_id' => $driver->driver_id,
                             'trip_cost' => $trip->trip_cost
                         ]);
-                    }
+
                 }
             }
         }
