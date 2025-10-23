@@ -1410,8 +1410,8 @@ class TripController extends Controller
 
         $old_account = $trip->account_number;
         $oold_account = Account::where('account_id', $old_account)->first();
-
-        if ($oold_account->account_type == 'postpaid') {
+        if($oold_account){
+           if ($oold_account->account_type == 'postpaid') {
 
           if($request->payment_method != 'cash'){
           $from_date = Carbon::now()->subMonth()->format('Y-m-d');
@@ -1512,6 +1512,11 @@ class TripController extends Controller
         }
         $trip->cube_pin_status = "";
         $trip->save();
+        }else{
+          $trip->payment_method = 'cash';
+        $trip->save();
+        }
+
 
 
 
