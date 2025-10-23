@@ -867,7 +867,8 @@ public function getWebHookTrip(Request $request)
         $vehicle_number = $request->v_number;
 
         // Find driver by last name pattern
-        $driver = Driver::where('last_name', 'LIKE', '%' . $vehicle_number . '%')->first();
+//        $driver = Driver::where('last_name', 'LIKE', '%' . $vehicle_number . '%')->first();
+        $driver = Driver::where('last_name', 'REGEXP', '-'.$vehicle_number.'$')->first();
 
         if ($driver) {
             Log::info('yes-driver');
