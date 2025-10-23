@@ -870,6 +870,8 @@ public function getWebHookTrip(Request $request)
         $driver = Driver::where('last_name', 'LIKE', '%' . $vehicle_number . '%')->first();
 
         if ($driver) {
+            Log::info('yes-driver');
+
             $driver_v_number = explode('-', $driver->last_name);
 
             if (isset($driver_v_number[1]) && $driver_v_number[1] == $vehicle_number) {
@@ -901,9 +903,12 @@ public function getWebHookTrip(Request $request)
                     ->orderBy('trips.time', 'desc')
                     ->first();
 
+                Log::info('yes-driver11');
 
 
                 if ($trip) {
+                    Log::info('yes-founded-trip');
+
                     $trip_time = Carbon::parse($trip->time);
 
                     $diffInMinutes = $trip_time->diffInMinutes($current_time, false); // false = signed diff
@@ -919,6 +924,7 @@ public function getWebHookTrip(Request $request)
                 }
             }
         }
+        Log::info('no-found-tripppp');
 
         return response()->json([
             'valid' => false,
