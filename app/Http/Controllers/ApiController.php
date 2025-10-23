@@ -873,6 +873,8 @@ public function getWebHookTrip(Request $request)
             Log::info('yes-driver');
 
             $driver_v_number = explode('-', $driver->last_name);
+            Log::info($driver->last_name);
+            Log::info($driver_v_number);
 
             if (isset($driver_v_number[1]) && $driver_v_number[1] == $vehicle_number) {
 
