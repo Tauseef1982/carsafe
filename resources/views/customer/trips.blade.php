@@ -18,7 +18,7 @@
 }
 .even > .sorting_1{
     background-color: #FEEEEA!important;
-} 
+}
 </style>
 
 @endsection
@@ -31,7 +31,7 @@
     <div class="row pt-3">
       <div class="col-md-3">
       <h1 class="f-28 fw-bold">Trips History</h1>
-      
+
       </div>
       <div class="col-md-3 pt-2" id="datatable_length_holder"></div>
       <div class="col-md-3">
@@ -40,7 +40,7 @@
       <div class="col-md-3">
       <input type="date" id="to_date" class="form-control">
       </div>
-     
+
     </div>
     <div class="row">
       <!-- Zero Configuration  Starts-->
@@ -153,8 +153,8 @@
          $('#history_filter label').addClass('w-100');
          $('#history_length label').addClass('float-end');
          },
-       
-       
+
+
         columns: [
           {data: 'trip_id', name: 'trip_id'},
           {data: 'cube_status', name: 'cube_status'},
@@ -170,7 +170,7 @@
           {data: 'action', name: 'action'},
 
 
-        ], 
+        ],
         order: [[1, 'desc']]
       }
         );
@@ -189,6 +189,11 @@
       let to = $('#to_date').val();
       loadTrips(from, to);
     });
+        $('#from_date').change(function () {
+            let from = $('#from_date').val();
+            let to = $('#to_date').val();
+            loadTrips(from, to);
+        });
     </script>
 
     <script>
