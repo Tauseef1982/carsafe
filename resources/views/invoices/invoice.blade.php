@@ -212,6 +212,9 @@
                                                     <td>
                                                         <b>Stop,Wait,Round</b>
                                                     </td>
+                                                     <td>
+                                                        <b>Stops</b>
+                                                    </td>
                                                     <td>
                                                         <b>Fare</b>
                                                     </td>
@@ -265,6 +268,13 @@
                                                         <td>
                                                             <p class="itemtext">
                                                                 ${{number_format((float) $trip->extra_charges, 2)}}
+
+                                                            </p>
+                                                        </td>
+                                                         <td>
+                                                            <p class="itemtext">
+                                                                {{ str_replace('stop: ', '', $trip->stop_location) }}
+
 
                                                             </p>
                                                         </td>
@@ -435,7 +445,7 @@
                                                 $due_date = $utils->format_date(now()->toDateString());
                                                 $payment_status = 'Paid';
                                                 $imagePath = asset('assets/images/paid.jpg');
-                                         
+
                                         @endphp
                                         <!-- End InvoiceBot-->
                                     </div>

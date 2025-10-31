@@ -69,16 +69,16 @@
     </style>
 
     @php
-        // Initialize variables for later use
-        $utils = new \App\Utils\dateUtil();
-        $from_date = $data['from_date'];
-        $to_date = $data['to_date'];
-        $account = $data['account'];
-        $account_number = $account->account_id;
-        $due_date = $utils->format_date(now()->addDays(3)->toDateString());
-        $payment_status = 'Unpaid';
-        $imagePath = "";
-         $complaint_url = $data['complaint_url'];
+// Initialize variables for later use
+$utils = new \App\Utils\dateUtil();
+$from_date = $data['from_date'];
+$to_date = $data['to_date'];
+$account = $data['account'];
+$account_number = $account->account_id;
+$due_date = $utils->format_date(now()->addDays(3)->toDateString());
+$payment_status = 'Unpaid';
+$imagePath = "";
+$complaint_url = $data['complaint_url'];
     @endphp
 </head>
 <body>
@@ -106,9 +106,9 @@
                                 <div class="col-sm-3" style="display:inline-block;width:25%;">
                                 <img style="width:150px" src="https://carsafe.wiedco.app/assets/images/logo/carsafe-logo.webp" alt="">
                                 @php
-                                            $due_date = $utils->format_date(now()->addDays(3)->toDateString());
-                                            $payment_status = 'Unpaid';
-                                            $imagePath = "";
+$due_date = $utils->format_date(now()->addDays(3)->toDateString());
+$payment_status = 'Unpaid';
+$imagePath = "";
                                         @endphp
 
                                         </div>
@@ -147,7 +147,7 @@
 
                                             <span>{{ $account->phone }}</span><br>
                                             <span>{!! nl2br(e($account->address)) !!}</span><br>
-                                            @if ( $account->company_name != "")
+                                            @if ($account->company_name != "")
                                             <span>Company: {{ $account->company_name }}</span>
                                             @endif
 
@@ -187,6 +187,9 @@
                                             <td >
                                                 <b>Stop,Wait,Round</b>
                                             </td>
+                                             <td >
+                                                <b>Stops</b>
+                                            </td>
                                             <td >
                                                 <b>Fare</b>
                                             </td>
@@ -197,70 +200,77 @@
 
                                         </tr>
                                         @php
-                                            $paidd = 0 ;
-                                            $total_trips = 0;
-                                            $cost = 0;
-                                            $totalDiscount = 0;
-                                            $trips_to_be_paid = $account->trips->filter(function ($trip) use ($from_date, $to_date) {
-                                        return $trip->payment_method === 'account' &&
-                                            strpos($trip->status, 'Cancelled') === false &&
-                                            strpos($trip->status, 'canceled') === false &&
-                                            $trip->is_delete == 0 &&
-                                            $trip->date >= $from_date &&
-                                            $trip->date <= $to_date;
-                                    });
+$paidd = 0;
+$total_trips = 0;
+$cost = 0;
+$totalDiscount = 0;
+$trips_to_be_paid = $account->trips->filter(function ($trip) use ($from_date, $to_date) {
+    return $trip->payment_method === 'account' &&
+        strpos($trip->status, 'Cancelled') === false &&
+        strpos($trip->status, 'canceled') === false &&
+        $trip->is_delete == 0 &&
+        $trip->date >= $from_date &&
+        $trip->date <= $to_date;
+});
                                         @endphp
 
                                         @foreach($trips_to_be_paid as $trip)
-                                            <tr>
-                                                <td>
+                                                                                    <tr>
+                                                                                        <td>
 
-                                                    <p class="m-0">{{$trip->trip_id}}</p>
-                                                </td>
-                                                <td>{{$trip->cube_pin}} {{$trip->cube_pin_status}}</td>
+                                                                                            <p class="m-0">{{$trip->trip_id}}</p>
+                                                                                        </td>
+                                                                                        <td>{{$trip->cube_pin}} {{$trip->cube_pin_status}}</td>
 
-                                                <td>
-                                                    @php
+                                                                                        <td>
+                                                                                            @php
 
-                                                        $termsToRemove = [', Nueva York, EE. UU.', ', NY, USA'];
+                                            $termsToRemove = [', Nueva York, EE. UU.', ', NY, USA'];
 
 
-                                                        $cleanedLocationFrom = str_replace($termsToRemove, '', $trip->location_from);
-                                                        $cleanedLocationTo = str_replace($termsToRemove, '', $trip->location_to);
-                                                    @endphp
-                                                    <p class="itemtext">{{$cleanedLocationFrom ?: 'Flag Down'}}</p>
-                                                </td>
-                                                <td>
-                                                    <p class="itemtext">{{$cleanedLocationTo}}</p>
-                                                </td>
-                                                <td>
-                                                    <p class="itemtext">{{$utils->format_date($trip->date)}} @if($account->invoice_email_time == 1) {{$utils->time_format($trip->time)}} @endif</p>
+                                            $cleanedLocationFrom = str_replace($termsToRemove, '', $trip->location_from);
+                                            $cleanedLocationTo = str_replace($termsToRemove, '', $trip->location_to);
+                                                                                            @endphp
+                                                                                            <p class="itemtext">{{$cleanedLocationFrom ?: 'Flag Down'}}</p>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <p class="itemtext">{{$cleanedLocationTo}}</p>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <p class="itemtext">{{$utils->format_date($trip->date)}} @if($account->invoice_email_time == 1) {{$utils->time_format($trip->time)}} @endif</p>
 
-                                                </td>
-                                                <td>
-                                                    <p class="itemtext">
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <p class="itemtext">
 
-                                                        ${{number_format((float)$trip->extra_charges, 2)}}
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p class="itemtext">${{number_format($trip->trip_cost - (float)$trip->extra_charges,2)}}</p>
-                                                </td>
-                                                <td>
-                                                    <p class="itemtext">${{number_format($trip->trip_cost , 2)}}</p>
-                                                </td>
-                                               {{-- <td>
-                                                    <p class="itemtext">${{number_format($trip->totalPaidAmountByCustomerFromAccountCard()->sum('amount'), 2)}}</p>
-                                                </td> --}}
-                                            </tr>
-                                            @php
-                                                $paidd = $paidd + $trip->totalPaidAmountByCustomerFromAccountCard()->sum('amount');
-                                                $total_trips++;
-                                                $cost += $trip->TotalCostDiscounted;
-                                                $totalDiscount += $trip->discount_amount;
+                                                                                                ${{number_format((float) $trip->extra_charges, 2)}}
+                                                                                            </p>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <p class="itemtext">
+                                                                                                {{ str_replace('stop: ', '', $trip->stop_location) }}
+
+
+                                                                                            </p>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <p class="itemtext">${{number_format($trip->trip_cost - (float) $trip->extra_charges, 2)}}</p>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <p class="itemtext">${{number_format($trip->trip_cost, 2)}}</p>
+                                                                                        </td>
+                                                                                       {{-- <td>
+                                                                                            <p class="itemtext">${{number_format($trip->totalPaidAmountByCustomerFromAccountCard()->sum('amount'), 2)}}</p>
+                                                                                        </td> --}}
+                                                                                    </tr>
+                                                                                    @php
+                                            $paidd = $paidd + $trip->totalPaidAmountByCustomerFromAccountCard()->sum('amount');
+                                            $total_trips++;
+                                            $cost += $trip->TotalCostDiscounted;
+                                            $totalDiscount += $trip->discount_amount;
                                             $paid_fee = $paidd * 0.0375;
                                             $cost_fee = $cost * 0.0375;
-                                            @endphp
+                                                                                    @endphp
                                         @endforeach
 
                                         </tbody>
@@ -314,13 +324,13 @@
                                                 <p class="itemtext">${{number_format($paidd + $paid_fee, 2, '.', '')}}</p>
                                             </td>
                                             <td>
-                                                <p class="itemtext">${{number_format($cost,2, '.', '')}}</p>
+                                                <p class="itemtext">${{number_format($cost, 2, '.', '')}}</p>
                                             </td>
                                             <td>
-                                                <p class="itemtext">${{number_format($cost_fee,2, '.', '')}}</p>
+                                                <p class="itemtext">${{number_format($cost_fee, 2, '.', '')}}</p>
                                             </td>
                                             <td>
-                                                <p class="itemtext">${{number_format($cost+$cost_fee,2, '.', '')}}</p>
+                                                <p class="itemtext">${{number_format($cost + $cost_fee, 2, '.', '')}}</p>
                                             </td>
                                         </tr>
 
@@ -343,11 +353,11 @@
                                             @endif
                                         </div>
                                     @php
-                                        if($paidd == $cost){
-                                                $due_date = $utils->format_date(now()->toDateString());
-                                                $payment_status = 'Paid';
-                                                $imagePath = asset('assets/images/paid.jpg');
-                                              }
+if ($paidd == $cost) {
+    $due_date = $utils->format_date(now()->toDateString());
+    $payment_status = 'Paid';
+    $imagePath = asset('assets/images/paid.jpg');
+}
                                     @endphp
 
                                     <!-- End InvoiceBot-->

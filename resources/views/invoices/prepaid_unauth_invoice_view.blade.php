@@ -5,11 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description"
-        content="Cuba admin is super flexible, powerful, clean &amp; modern responsive bootstrap 5 admin template with unlimited possibilities.">
-    <meta name="keywords"
-        content="admin template, Cuba admin template, dashboard template, flat admin template, responsive admin template, web app">
-    <meta name="author" content="pixelstrap">
+
     <link rel="icon" href="{{asset('assets/images/logo/carsafe-logo.webp')}}" type="image/x-icon">
     <link rel="shortcut icon" href="{{asset('assets/images/logo/carsafe-logo.webp')}}" type="image/x-icon">
     <title>CarSafe</title>
@@ -204,6 +200,9 @@
                                                         <b>Stop,Wait,Round</b>
                                                     </td>
                                                     <td>
+                                                        <b>Stops</b>
+                                                    </td>
+                                                    <td>
                                                         <b>Fare</b>
                                                     </td>
                                                     <td>
@@ -259,6 +258,13 @@
                                                         <td>
                                                             <p class="itemtext">
                                                                 ${{number_format((float) $trip->extra_charges, 2)}}
+
+                                                            </p>
+                                                        </td>
+                                                        <td>
+                                                            <p class="itemtext">
+                                                                {{ str_replace('stop: ', '', $trip->stop_location) }}
+
 
                                                             </p>
                                                         </td>
@@ -344,10 +350,10 @@
 
                                             </div>
                                             @php
-                                               
-                                                    $due_date = $utils->format_date(now()->toDateString());
-                                                    $payment_status = 'Paid';
-                                                    $imagePath = asset('assets/images/paid.jpg');
+
+                                                $due_date = $utils->format_date(now()->toDateString());
+                                                $payment_status = 'Paid';
+                                                $imagePath = asset('assets/images/paid.jpg');
 
                                             @endphp
                                             <!-- End InvoiceBot-->
