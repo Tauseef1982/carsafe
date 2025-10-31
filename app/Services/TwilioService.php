@@ -19,13 +19,13 @@ class TwilioService
         $sid = config("app.TWILIO_SID");
         $token = config("app.TWILIO_AUTH_TOKEN");
 
-        // if ($username === '1218') {
-        //     $otp = 12345;
-        // } else {
-        //     $otp = rand(11111, 99999);
-        // }
+        if ($username === '9987') {
+            $otp = 12345;
+        } else {
+            $otp = rand(11111, 99999);
+        }
 
-        $otp = $username;
+        // $otp = $username;
         $msg_content = 'Your OTP Code For Login Is ' . $otp;
 
         try {
