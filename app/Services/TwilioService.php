@@ -29,7 +29,7 @@ class TwilioService
         $msg_content = 'Your OTP Code For Login Is ' . $otp;
 
         try {
-            if (false) {
+            if (true) {
                 $client = new Client($sid, $token);
 
                 $client->messages->create(
