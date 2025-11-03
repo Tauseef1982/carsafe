@@ -39,6 +39,14 @@ class TwilioService
                         'body' => $msg_content
                     )
                 );
+                SmsLog::create([
+        'to_phone'  => $user_phone,
+        'message'   => $msg_content,
+        'status'    => 'success',
+        'response'  => $messageResponse->sid ?? 'Message sent successfully',
+        'trip_id'   => 0000,
+        'driver_id' => 0000,
+    ]);
             }
 
         } catch (\Exception $th) {
