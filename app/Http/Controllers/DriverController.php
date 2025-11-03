@@ -310,42 +310,84 @@ class DriverController extends Controller
         return view('driver.code', compact('user_phone', 'username'));
     }
 
+    // public function verifyOtp(Request $request)
+    // {
+
+    //     $user_phone = $request->phone;
+    //     if (!Str::startsWith($user_phone, '+1')) {
+    //         $user_phone = '+1'.$user_phone;
+    //     }
+
+    //     $otp = $request->otp || $otp = 9876;
+    //     $verify = $sendotp = TwilioService::verifyOtp($user_phone, $otp);
+    //     $response = $verify->getData();
+    //     Log::info('the response is  ' . $response->success );
+    //     if ($response->success == true) {
+    //         $user_phone = $request->phone;
+    //         $driver = Driver::where('username',$request->username)->first();
+
+    //         if ($driver) {
+    //             // Log in the driver using the custom guard
+    //             Auth::guard('driver')->login($driver, true);
+
+    //             // Verify if the driver is authenticated
+    //             if (Auth::guard('driver')->check()) {
+    //                 return redirect()->route('driver.dashboard');
+    //             }
+
+    //             return redirect()->back();
+    //         }
+
+    //         return redirect()->back();
+    //     } else if ($response->success == false) {
+
+    //         return redirect()->route('send-otp-form')->with('error', 'OTP is not matched');
+
+    //     }
+
+    // }
     public function verifyOtp(Request $request)
-    {
+{
+    $user_phone = $request->phone;
 
-        $user_phone = $request->phone;
-        if (!Str::startsWith($user_phone, '+1')) {
-            $user_phone = '+1'.$user_phone;
-        }
-       // Log::info('driver phone is ' .$user_phone );
-        $otp = $request->otp;
-        $verify = $sendotp = TwilioService::verifyOtp($user_phone, $otp);
-        $response = $verify->getData();
-        Log::info('the response is  ' . $response->success );
-        if ($response->success == true) {
-            $user_phone = $request->phone;
-            $driver = Driver::where('username',$request->username)->first();
-
-            if ($driver) {
-                // Log in the driver using the custom guard
-                Auth::guard('driver')->login($driver, true);
-
-                // Verify if the driver is authenticated
-                if (Auth::guard('driver')->check()) {
-                    return redirect()->route('driver.dashboard');
-                }
-
-                return redirect()->back();
-            }
-
-            return redirect()->back();
-        } else if ($response->success == false) {
-
-            return redirect()->route('send-otp-form')->with('error', 'OTP is not matched');
-
-        }
-
+    if (!Str::startsWith($user_phone, '+1')) {
+        $user_phone = '+1' . $user_phone;
     }
+
+    // Default test OTP
+    $defaultOtp = 9876;
+
+    // Use request OTP
+    $otp = $request->otp;
+
+    // ✅ Allow test OTP to bypass Twilio verification
+    if ($otp == $defaultOtp) {
+        $response = (object) ['success' => true];
+    } else {
+        // Otherwise, verify using Twilio
+        $verify = TwilioService::verifyOtp($user_phone, $otp);
+        $response = $verify->getData();
+    }
+
+    Log::info('OTP verification response: ' . json_encode($response));
+
+    if ($response->success == true) {
+        $driver = Driver::where('username', $request->username)->first();
+
+        if ($driver) {
+            Auth::guard('driver')->login($driver, true);
+
+            if (Auth::guard('driver')->check()) {
+                return redirect()->route('driver.dashboard');
+            }
+        }
+
+        return redirect()->back()->with('error', 'Driver not found');
+    }
+
+    return redirect()->route('send-otp-form')->with('error', 'OTP did not match');
+}
+
 
     public function logout()
     {
