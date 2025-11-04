@@ -611,6 +611,60 @@ $(document).on('input', 'input[name="stop_amount[]"], input[name="stop_location[
             //          order_id = $(this).data('order_id');
             //         }
             // });
+             function loadLatestTrips() {
+                $.ajax({
+                    url: "{{ url('/payment') }}",
+                    method: 'GET',
+                    dataType: 'json',
+                    beforeSend: function () {
+                        $('#trips-container').html('<p>Loading trips...</p>');
+                    },
+                    success: function (response) {
+                        console.log(response);
+                        let tripsHtml = '';
+
+                        if (response.trips && response.trips.length > 0) {
+                            response.trips.forEach(function (trip) {
+                                const formattedDate = trip.date ? new Date(trip.date).toLocaleDateString() : 'N/A';
+                                const formattedTime = trip.time;
+                      tripsHtml += `
+                <div class="card">
+                    <div class="media p-20">
+                        <div class="form-check radio radio-primary me-3">
+                            <input class="form-check-input trip-radio" id="radio${trip.trip_id}"
+                                   type="radio" name="trip"
+                                   value="${trip.trip_id}" data-order_id="${trip.order_id}"  data-status="${trip.status ?? ''}" data-trip-cost="${parseFloat(trip.trip_cost) + parseFloat(trip.extra_charges ?? 0)}" />
+                            <label class="form-check-label" for="radio${trip.trip_id}">
+                                <div class="media-body">
+                                    <h6 class="mt-0 mega-title-badge">
+                                        ${trip.location_from} to ${trip.location_to}
+                                        <span class="badge badge-primary pull-right digits">
+                                         $${trip.trip_cost}
+                                        </span>
+                                    </h6>
+                                    <p class="notranslate">
+                                        Date: ${formattedDate} <span>${formattedTime}</span>
+                                    </p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            `;
+                            });
+                        } else {
+                            tripsHtml = '<p>No trips available.</p>';
+                        }
+
+                        $('#trips-container').html(tripsHtml);
+                    },
+
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                        $('#trips-container').html('<p>An error occurred while fetching trips.</p>');
+                    }
+                });
+            }
     $('#trips-container').on("change", 'input[name="trip"]', function () {
     const tripStatus = $(this).data('status');
 
