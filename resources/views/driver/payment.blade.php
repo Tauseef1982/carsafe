@@ -466,15 +466,15 @@ $util = new \App\Utils\dateUtil();
                $('#trips-container').on("change", 'input[name="trip"]', function () {
     const tripStatus = $(this).data('status');
 
-    if (tripStatus !== 'Job marked as delivered') {
-        alert('Please complete the trip on TaxiCaller first.');
-        $(this).prop('checked', false);
+    // if (tripStatus !== 'Job marked as delivered') {
+    //     alert('Please complete the trip on TaxiCaller first.');
+    //     $(this).prop('checked', false);
 
-         setTimeout(() => {
-            loadLatestTrips();
-        }, 500);
-        return;
-    }
+    //      setTimeout(() => {
+    //         loadLatestTrips();
+    //     }, 500);
+    //     return;
+    // }
 
 
     if ($('input[name="trip"]:checked').length > 0) {
