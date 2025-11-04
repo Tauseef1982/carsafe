@@ -612,11 +612,15 @@ $(document).on('input', 'input[name="stop_amount[]"], input[name="stop_location[
             //         }
             // });
     $('#trips-container').on("change", 'input[name="trip"]', function () {
-    const tripStatus = $(this).data('status'); 
+    const tripStatus = $(this).data('status');
 
     if (tripStatus !== 'Job marked as delivered') {
         alert('Please complete the trip on TaxiCaller first.');
         $(this).prop('checked', false);
+
+         setTimeout(() => {
+            loadLatestTrips();
+        }, 500);
         return;
     }
 
