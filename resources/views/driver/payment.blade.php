@@ -463,26 +463,26 @@ $util = new \App\Utils\dateUtil();
 
             loadLatestTrips();
 
-               $('#trips-container').on("change", 'input[name="trip"]', function () {
-    const tripStatus = $(this).data('status');
+//                $('#trips-container').on("change", 'input[name="trip"]', function () {
+//     const tripStatus = $(this).data('status');
 
-    // if (tripStatus !== 'Job marked as delivered') {
-    //     alert('Please complete the trip on TaxiCaller first.');
-    //     $(this).prop('checked', false);
+//     if (tripStatus !== 'Job marked as delivered') {
+//         alert('Please complete the trip on TaxiCaller first.');
+//         $(this).prop('checked', false);
 
-    //      setTimeout(() => {
-    //         loadLatestTrips();
-    //     }, 500);
-    //     return;
-    // }
+//          setTimeout(() => {
+//             loadLatestTrips();
+//         }, 500);
+//         return;
+//     }
 
 
-    if ($('input[name="trip"]:checked').length > 0) {
-        $("#show-method-div").click();
-        selectedTripCost = $(this).data('trip-cost');
-        order_id = $(this).data('order_id');
-    }
-});
+//     if ($('input[name="trip"]:checked').length > 0) {
+//         $("#show-method-div").click();
+//         selectedTripCost = $(this).data('trip-cost');
+//         order_id = $(this).data('order_id');
+//     }
+// });
 
         });
     </script>
@@ -625,15 +625,15 @@ function validateStops() {
 $(document).on('input', 'input[name="stop_amount[]"], input[name="stop_location[]"]', validateStops);
             let order_id;
             let selectedTripCost;
-            // $('#trips-container').on("change", 'input[name="trip"]', function () {
+            $('#trips-container').on("change", 'input[name="trip"]', function () {
 
-            //     if ($('input[name="trip"]:checked').length > 0) {
+                if ($('input[name="trip"]:checked').length > 0) {
 
-            //         $("#show-method-div").click();
-            //         selectedTripCost = $(this).data('trip-cost');
-            //          order_id = $(this).data('order_id');
-            //         }
-            // });
+                    $("#show-method-div").click();
+                    selectedTripCost = $(this).data('trip-cost');
+                     order_id = $(this).data('order_id');
+                    }
+            });
 
 
 
