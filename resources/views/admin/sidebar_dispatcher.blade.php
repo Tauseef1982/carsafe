@@ -23,6 +23,15 @@
                     </ul>
                   </li>
                     <li class="sidebar-list" style="  padding:15px 20px; ">
+                    <a class="sidebar-link sidebar-title " style="background-color:rgba(115, 102, 255, 0.06);padding-top:15px; padding-bottom:13px;padding-left:20px;" href="#"><span class="lan-">All Complaints</span></a>
+                    <ul class="sidebar-submenu">
+                        <li><a class="lan-" href="{{url('admin/driver_complaints')}}">Driver Complaints</a></li>
+                        <li><a class="lan-" href="{{url('admin/accounts/complaints')}}">Account Complaints</a></li>
+                        <li><a class="lan-" href="{{url('admin/trips_complaint')}}">Trips With Complaint</a></li>
+
+                    </ul>
+                </li>
+                    <li class="sidebar-list" style="  padding:15px 20px; ">
                     <a class="sidebar-link sidebar-title " style="background-color:rgba(115, 102, 255, 0.06);padding-top:15px; padding-bottom:13px;padding-left:20px;" href="#"><span class="lan-">Accounts</span></a>
                     <ul class="sidebar-submenu">
                         <li><a class="lan-" href="{{url('admin/accounts')}}">All Accounts</a></li>

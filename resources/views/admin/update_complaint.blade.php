@@ -34,6 +34,7 @@
 
 
                                     <div class="col-12">
+                                         @if(Auth::guard('admin')->user()->role == 'admin')
                                         <label for="">Status</label>
                                         <select class="form-select" name="status">
                                             <option value="pending" {{$complaint->status == "pending" ? 'selected' : ''}} >
@@ -43,6 +44,9 @@
                                                 Solve
                                             </option>
                                         </select>
+                                         @elseif(Auth::guard('admin')->user()->role == 'dispatcher')
+                                          <input type="hidden" name="status" value="$complaint->status">
+                                        @endif
                                     </div>
                                     <div class="col-12">
                                         <label for="">Complaint</label>
