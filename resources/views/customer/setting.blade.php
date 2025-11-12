@@ -7,13 +7,13 @@
             margin-right: 20px;
         }
          .form-check-input:checked {
-        background-color: #ff6600; 
+        background-color: #ff6600;
         border-color: #ff6600;
     }
            .page-wrapper .page-body-wrapper .page-title {
     padding: 15px 9px !important;
     margin: 0 !important;
-    
+
     border-bottom: none !important;
     box-shadow: none !important;
 }
@@ -21,7 +21,7 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-   
+
 }
 .autofilldiv{
     border: #F9BBA7 1px solid;
@@ -38,9 +38,9 @@
         <div class="row">
             <div class=" xl-100 col-lg-12 box-col-12">
                 <div class="card total-users">
-                    
-                      
-                    
+
+
+
 
                         <div class="card-body">
                               <div class="page-title">
@@ -48,7 +48,7 @@
                                  <div class="col-6">
                                     <h3 class="f-28 fw-bold">Account Setting</h3>
                                  </div>
-                
+
                               </div>
                           </div>
 
@@ -81,19 +81,44 @@
 
                                 <div id="recharge">
                                    <div class="d-flex justify-content-between autofilldiv">
-                                    
+
                                     <label for="">Do you want to on auto fill for your account</label>
                                     <div class=" ">
                                          <input type="radio" class="form-check-input" id="on-autofill" name="autofill" value="on"
                                            @if($account->autofill == 'on') checked @endif><label for="on-autofill" class="">Auto fill On</label>
-                                   
+
                                          <input type="radio" class="ms-3 form-check-input" id="off-autofill" name="autofill" value="off"
                                            @if($account->autofill == 'off') checked @endif>
                                            <label for="off-autofill" class="">Auto fill Off</label>
                                     </div>
-                                   
-                                   
+
+
                                    </div>
+                                   <div class="d-flex justify-content-between autofilldiv mt-3">
+                                     <label for="">Do you want phone restriction on trip</label>
+                                     <div>
+                                        <input type="checkbox" id="is_trip_restricted_by_phone"
+                                       name="is_trip_restricted_by_phone"
+                                       value="on"
+                                       class="form-check-input"
+                                       @if($account->is_trip_restricted_by_phone == '1') checked @endif>
+                                <label for="is_trip_restricted_by_phone">On/Off</label>
+                                     </div>
+
+                                   </div>
+                                   <div id="phoneNumbersBox" style="display:none; margin-top:10px;">
+                                    <label>Enter up to 10 phone numbers:</label><br>
+                                    <div id="phoneInputs">
+
+                                        @if(!empty($account->restricted_phones))
+                                        @foreach(json_decode($account->restricted_phones) as $restPhone)
+                                        <input type="text" name="restricted_phones[]" pattern="\d{10}" placeholder="10-digit phone" required value="{{$restPhone}}" maxlength="10" class="form-control mb-3" style="display: block;">
+                                        @endforeach
+                                        @endif
+
+                                    </div>
+                                    <button type="button" class="btn bg-orange-g b-r-6 text-white mt-3" id="addPhoneBtn">+ Add Phone</button>
+                                </div>
                                    <div class="row">
                                     <div class="col-md-6 mt-3 ">
                                          <label for="">Please Enter Rechrage Amount</label>
@@ -133,7 +158,7 @@
                                     </div>
                                     <div class="col-md-6 mt-2">
                                         <label for="">Where should you get account updates</label>
-                                       
+
                                        <select name="notification_setting" class="form-select" id="">
                                      <option value="">Select Please</option>
                                      <option value="account_email" @if($account->notification_setting == 'account_email') selected @endif>Account Email</option>
@@ -170,7 +195,7 @@
                             </form>
                         </div>
 
-                    
+
 
                 </div>
             </div>
@@ -203,6 +228,38 @@ $(document).ready(function() {
     });
 });
 </script>
+ <script>
+        const checkbox = document.getElementById("is_trip_restricted_by_phone");
+        const phoneBox = document.getElementById("phoneNumbersBox");
+        const phoneInputs = document.getElementById("phoneInputs");
+        const addBtn = document.getElementById("addPhoneBtn");
+
+        // Show/hide on load
+        if (checkbox.checked) phoneBox.style.display = "block";
+
+        checkbox.addEventListener("change", function() {
+            phoneBox.style.display = this.checked ? "block" : "none";
+            if (!this.checked) phoneInputs.innerHTML = ""; // clear if unchecked
+        });
+
+        addBtn.addEventListener("click", function() {
+            const currentCount = phoneInputs.querySelectorAll("input").length;
+            if (currentCount < 10) {
+                const input = document.createElement("input");
+                input.type = "text";
+                input.name = "restricted_phones[]";
+                input.pattern = "\\d{10}";
+                input.placeholder = "10-digit phone";
+                input.required = true;
+                input.maxLength = 10;
+                input.style.display = "block";
+                input.classList = "form-control mb-3";
+                phoneInputs.appendChild(input);
+            } else {
+                alert("You can only add up to 10 numbers.");
+            }
+        });
+    </script>
 
 
 @endsection

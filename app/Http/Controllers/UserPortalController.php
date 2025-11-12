@@ -462,6 +462,9 @@ if (!$record) {
 
         $account->notification_setting = $request->notification_setting;
         $account->pins = $request->pins ? $request->pins : null;
+
+        $account->is_trip_restricted_by_phone = $request->is_trip_restricted_by_phone ? 1 : 0;
+        $account->restricted_phones = $request->is_trip_restricted_by_phone ? json_encode($request->restricted_phones) : null;
         $account->save();
 
         DB::commit();

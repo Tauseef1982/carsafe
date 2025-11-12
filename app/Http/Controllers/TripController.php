@@ -283,8 +283,9 @@ class TripController extends Controller
 
             if ($account->is_trip_restricted_by_phone == 1) {
                 if (!empty($account->restricted_phones)) {
-
-                    $to_match = $trip->passenger_phone;
+                   $phone = $trip->passenger_phone;
+                    $phone = preg_replace('/^\+1/', '', $phone);
+                    $to_match = $phone;
                     $allowed_phones = json_decode($account->restricted_phones, true); // decode to array
 
                     $matched = in_array($to_match, $allowed_phones);
