@@ -80,8 +80,10 @@
                                                             <button class="btn btn-primary editBtn" data-bs-toggle="modal"
                                                                 data-bs-target="#editModal" data-id="{{ $complaint->id }}"
                                                                 data-status="{{ $complaint->status }}"
-                                                                data-description="{{$complaint->description  }}"
-                                                                data-note="{{ $complaint->admin_note }}">Edit</button>
+                                                                data-description="{{$complaint->description}}"
+                                                                data-note="{{ $complaint->admin_note }}">
+                                                                Edit
+                                                            </button>
                                                            @if(Auth::guard('admin')->user()->role == 'admin')
                                                             <a href="{{ url('/admin/delete/complaint/' . $complaint->id) }}"
                                                                 class="btn btn-danger"
@@ -185,7 +187,7 @@
                 <label for="">Description</label>
                 <textarea name="description" class="form-control" id="complaint_description"></textarea>
                 <label for="">Note</label>
-                <textarea name="admin_note" id="edit-note" class="form-control" id=""></textarea>
+                <textarea name="admin_note" id="edit-note" class="form-control" ></textarea>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -202,23 +204,23 @@
 @section('js')
 <script>
    $(document).ready(function() {
-    $('.editBtn').on('click', function() {
-        let id = $(this).data('id');
-        let status = $(this).data('status');
-        let note = $(this).data('note');
-        let description = $(this).data('description');
+    $(document).on('click', '.editBtn', function () {
+    let id = $(this).data('id');
+    let status = $(this).data('status');
+    let note = $(this).data('note');
+    let description = $(this).data('description');
 
-        $('#edit-id').val(id);
-        $('#edit-status').val(status);
+    $('#edit-id').val(id);
+    $('#edit-status').val(status);
 
-        // For dispatcher hidden input
-        if ($('#edit-status-hidden').length) {
-            $('#edit-status-hidden').val(status);
-        }
+    if ($('#edit-status-hidden').length) {
+        $('#edit-status-hidden').val(status);
+    }
 
-        $('#edit-note').val(note);
-        $('#complaint_description').val(description);
-    });
+    $('#edit-note').val(note);
+    $('#complaint_description').val(description);
+});
+
 });
 
 
