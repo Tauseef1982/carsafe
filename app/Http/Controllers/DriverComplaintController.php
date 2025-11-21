@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class DriverComplaintController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display  listing of the resource.
      */
     public function index()
     {

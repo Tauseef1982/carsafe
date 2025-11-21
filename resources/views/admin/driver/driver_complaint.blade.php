@@ -180,7 +180,7 @@
 
                 </select>
                 @elseif(Auth::guard('admin')->user()->role == 'dispatcher')
-                <input type="hidden" name="status" id="edit-status">
+                <input type="hidden" name="status" id="edit-status-hidden">
                 @endif
                 <label for="">Description</label>
                 <textarea name="description" class="form-control" id="complaint_description"></textarea>
@@ -201,19 +201,26 @@
 
 @section('js')
 <script>
-    $(document).ready(function(){
-          $('.editBtn').on('click', function() {
-      let id = $(this).data('id');
-      let status = $(this).data('status');
-      let note = $(this).data('note');
-      let description = $(this).data('description');
+   $(document).ready(function() {
+    $('.editBtn').on('click', function() {
+        let id = $(this).data('id');
+        let status = $(this).data('status');
+        let note = $(this).data('note');
+        let description = $(this).data('description');
 
-      $('#edit-id').val(id);
-      $('#edit-status').val(status);
-      $('#edit-note').val(note);
-      $('#complaint_description').val(description);
-});
+        $('#edit-id').val(id);
+        $('#edit-status').val(status);
+
+        // For dispatcher hidden input
+        if ($('#edit-status-hidden').length) {
+            $('#edit-status-hidden').val(status);
+        }
+
+        $('#edit-note').val(note);
+        $('#complaint_description').val(description);
     });
+});
+
 
 </script>
 
