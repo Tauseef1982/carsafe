@@ -861,6 +861,7 @@ public function getWebHookTrip(Request $request)
     public function driverByVehicle(Request $request)
     {
 
+        Log::info($request->all());
         Log::info('finddriver');
 
         $current_time = Carbon::now();
@@ -916,7 +917,7 @@ public function getWebHookTrip(Request $request)
 
                     $diffInMinutes = $trip_time->diffInMinutes($current_time, false); // false = signed diff
 
-                   
+
                         return response()->json([
                             'valid' => true,
                             'trip_id' => $trip->trip_id,
