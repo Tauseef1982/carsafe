@@ -866,6 +866,8 @@ public function getWebHookTrip(Request $request)
 
         $current_time = Carbon::now();
         $vehicle_number = $request->v_number;
+        $caller_number = $request->callernumber;
+
 
         // Find driver by last name pattern
 //        $driver = Driver::where('last_name', 'LIKE', '%' . $vehicle_number . '%')->first();
@@ -911,19 +913,47 @@ public function getWebHookTrip(Request $request)
 
 
                 if ($trip) {
+
+
                     Log::info('yes-founded-trip');
 
                     $trip_time = Carbon::parse($trip->time);
 
-                    $diffInMinutes = $trip_time->diffInMinutes($current_time, false); // false = signed diff
+//                    $diffInMinutes = $trip_time->diffInMinutes($current_time, false); // false = signed diff
+
+                    if (!empty($caller_number)) {
+
+                        // Check if caller starts with +1
+                        if (str_starts_with($caller_number, '+1')) {
+
+                            // Remove +1 from beginning
+                            $caller_number = str_replace('+1', '', $caller_number);
+
+                            if ($caller_number == $trip->passenger_phone) {
+
+                                return response()->json([
+                                    'valid' => true,
+                                    'trip_id' => $trip->trip_id,
+                                    'driver_id' => $driver->driver_id,
+                                    'trip_cost' => $trip->trip_cost
+                                ]);
+
+                            } else {
+
+                                Log::info('passenger_phone ' . $trip->passenger_phone);
+
+                                return response()->json([
+                                    'valid' => 'invalid_passenger_phone',
+                                    'driver_id' => $driver->driver_id,
+                                    'message' => $trip->trip_id,
+                                    'trip_cost' => $trip->trip_cost,
+                                    'trip_passenger_phone' => $trip->passenger_phone,
+                                ]);
+                            }
+                        }
+                    }
 
 
-                        return response()->json([
-                            'valid' => true,
-                            'trip_id' => $trip->trip_id,
-                            'driver_id' => $driver->driver_id,
-                            'trip_cost' => $trip->trip_cost
-                        ]);
 
                 }
             }
