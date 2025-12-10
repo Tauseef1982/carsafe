@@ -197,6 +197,9 @@
                                                         <b>Date Time</b>
                                                     </td>
                                                     <td>
+                                                        <b>Phone</b>
+                                                    </td>
+                                                    <td>
                                                         <b>Stop,Wait,Round</b>
                                                     </td>
                                                     <td>
@@ -253,6 +256,11 @@
                                                         <td>
                                                             <p class="itemtext">{{$utils->format_date($trip->date)}}
                                                                 {{$utils->time_format($trip->time)}}
+                                                            </p>
+                                                        </td>
+                                                        <td>
+                                                            <p class="itemtext">{{$trip->passenger_phone}}
+
                                                             </p>
                                                         </td>
                                                         <td>
