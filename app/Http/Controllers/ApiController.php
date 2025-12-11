@@ -354,6 +354,14 @@ public function getWebHookTrip(Request $request)
         $tripContent = str_replace(["\r", "\n"], '', $tripContent); // remove newlines
          $tripContent = preg_replace('/,\s*}/', '}', $tripContent);
         $tripContent = preg_replace('/"Grand Total":\s*([,}])/', '"Grand Total": ""$1', $tripContent);
+            $tripContent = preg_replace_callback(
+                '/"passenger\.phone":\s*"([^"]*)"/',
+                function ($matches) {
+                    $cleanPhone = preg_replace('/\D/', '', $matches[1]); // keep digits only
+                    return '"passenger.phone":"' . $cleanPhone . '"';
+                },
+                $tripContent
+            );
 
         // --- Step 3: Safe JSON decode (handles double-encoded cases) ---
         $trip = json_decode($tripContent, true);
