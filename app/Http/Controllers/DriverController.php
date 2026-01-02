@@ -423,28 +423,95 @@ class DriverController extends Controller
         return response()->json(['message' => 'Dispatchers have been added to the users table successfully.']);
     }
 
-    public function download_sheet(Request $request){
-        if($request->ajax()){
-             $from = $request->input('from');
-              $to = $request->input('to');
+    // public function download_sheet(Request $request)
+    // {
+    //     if ($request->ajax()) {
+    //         $from = $request->input('from');
+    //         $to = $request->input('to');
 
 
-        $drivers = Driver::all()->filter(function ($driver) use ($from, $to) {
-        return $driver->balance($from, $to) > 0;
-    });
+    //         $drivers = Driver::all()->filter(function ($driver) use ($from, $to) {
+    //             return $driver->balance($from, $to) > 0;
+    //         });
+
+    //         return DataTables::of($drivers)
+    //             ->addColumn('balance', function ($driver) use ($from, $to) {
+    //                 return number_format($driver->balance($from, $to), 2);
+    //             })
+    //             ->addColumn('credit_history_total', function ($driver) use ($from, $to) {
+    //                 return number_format($driver->creditHistoryTotal($from, $to), 2);
+    //             })
+    //             ->make(true);
+    //     }
+    //     return view('admin.driver.download_sheet');
+
+    // }
+
+
+
+
+public function download_sheet(Request $request)
+{
+    if ($request->ajax()) {
+
+        $from = $request->input('from');
+        $to   = $request->input('to');
+
+        $creditSub = DB::table('payments')
+            ->select('driver_id', DB::raw('SUM(amount) as total_credit'))
+            ->where('is_delete', 0)
+            ->where('type', 'credit')
+            ->when($from && $to, fn ($q) =>
+                $q->whereBetween('payment_date', [$from, $to])
+            )
+            ->groupBy('driver_id');
+
+        $debitSub = DB::table('payments')
+            ->select('driver_id', DB::raw('SUM(amount) as total_debit'))
+            ->where('is_delete', 0)
+            ->where('type', 'debit')
+            ->where('user_type', '!=', 'customer')
+            ->when($from && $to, fn ($q) =>
+                $q->whereBetween('payment_date', [$from, $to])
+            )
+            ->groupBy('driver_id');
+
+        $adjustSub = DB::table('adjustments')
+            ->select('driver_id', DB::raw('SUM(amount) as total_adjustment'))
+            ->where('type', 'debit_driver_balance')
+            ->when($from && $to, fn ($q) =>
+                $q->whereBetween('created_at', [$from, $to])
+            )
+            ->groupBy('driver_id');
+
+        $drivers = Driver::query()
+            ->leftJoinSub($creditSub, 'credit', 'credit.driver_id', '=', 'drivers.driver_id')
+            ->leftJoinSub($debitSub, 'debit', 'debit.driver_id', '=', 'drivers.driver_id')
+            ->leftJoinSub($adjustSub, 'adj', 'adj.driver_id', '=', 'drivers.driver_id')
+            ->select(
+                'drivers.*',
+                DB::raw('COALESCE(credit.total_credit,0) as total_credit'),
+                DB::raw('COALESCE(debit.total_debit,0) as total_debit'),
+                DB::raw('COALESCE(adj.total_adjustment,0) as total_adjustment')
+            )
+            ->whereRaw(
+                '(COALESCE(credit.total_credit,0)
+                - COALESCE(debit.total_debit,0)
+                - COALESCE(adj.total_adjustment,0)) > 0'
+            );
 
         return DataTables::of($drivers)
-            ->addColumn('balance', function ($driver) use ($from, $to) {
-                return number_format($driver->balance($from, $to), 2);
-            })
-             ->addColumn('credit_history_total', function ($driver) use ($from, $to) {
-        return number_format($driver->creditHistoryTotal($from, $to), 2);
-    })
+            ->addColumn('balance', fn ($d) =>
+                number_format(
+                    $d->total_credit - $d->total_debit - $d->total_adjustment,
+                    2
+                )
+            )
             ->make(true);
-        }
-        return view('admin.driver.download_sheet');
-
     }
+
+    return view('admin.driver.download_sheet');
+}
 
 
 

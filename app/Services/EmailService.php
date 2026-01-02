@@ -79,7 +79,7 @@ class EmailService
             if ($data->status == 'paid') {
 
                 $message .= "<br>";
-                $message .= "<p>Your recent payment has been processed.</p>
+                $message .= "<p>Here is your monthly report, providing a detailed summary of your trips.</p>
                 <br><p>Please <a href='" . route('unauth.invoice.view', $data->hash_id) . "'>click here</a> to view and download the invoice.</p>";
                 $message .= "<br>";
                 $message .= "<p>Thank You For Choosing CarSafe.</p>";
@@ -184,7 +184,7 @@ class EmailService
             "name": "PDF REPORT OF JOBS"
             },
             "data": {
-            "html": "<p>Hi,</p><br><p>Your recent payment has been processed.</p><br><p>Please <a>click here</a> to view and download the invoice.</p><br><p>Thank You For Choosing CarSafe.</p>"
+            "html": "<p>Hi,</p><br><p>Here is your monthly report, providing a detailed summary of your trips.</p><br><p>Please <a>click here</a> to view and download the invoice.</p><br><p>Thank You For Choosing CarSafe.</p>"
             }
             }',
                 CURLOPT_HTTPHEADER => array(
