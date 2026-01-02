@@ -483,16 +483,28 @@ public function download_sheet(Request $request)
                 $q->whereBetween('created_at', [$from, $to])
             )
             ->groupBy('driver_id');
+            $creditHistorySub = DB::table('payments')
+    ->select('driver_id', DB::raw('SUM(amount) as credit_history_total'))
+    ->where('is_delete', 0)
+    ->where('type', 'credit')
+    ->when($from && $to, fn ($q) =>
+        $q->whereBetween('payment_date', [$from, $to])
+    )
+    ->groupBy('driver_id');
+
 
         $drivers = Driver::query()
             ->leftJoinSub($creditSub, 'credit', 'credit.driver_id', '=', 'drivers.driver_id')
             ->leftJoinSub($debitSub, 'debit', 'debit.driver_id', '=', 'drivers.driver_id')
             ->leftJoinSub($adjustSub, 'adj', 'adj.driver_id', '=', 'drivers.driver_id')
+            ->leftJoinSub($creditHistorySub, 'credit_history', 'credit_history.driver_id', '=', 'drivers.driver_id')
             ->select(
                 'drivers.*',
                 DB::raw('COALESCE(credit.total_credit,0) as total_credit'),
                 DB::raw('COALESCE(debit.total_debit,0) as total_debit'),
-                DB::raw('COALESCE(adj.total_adjustment,0) as total_adjustment')
+                DB::raw('COALESCE(adj.total_adjustment,0) as total_adjustment'),
+                DB::raw('COALESCE(credit_history.credit_history_total,0) as credit_history_total'),
+
             )
             ->whereRaw(
                 '(COALESCE(credit.total_credit,0)
@@ -507,7 +519,9 @@ public function download_sheet(Request $request)
                     2
                 )
             )
-            ->make(true);
+            ->addColumn('credit_history_total', fn ($d) =>
+    number_format($d->credit_history_total, 2)
+         )->make(true);
     }
 
     return view('admin.driver.download_sheet');
