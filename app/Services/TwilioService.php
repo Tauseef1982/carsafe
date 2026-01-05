@@ -118,8 +118,8 @@ class TwilioService
         $token = config("app.TWILIO_AUTH_TOKEN");
 
 
-        $message = "The fare for your recent trip was added to your account.\n" .
-            "Fare: \${$cost}\n";
+        $message = "Your trip has been added to your account.\n" .
+            "Price: \${$cost}\n";
 
         if ($extraCharges > 0) {
 
@@ -128,7 +128,7 @@ class TwilioService
 
         }
 
-        $message .= "If you have any concerns about your fare or experience, feel free to contact us!\n" .
+        $message .= "If you have any concerns, please contact us at 845-512-5555!\n" .
             "Thank you for choosing CarSafe!";
 
         // Check if an SMS has already been sent for this trip and driver
