@@ -106,9 +106,15 @@
                                 <div id="phoneNumbersBox" style="display:none; margin-top:10px;">
                                     <label>Enter up to 10 phone numbers:</label><br>
                                     <div id="phoneInputs">
-                                        @php
-                                          $restrictedPhones = json_decode($account->restricted_phones ?? '[]', true);
-                                         @endphp
+
+                                        @if(!empty($account->restricted_phones))
+                                       @php
+                                        $restrictedPhones = is_array($account->restricted_phones)
+                                        ? $account->restricted_phones
+                                         : json_decode($account->restricted_phones ?? '[]', true);
+
+                                        $restrictedPhones = is_array($restrictedPhones) ? $restrictedPhones : [];
+                                      @endphp
 
                                       @foreach($restrictedPhones as $restPhone)
                                         <input type="text"  name="restricted_phones[]" value="{{ $restPhone }}" pattern="\d{10}"  maxlength="10" placeholder="10-digit phone" class="form-control">
@@ -117,7 +123,7 @@
                                         <!-- @foreach(json_decode($account->restricted_phones) as $restPhone)
                                         <input type="text" name="restricted_phones[]" pattern="\d{10}" placeholder="10-digit phone" required value="{{$restPhone}}" maxlength="10" class="form-control" style="display: block;">
                                         @endforeach -->
-
+                                        @endif
 
                                     </div>
                                     <button type="button" id="addPhoneBtn">+ Add Phone</button>
