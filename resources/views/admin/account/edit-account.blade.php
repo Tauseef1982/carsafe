@@ -120,9 +120,9 @@
                                         <input type="text"  name="restricted_phones[]" value="{{ $restPhone }}" pattern="\d{10}"  maxlength="10" placeholder="10-digit phone" class="form-control">
                                      @endforeach
 
-                                        <!-- @foreach(json_decode($account->restricted_phones) as $restPhone)
+                                        {{-- -  @foreach(json_decode($account->restricted_phones) as $restPhone)
                                         <input type="text" name="restricted_phones[]" pattern="\d{10}" placeholder="10-digit phone" required value="{{$restPhone}}" maxlength="10" class="form-control" style="display: block;">
-                                        @endforeach -->
+                                        @endforeach --}}
                                         @endif
 
                                     </div>
