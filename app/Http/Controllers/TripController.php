@@ -1283,7 +1283,7 @@ class TripController extends Controller
         $cost = $request->extra + $request->cost;
         $trip = Trip::where('trip_id', $request->trip_id)->first();
         $trip_old = Trip::where('trip_id', $request->trip_id)->first();
-        ;
+
 
         $add_histry = true;
         $comment = '';
@@ -1368,9 +1368,19 @@ class TripController extends Controller
             }
 
         }
+       $customer_payment = Payment::where('trip_id', $trip->trip_id)
+            ->where('user_type', 'customer')
+            ->where('type', 'debit')
+            ->first();
+        if ($customer_payment) {
+            $customer_payment->amount = $customer_payment->amount - $paid;
+            $customer_payment->edited_prices_by = $request->username;
+             $customer_payment->description = 'cost_decrease_edit_by_admin_debit';
+            $customer_payment->save();
+        }
 
         $trip->trip_cost = $cost;
-        //        $trip->gocab_paid = $cost;
+
 
         if ($trip->discount_perc > 0) {
 
@@ -1394,6 +1404,12 @@ class TripController extends Controller
         }
         $updated_cost = $cost - $request->extra;
         $trip->save();
+        $account = Account::where('account_id', $trip->account_number)->first();
+        if ($account) {
+            $balnce = $account->balance ;
+            $account->balance = $balnce + $paid;
+            $account->save();
+        }
         return response()->json([
             'success' => true,
             'message' => 'Trip cost has been updated successfully',
