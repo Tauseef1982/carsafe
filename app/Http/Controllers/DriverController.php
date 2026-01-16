@@ -516,10 +516,27 @@ class DriverController extends Controller
                     'credit_history.driver_id',
                     '=',
                     'drivers.driver_id'
-                )
-
-                ->select(
+                )->leftJoin(
+                    'drivers_payments_infos as dpi',
+                    'dpi.driver_id',
+                    '=',
+                    'drivers.id'
+                )->select(
                     'drivers.*',
+                    // payment info fields
+                    'dpi.address_line1 as address1',
+                    'dpi.address_line2 as address2',
+                    'dpi.city',
+                    'dpi.state_code as state',
+                    'dpi.postal_code',
+                    'dpi.country_code',
+                    'dpi.bussiness_name as business_name',
+                    'dpi.email',
+                    'dpi.currency',
+                    'dpi.language',
+                    'dpi.note as notes',
+                    'dpi.payout_id as load_payout_id',
+                    'dpi.send_notifications as send_notification',
                     DB::raw('COALESCE(credit.total_credit,0) as total_credit'),
                     DB::raw('COALESCE(debit.total_debit,0) as total_debit'),
                     DB::raw('COALESCE(adj.total_adjustment,0) as total_adjustment'),
@@ -546,7 +563,14 @@ class DriverController extends Controller
                     'credit_history_total',
                     fn($d) =>
                     number_format($d->credit_history_total, 2)
-                )->make(true);
+                )
+                ->editColumn('send_notification', function ($d) {
+                    return $d->send_notification ? 'Y' : 'N';
+                })
+                ->addColumn('load_payout_id', function ($d) {
+                    return 'INV-' . now()->format('dHis') . '-' . $d->id;
+                })
+                ->make(true);
         }
 
         return view('admin.driver.download_sheet');

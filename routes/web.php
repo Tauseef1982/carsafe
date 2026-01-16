@@ -14,6 +14,7 @@ use App\Http\Controllers\CarImageController;
 use App\Http\Controllers\AccountComplaintController;
 use App\Http\Controllers\DriverComplaintController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DriversPaymentsInfoController;
 use App\Models\Trip;
 
 
@@ -166,11 +167,16 @@ Route::group(['middleware' => 'admin.auth'], function () {
         Route::post('/add_complaint' , [DriverComplaintController::class, 'store']);
          Route::post('/update/driver_complaint', [DriverComplaintController::class, 'update']) ;
         Route::get('delete/complaint/{id}', [DriverComplaintController::class, 'destroy'])->name('complaints.destroy');
-    // driver documnets routes
+//    driver payment info routes
+        Route::post('/add_driver_payment_info', [DriversPaymentsInfoController::class, 'store'])->name('driver.payment.info.store');
+        Route::post('/update_driver_payment_info/{id}', [DriversPaymentsInfoController::class, 'update'])->name('driver.payment.info.update');
+        // driver documnets routes
+
     Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
 Route::post('/documents_store', [DocumentController::class, 'create'])->name('documents.store');
 Route::get('/documents/download/{document}', [DocumentController::class, 'download'])->name('documents.download');
 Route::delete('/document/delete/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
+
 
     });
 

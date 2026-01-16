@@ -188,6 +188,12 @@ public function documents()
 {
     return $this->hasMany(Document::class);
 }
+
+public function driverPaymentInfo()
+{
+    return $this->hasOne(Drivers_payments_info::class, 'driver_id');
+}
+
 public function creditHistoryTotal($from = null, $to = null)
 {
     $driver = Driver::find($this->id);

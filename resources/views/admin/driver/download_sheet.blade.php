@@ -41,18 +41,36 @@ $util = new \App\Utils\dateUtil();
             <button type="submit" class="btn btn-primary mx-2 mb-3">Filter</button>
             {{--  <a href="#" id="export-btn" class="btn btn-success mb-3">Download Excel</a>--}}
         </form>
-
-        <table class="table table-bordered" id="driver-table">
+<div class="table-responsive">
+    <table class="table table-bordered" id="driver-table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Balance</th>
-                    <th>Deductions</th>
+
+                    <th>Internal user id</th>
+                    <th>Address1</th>
+                    <th>Address2</th>
+                    <th>City</th>
+                    <th>State/Province</th>
+                    <th>Postal Code</th>
+                    <th>Country Code</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Bussiness Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Language</th>
+                    <th>Amount</th>
+                    <th>source currency</th>
+                    <th>Notes</th>
+                    <th>Load id/Payout id</th>
+                    <th>Send Notification</th>
 
                 </tr>
             </thead>
         </table>
+
+</div>
+
     </div>
 </div>
 
@@ -70,25 +88,27 @@ $util = new \App\Utils\dateUtil();
             destroy: true,
             ajax: {
                 url: '{{ url('/admin/download/drivers_sheet') }}',
-                data: { from: from, to: to }
+                data: { from: from, to: to },
+                 dataSrc: function (json) {
+        console.log('Backend Response:', json); // 👈 FULL response
+        console.log('Rows:', json.data);        // 👈 actual table rows
+        return json.data;
+    }
             },
+
             dom: 'Bfrtip', // 👈 enables buttons
         buttons: [
             {
                 extend: 'excelHtml5',
                 title: `Driver_Balances_${from}_to_${to}`, // 👈 filename includes date range
                 filename: `Driver_Balances_${from}_to_${to}`,
-                exportOptions: {
-                    columns: [0, 1, 2,3]
-                }
+               
             },
             {
                 extend: 'csvHtml5',
                 title: `Driver_Balances_${from}_to_${to}`,
                 filename: `Driver_Balances_${from}_to_${to}`,
-                exportOptions: {
-                    columns: [0, 1, 2,3]
-                }
+
             },
             {
                 extend: 'print',
@@ -99,12 +119,30 @@ $util = new \App\Utils\dateUtil();
             }
         ],
             columns: [
-                { data: 'driver_id', name: 'id' },
-                { data: 'username', name: 'name' },
-                { data: 'balance', name: 'balance' },
-                { data: 'credit_history_total', name: 'credit_history_total' },
 
-            ]
+                { data: 'username', name: 'name' },
+                { data: 'address1', name: 'address1' },
+                { data: 'address2', name: 'address2' },
+                { data: 'city', name: 'city' },
+                { data: 'state', name: 'state' },
+                { data: 'postal_code', name: 'postal_code' },
+                { data: 'country_code', name: 'country_code' },
+                { data: 'first_name', name: 'first_name' },
+                { data: 'last_name', name: 'last_name' },
+                { data: 'business_name', name: 'business_name' },
+                { data: 'email', name: 'email' },
+                { data: 'phone', name: 'phone' },
+                { data: 'language', name: 'language' },
+                { data: 'balance', name: 'balance' },
+                { data: 'currency', name: 'currency' },
+                { data: 'notes', name: 'notes' },
+                { data: 'load_payout_id', name: 'load_payout_id' },
+                { data: 'send_notification', name: 'send_notification' },
+
+                // { data: 'credit_history_total', name: 'credit_history_total' },
+
+            ],
+
         });
     }
      $(document).ready(function () {
