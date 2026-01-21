@@ -84,13 +84,13 @@
                                                                 data-note="{{ $complaint->admin_note }}">
                                                                 Edit
                                                             </button>
-                                                           @if(Auth::guard('admin')->user()->role == 'admin')
+                                                        {{--     @if(Auth::guard('admin')->user()->role == 'admin')
                                                             <a href="{{ url('/admin/delete/complaint/' . $complaint->id) }}"
                                                                 class="btn btn-danger"
                                                                 onclick="return confirm('Are you sure you want to delete this complaint?')">
                                                                 Delete
                                                             </a>
-                                                            @endif
+                                                            @endif --}}
 
                                                         </td>
                                                     </tr>

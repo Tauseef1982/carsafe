@@ -67,9 +67,9 @@ $util = new \App\Utils\dateUtil();
                                     <th>{{$complaint->note}}</th>
                                     <td>
                                         <a href="{{url('admin/update_complaint_status')}}/{{$complaint->id}}" class="btn btn-primary mb-2">Change Status</a>
-                                         @if(Auth::guard('admin')->user()->role == 'admin')
+                                        {{--   @if(Auth::guard('admin')->user()->role == 'admin')
                                         <a href="{{url('admin/delete_complaint_account')}}/{{$complaint->id}}" class="btn btn-danger mb-2"  onclick="return confirm('Are you sure you want to delete this complaint?')">Delete</a>
-                                    @endif
+                                    @endif--}}
                                     </td>
                                      </tr>
                                     @endforeach
