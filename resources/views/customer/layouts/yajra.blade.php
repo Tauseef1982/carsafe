@@ -150,7 +150,7 @@ $account = Account::where('account_id' , $user)->first();
     background: transparent;
     padding: 8px 12px !important;
     border-radius: 6px !important;
-    
+
     display: flex;
     align-items: center;
     gap: 6px;
@@ -165,11 +165,11 @@ $account = Account::where('account_id' , $user)->first();
 }
 .menu-item:hover i,
 .menu-item:hover svg {
-    stroke: #fff; 
+    stroke: #fff;
 }
 .menu-item.menu-item-active i,
 .menu-item.menu-item-active svg {
-    stroke: #fff; 
+    stroke: #fff;
 }
 
 
@@ -196,18 +196,18 @@ $account = Account::where('account_id' , $user)->first();
                 </div>
                 <div class="toggle-sidebar">
                     <i class="status_toggle middle sidebar-toggle" data-feather="align-center"></i>
-                </div> 
+                </div>
 
             </div>
             <div class="left-header col horizontal-wrapper ps-0">
                 <ul class="horizontal-menu">
-              <li > 
+              <li >
                 <div class="greeting">
                     <span id="greeting"></span>, <strong>{{ $account->f_name }}!</strong>
                 </div>
-                
+
               </li>
-           
+
             </ul>
             </div>
             <div class="nav-right col-md-8 pull-right right-header p-0">
@@ -216,17 +216,17 @@ $account = Account::where('account_id' , $user)->first();
                 <div class="time-display" >
                   <i class="me-1" data-feather="clock"></i>
                   <span id="txt"></span>
-                  
+
                 </div>
               </li>
-              <li>                           
+              <li>
                 <div class="search-bar">
                   <i class="fa fa-search"></i>
                   <input type="text" placeholder="Search here...">
                   <div class="search-shortcut">⌘ K</div>
                 </div>
               <!-- <li class="onhover-dropdown">
-                <div class="notification-box"><i data-feather="bell"> 
+                <div class="notification-box"><i data-feather="bell">
 
                 </i><span class="badge rounded-pill badge-danger">4 </span></div>
                 <div class="onhover-show-div notification-dropdown">
@@ -248,7 +248,7 @@ $account = Account::where('account_id' , $user)->first();
                   </ul>
                 </div>
               </li> -->
-             
+
               <!-- <li>
                 <div class="mode"><i class="fa fa-moon-o"></i></div>
               </li> -->
@@ -261,9 +261,9 @@ $account = Account::where('account_id' , $user)->first();
     width: 20px;
     text-align: center;"><i class="fa fa-moon-o mode"></i></div>
               </li>
-           
-              
-              
+
+
+
               <li class="profile-nav onhover-dropdown p-0 me-0">
                 <div class="media profile-media">
                     <img style="width: 40px; height: 40px; border-radius: 50%;" src="{{ asset('storage/'. $account->image) }}" alt="">
@@ -348,7 +348,7 @@ $account = Account::where('account_id' , $user)->first();
 
                                 <a href="{{url('customer/payments')}}">
                                     <div class="menu-item {{ request()->is('customer/payments') ? 'menu-item-active' : '' }}">
-                                        
+
                                     <i class="fa fa-usd" ></i>
                                     Payments
                                     </div>
@@ -357,24 +357,24 @@ $account = Account::where('account_id' , $user)->first();
                             </li>
 
                             <li class="sidebar-main-title">
-                            
+
                                 <a href="{{url('customer/pins')}}">
-                                    <div class="menu-item {{ request()->is('customer/pins') ? 'menu-item-active' : '' }}"> 
+                                    <div class="menu-item {{ request()->is('customer/pins') ? 'menu-item-active' : '' }}">
                                         <i data-feather="map-pin"></i>
                                         Account Pins
                                     </div>
                                 </a>
-                            
+
                             </li>
                             <li class="sidebar-main-title">
-                            
+
                             <a href="{{url('customer/complaints')}}">
                                 <div class="menu-item {{ request()->is('customer/complaints') ? 'menu-item-active' : '' }}">
                                     <i data-feather="alert-circle"></i>
                                     Complaints
                                 </div>
                             </a>
-                        
+
                         </li>
 
                             <li class="sidebar-main-title">
@@ -383,6 +383,16 @@ $account = Account::where('account_id' , $user)->first();
                                     <div class="menu-item {{ request()->is('customer/invoices') ? 'menu-item-active' : '' }}">
                                         <i data-feather="file-text"></i>
                                         Invoices
+                                    </div>
+                                </a>
+
+                            </li>
+                            <li class="sidebar-main-title">
+
+                                <a href="{{url('customer/api-key')}}">
+                                    <div class="menu-item {{ request()->is('customer/api-key') ? 'menu-item-active' : '' }}">
+                                        <i data-feather="file-text"></i>
+                                        Manage API Key
                                     </div>
                                 </a>
 

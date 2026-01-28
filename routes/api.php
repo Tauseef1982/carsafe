@@ -29,4 +29,7 @@ Route::post('/twilio/findvehicle', [\App\Http\Controllers\ApiController::class, 
 Route::post('/twilio/payTripAccount', [\App\Http\Controllers\ApiController::class, 'payTripAccount']);
 Route::post('/twilio/payTripCard', [\App\Http\Controllers\ApiController::class, 'payTripCard']);
 Route::post('/twilio/payTripCard2', [\App\Http\Controllers\ApiController::class, 'payTripCard2']);
+Route::post('/create-trip', [\App\Http\Controllers\ApikeyController::class, 'createTrip'])
+    ->middleware('api.key');
+
 
