@@ -15,6 +15,7 @@ use App\Http\Controllers\AccountComplaintController;
 use App\Http\Controllers\DriverComplaintController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DriversPaymentsInfoController;
+use App\Http\Controllers\ApikeyController;
 use App\Models\Trip;
 
 
@@ -290,7 +291,7 @@ Route::group(['prefix' => 'customer','as' => 'customer.'], function () {
     Route::get('/cancel-booking/{id}', [\App\Http\Controllers\BookRideController::class, 'cancleRide']);
     Route::get('/upcomming-trips', [\App\Http\Controllers\UserPortalController::class, 'upcomingTrips']);
     Route::any('/invoice/preview' , [AccountController::class, 'show_invoice']);
-    Route::resource('/api-key', \App\Http\Controllers\ApiKeyController::class);
+    Route::resource('/api-key', ApikeyController::class);
 });
 
 include('tests.php');
