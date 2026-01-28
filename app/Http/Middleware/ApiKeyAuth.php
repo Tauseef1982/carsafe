@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use App\Models\ApiKey;
+use App\Models\Apikey;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApiKeyAuth
@@ -22,7 +22,7 @@ class ApiKeyAuth
         return response()->json(['error' => 'API key missing'], 401);
     }
 
-    $key = ApiKey::where('api_key', $apiKey)
+    $key = Apikey::where('api_key', $apiKey)
         ->where('is_active', true)
         ->first();
 
