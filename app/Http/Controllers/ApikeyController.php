@@ -94,14 +94,16 @@ class ApikeyController extends Controller
             return response()->json(['error' => 'Account not found'], 404);
         }
 
-         $tagvehicle1 = false;
+            $tagvehicle1 = false;
             $tagvehicle2 = false;
 
-            if ($request->driver_type === 'male') {
+            $driverType = $request->input('driver_type');
+
+            if ($driverType === 'male') {
                 $tagvehicle1 = true;
-            } elseif ($request->driver_type === 'female') {
+            } elseif ($driverType === 'female') {
                 $tagvehicle2 = true;
-            } elseif ($request->driver_type === 'both') {
+            } else  {
                 $tagvehicle1 = false;
                 $tagvehicle2 = false;
             }
@@ -112,11 +114,11 @@ class ApikeyController extends Controller
             $email = $account->email;
             $phone = $request->phone_number;
             $pickup_address = $request->pickup_location;
-            $pickup_lat = $request->pickup_lat;
-            $pickup_lng = $request->pickup_lng;
+            // $pickup_lat = $request->pickup_lat;
+            // $pickup_lng = $request->pickup_lng;
             $drop_location = $request->drop_location;
-            $drop_lat = $request->drop_lat;
-            $drop_lng = $request->drop_lng;
+            // $drop_lat = $request->drop_lat;
+            // $drop_lng = $request->drop_lng;
 
             $token = TokenService::token();
 
@@ -175,8 +177,8 @@ class ApikeyController extends Controller
                                 'location' => [
                                     'name' => $pickup_address,
                                     'coords' => [
-                                        (int)($pickup_lng * 1e6),
-                                        (int)($pickup_lat * 1e6),
+                                        // (int)($pickup_lng * 1e6),
+                                        // (int)($pickup_lat * 1e6),
                                     ],
                                 ],
                                 "times" => [
@@ -199,8 +201,8 @@ class ApikeyController extends Controller
                                 'location' => [
                                     'name' => $drop_location,
                                     'coords' => [
-                                        (int)($drop_lng * 1e6),
-                                        (int)($drop_lat * 1e6),
+                                        // (int)($drop_lng * 1e6),
+                                        // (int)($drop_lat * 1e6),
                                     ],
                                 ],
                                 "times" => null,

@@ -32,6 +32,7 @@ use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
 use App\Imports\UsersImport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Models\Apikey;
 
 
 class AccountController extends Controller
@@ -416,8 +417,8 @@ class AccountController extends Controller
         $account = Account::find($id);
         $invoices = AccountPayment::where('status', '!=', null)
             ->where('account_id', $account->account_id)->whereNotNull('hash_id')->get();
-
-        return view('admin.account-show', compact('account', 'invoices'));
+        $apikey = Apikey::where('account_id', $account->account_id)->first();
+        return view('admin.account-show', compact('account', 'invoices' ,'apikey'));
     }
 
     /**

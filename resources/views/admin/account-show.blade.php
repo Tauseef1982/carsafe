@@ -300,6 +300,33 @@
                                                     </form>
                                                 </div>
                                             </div>
+                                            <div class="col-md-6 mt-3">
+                                                @if (!$apikey)
+                     <form action="{{ url('customer/api-key') }}" id="api_key_form" method="POST">
+                        @csrf
+
+                        <input type="hidden" name="account_id" value="{{$account->account_id}}">
+
+                  <div class="d-flex text-end">
+
+                    <input class="btn bg-primary b-r-8" type="submit" value="Create Trip API Key">
+
+                  </div>
+                  </form>
+                  @else
+                      <div class="mb-3">
+                        <small class="text-success d-none" id="copyMsg">
+                            ✅ Copied to clipboard
+                        </small>
+                             <label for="">Create trip API Key:</label>
+                          <input type="text" readonly value="{{ $apikey->api_key }}" class="form-control mb-3"  id="apiKeyInput">
+                           <button class="btn bg-primary b-r-8" id="copyApiKey">
+                            Copy
+                         </button>
+                        </div>
+
+                @endif
+                                            </div>
 
 
                                         </div>
@@ -710,6 +737,27 @@
         }
 
         $(document).ready(function () {
+
+         $('#copyApiKey').click(function () {
+
+        let copyText = $('#apiKeyInput');
+
+        // Select text
+        copyText.prop('readonly', false);
+        copyText.select();
+        copyText[0].setSelectionRange(0, 99999);
+        copyText.prop('readonly', true);
+
+        // Copy
+        document.execCommand("copy");
+
+        // Message
+        $('#copyMsg').removeClass('d-none');
+
+        setTimeout(function () {
+            $('#copyMsg').addClass('d-none');
+        }, 1500);
+    });
 //  accountrestriction code
 $(document).on('click', '.delete-existing-address', function () {
             const addressId = $(this).data('id');
