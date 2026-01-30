@@ -31,5 +31,6 @@ Route::post('/twilio/payTripCard', [\App\Http\Controllers\ApiController::class, 
 Route::post('/twilio/payTripCard2', [\App\Http\Controllers\ApiController::class, 'payTripCard2']);
 Route::post('/create-trip', [\App\Http\Controllers\ApikeyController::class, 'createTrip'])
     ->middleware('api.key');
+Route::post('/generate-qr', [\App\Http\Controllers\QrCodeController::class, 'generate'])->middleware('codeapi.key');
 
 

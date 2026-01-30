@@ -58,7 +58,7 @@
                      </div>
                   <div class="d-flex text-end">
 
-                    <input class="btn bg-orange-g text-white b-r-8" type="submit" value="Create API Key">
+                    <input class="btn bg-orange-g text-white b-r-8" type="submit" value="Create Trip API Key">
 
                   </div>
                   </form>
@@ -67,7 +67,7 @@
                         <small class="text-success d-none" id="copyMsg">
                             ✅ Copied to clipboard
                         </small>
-                             <label for="">Your Key:</label>
+                             <label for="">Trip API Key:</label>
                           <input type="text" readonly value="{{ $apikey->api_key }}" class="form-control mb-3"  id="apiKeyInput">
                            <button class="btn bg-orange-g text-white b-r-8" id="copyApiKey">
                             Copy
@@ -75,6 +75,33 @@
                         </div>
 
                 @endif
+                 @if (!$codeapikey)
+                                    <form action="{{ url('customer/qr-code') }}" id="api_key_code" method="POST">
+                                        @csrf
+
+                                        <input type="hidden" name="account_id" value="{{$account->account_id}}">
+
+                                        <div class="d-flex text-end">
+
+                                            <input class="btn bg-primary b-r-8" type="submit" value="Create Code API Key">
+
+                                        </div>
+                                    </form>
+                                @else
+                                    <div class="mb-3">
+                                        <small class="text-success d-none" id="copyCodeMsg">
+                                            ✅ Copied to clipboard
+                                        </small>
+                                        <label for="">Create QR API Key:</label>
+                                        <input type="text" readonly value="{{ $codeapikey->api_key }}" class="form-control mb-3"
+                                            id="codeapiKeyInput">
+                                        <button class="btn bg-primary b-r-8" id="copyCodeApiKey">
+                                            Copy
+                                        </button>
+                                    </div>
+
+                                @endif
+
 
 
 
@@ -152,6 +179,26 @@
         }, 1500);
     });
 
+    $('#copyCodeApiKey').click(function () {
+
+                let copyText = $('#codeapiKeyInput');
+
+                // Select text
+                copyText.prop('readonly', false);
+                copyText.select();
+                copyText[0].setSelectionRange(0, 99999);
+                copyText.prop('readonly', true);
+
+                // Copy
+                document.execCommand("copy");
+
+                // Message
+                $('#copyCodeMsg').removeClass('d-none');
+
+                setTimeout(function () {
+                    $('#copyCodeMsg').addClass('d-none');
+                }, 1500);
+            });
   });
 </script>
 

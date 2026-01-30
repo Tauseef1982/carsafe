@@ -33,6 +33,10 @@ use App\Models\Trip;
 /*
 admin dashboard routes starts
 */
+
+Route::get('phpinfo', function () {
+    phpinfo();
+});
 Route::get('process', [TripController::class, 'processPrepaidAccountDeductions']);
 
 Route::group(['prefix' => 'admin','as' => 'admin.'], function () {
@@ -292,6 +296,7 @@ Route::group(['prefix' => 'customer','as' => 'customer.'], function () {
     Route::get('/upcomming-trips', [\App\Http\Controllers\UserPortalController::class, 'upcomingTrips']);
     Route::any('/invoice/preview' , [AccountController::class, 'show_invoice']);
     Route::resource('/api-key', ApikeyController::class);
+    Route::post('/qr-code', [ApikeyController::class, 'generateCodeApiKey'])->name('customer.qr.generate');
 });
 
 include('tests.php');

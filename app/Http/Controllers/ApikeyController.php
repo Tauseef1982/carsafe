@@ -11,6 +11,7 @@ use App\Models\CustomerBooking;
 use Illuminate\Support\Facades\Http;
 use App\Services\TokenService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class ApikeyController extends Controller
 {
@@ -24,7 +25,8 @@ class ApikeyController extends Controller
 
 
         $apikey = Apikey::where('account_id', $account->account_id)->first();
-        return view('customer.apikey' , compact('apikey', 'account'));
+        $codeapikey = DB::table('qrcodeapis')->where('account_id', $account->account_id)->first();
+        return view('customer.apikey' , compact('apikey', 'account' , 'codeapikey'));
     }
 
     /**
@@ -263,5 +265,15 @@ class ApikeyController extends Controller
             'message' => $e->getMessage()
         ], 500);
     }
+    }
+
+    public function generateCodeApiKey(Request $request)
+    {
+        $key = hash('sha256', Str::random(60));
+        DB::table('qrcodeapis')->updateOrInsert(
+            ['account_id' => $request->account_id],
+            ['api_key' => $key, 'is_active' => true]
+        );
+        return back()->with('success', 'API Key for QR is generated successfully');
     }
 }

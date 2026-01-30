@@ -418,7 +418,8 @@ class AccountController extends Controller
         $invoices = AccountPayment::where('status', '!=', null)
             ->where('account_id', $account->account_id)->whereNotNull('hash_id')->get();
         $apikey = Apikey::where('account_id', $account->account_id)->first();
-        return view('admin.account-show', compact('account', 'invoices' ,'apikey'));
+        $codeapikey = DB::table('qrcodeapis')->where('account_id', $account->account_id)->first();
+        return view('admin.account-show', compact('account', 'invoices' ,'apikey', 'codeapikey'));
     }
 
     /**
