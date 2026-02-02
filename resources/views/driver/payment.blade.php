@@ -446,8 +446,8 @@ $id = Auth::user()->id;
         }
 
         function verifyQrCode(code) {
-             event.preventDefault();
-            event.stopPropagation();
+            //  event.preventDefault();
+            // event.stopPropagation();
             //code = 'RHMX9UYTNN';
             fetch('/verify-qr-code', {
                 method: 'POST',
