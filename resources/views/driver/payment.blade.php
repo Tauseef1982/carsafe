@@ -140,7 +140,7 @@ $id = Auth::user()->id;
                                             </div>
                                         </div>
                                     </div> -->
-                             @if ($username == '1234')
+                             @if ($username == 'driver2')
                              <p class="" style="cursor:pointer; font-size:24px; font-weight: 900;" onclick="openScanner()">
                                 Pay with QR Code
                             </p>
