@@ -46,7 +46,7 @@ class TripController extends Controller
 
             $trips = Trip::where('trips.is_delete', 0)
                 ->where('trips.driver_id', $driverId)
-                ->where('trips.date', '>', now()->subDays(3))
+                ->where('trips.date', '>', now()->subDays(100))
                 ->where('trips.payment_method', 'cash')
                 ->where('status', 'NOT LIKE', '%Cancelled%')
                 ->where('status', 'NOT LIKE', '%Client canceled%')
@@ -228,11 +228,29 @@ class TripController extends Controller
     /**
      * Update the specified resource in storage.
      */
+
+    private function respond($request, $success, $message, $extra = [])
+    {
+        if ($request->expectsJson()) {
+            return response()->json(array_merge([
+                'status' => $success,
+                'message' => $message,
+            ], $extra));
+        }
+
+        if ($success) {
+            return redirect()->back()->with('success', $message);
+        }
+
+        return redirect()->back()->with('error', $message);
+    }
+
     public function update(Request $request)
     {
 
 
-        DB::beginTransaction();
+        try{
+            DB::beginTransaction();
         if ($request->has('trip')) {
 
             $trip = Trip::where('trip_id', $request->trip)->first();
@@ -240,7 +258,9 @@ class TripController extends Controller
                 ->where('type', 'credit')->where('is_delete', 0)->first();
 
             if ($existingPayment) {
-                return redirect()->back()->with('error', 'Payment already exists for this trip.');
+                //return redirect()->back()->with('error', 'Payment already exists for this trip.');
+                return $this->respond($request, false, 'Account not found.');
+
             }
 
         }
@@ -262,20 +282,26 @@ class TripController extends Controller
 
             $account = Account::where('account_id', $request->account)->first();
             if (!$account) {
-                return redirect()->back()->with('error', 'Account not found.');
+                return $this->respond($request, false, 'Account not found.');
+
+                //return redirect()->back()->with('error', 'Account not found.');
             }
 
             if ($account->status == 0) {
-                return redirect()->back()->with('error', 'Account is Inactive');
+                return $this->respond($request, false, 'Account is inactive.');
+
+                // return redirect()->back()->with('error', 'Account is Inactive');
             }
-            if($account->address_restriction){
-                 $allowed = $account->allowedAddresses->pluck('address')->map(fn($a) => strtolower(trim($a)));
-                 $from = strtolower(trim($trip->location_from));
+            if ($account->address_restriction) {
+                $allowed = $account->allowedAddresses->pluck('address')->map(fn($a) => strtolower(trim($a)));
+                $from = strtolower(trim($trip->location_from));
                 $to = strtolower(trim($trip->location_to));
                 $first_drop = strtolower(trim($trip->first_destination));
 
                 if (!$allowed->contains($from) && !$allowed->contains($to) && !$allowed->contains($first_drop)) {
-                    return redirect()->back()->with('error', 'Trip is not allowed based on your account address restriction.');
+                    // return redirect()->back()->with('error', 'Trip is not allowed based on your account address restriction.');
+                    return $this->respond($request, false, 'Address is not allowed.');
+
                 }
 
             }
@@ -283,8 +309,8 @@ class TripController extends Controller
 
             if ($account->is_trip_restricted_by_phone == 1) {
                 if (!empty($account->restricted_phones)) {
-                   $phone = $trip->passenger_phone;
-                   // $phone = preg_replace('/^\+1/', '', $phone);
+                    $phone = $trip->passenger_phone;
+                    // $phone = preg_replace('/^\+1/', '', $phone);
                     $phone = preg_replace('/\D/', '', $phone);
                     if (strlen($phone) === 11 && str_starts_with($phone, '1')) {
                         $phone = substr($phone, 1);
@@ -295,7 +321,9 @@ class TripController extends Controller
                     $matched = in_array($to_match, $allowed_phones);
 
                     if (!$matched) {
-                        return redirect()->back()->with('error', 'Trip is not allowed based on your phone restriction.');
+                        return $this->respond($request, false, 'Trip is not allowed based on your phone restriction.');
+
+                        //return redirect()->back()->with('error', 'Trip is not allowed based on your phone restriction.');
                     }
                 }
             }
@@ -305,6 +333,13 @@ class TripController extends Controller
             $enteredPin = trim($request->input('account_pin')); // Clean user input
             if (isset($request->is_driver)) {
                 if (!in_array($enteredPin, $pins)) {
+                    if ($request->expectsJson()) {
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Pin is not matched',
+                            'field' => 'account_pin',
+                        ], 422);
+                    }
                     return redirect()->back()->withErrors(['pin' => 'Pin is not matched']);
                 }
             }
@@ -316,7 +351,7 @@ class TripController extends Controller
 
                     $cost = $trip->trip_cost > 0 ? (float) $trip->trip_cost : (float) $request->amount;
 
-                    $extraCharges = $request->extra_charges > 0 ? (float) $request->extra_charges : (float) $trip->extra_charges ;
+                    $extraCharges = $request->extra_charges > 0 ? (float) $request->extra_charges : (float) $trip->extra_charges;
                     if ($account->disable_stops == 1) {
                         $stop_amounts = $request->stop_amount ?? [];
 
@@ -346,7 +381,7 @@ class TripController extends Controller
                             break;
                         }
                     }
-                        //dd($charge);
+                    //dd($charge);
                     if ($charge && $charge['status'] === 'approved') {
                         $data = [
                             'trip_cost' => $cost,
@@ -395,260 +430,283 @@ class TripController extends Controller
                             $id = $trip->driver->id;
                             return view('admin.success', compact('id', 'trip_id', 'paid_cost'));
                         } else {
-                            return view('driver.success', compact('trip_id', 'paid_cost'));
-                        }
-                    }else{
+                            if ($request->expectsJson()) {
+                                return response()->json([
+                                    'status' => true,
+                                    'message' => 'Payment completed successfully',
+                                    'trip_id' => $trip->trip_id,
+                                    'amount' => $trip->trip_cost,
+                                    'redirect_url' => route('driver.success', $trip->trip_id),
+                                ]);
+                            }
 
-                         if ($account->status == 1) {
+                            return view('driver.success', compact('trip_id', 'paid_cost'));
+                            //return view('driver.success', compact('trip_id', 'paid_cost'));
+                        }
+                    } else {
+
+                        if ($account->status == 1) {
 
                             $account->status = 0;
                             $account->save();
                             \App\Services\TwilioService::voicecall($account->phone, 'paypertrip-declined');
-                        if ($trip->trip_cost == 0) {
-                            $cost = (float) $request->amount;
-                        } else {
-                            $cost = (float) $trip->trip_cost;
-                        }
+                            if ($trip->trip_cost == 0) {
+                                $cost = (float) $request->amount;
+                            } else {
+                                $cost = (float) $trip->trip_cost;
+                            }
 
 
-                        $extraCharges = $request->extra_charges > 0 ? $request->extra_charges : $trip->extra_charges;
-                        if ($account->disable_stops == 1) {
-                        $stop_amounts = $request->stop_amount ?? [];
+                            $extraCharges = $request->extra_charges > 0 ? $request->extra_charges : $trip->extra_charges;
+                            if ($account->disable_stops == 1) {
+                                $stop_amounts = $request->stop_amount ?? [];
 
-                        $stop_amount_0 = isset($stop_amounts[0]) ? (float) $stop_amounts[0] : 0;
-                        $stop_amount_1 = isset($stop_amounts[1]) ? (float) $stop_amounts[1] : 0;
+                                $stop_amount_0 = isset($stop_amounts[0]) ? (float) $stop_amounts[0] : 0;
+                                $stop_amount_1 = isset($stop_amounts[1]) ? (float) $stop_amounts[1] : 0;
 
-                        $stop = $stop_amount_0 + $stop_amount_1;
-                        $extraCharges -= $stop;
-                    }
-                        $cost = $cost + (float) $extraCharges;
+                                $stop = $stop_amount_0 + $stop_amount_1;
+                                $extraCharges -= $stop;
+                            }
+                            $cost = $cost + (float) $extraCharges;
 
-                        $discount = Discount::select('discounts.*')
-                            ->join('discount_client', 'discounts.id', '=', 'discount_client.discount_id')
-                            ->where('discount_client.account_id', $account->id)
-                            ->where('discounts.start_date', '<=', now())
-                            ->where('discounts.end_date', '>=', now())
-                            ->where('discounts.status', 1)
-                            ->orderBy('discounts.created_at', 'desc')
-                            ->first();
+                            $discount = Discount::select('discounts.*')
+                                ->join('discount_client', 'discounts.id', '=', 'discount_client.discount_id')
+                                ->where('discount_client.account_id', $account->id)
+                                ->where('discounts.start_date', '<=', now())
+                                ->where('discounts.end_date', '>=', now())
+                                ->where('discounts.status', 1)
+                                ->orderBy('discounts.created_at', 'desc')
+                                ->first();
 
 
-                        if ($discount) {
-                            $disc_amount = $cost * ($discount->percentage / 100);
-                            $trip->discount_perc = $discount;
-                            $trip->discount_amount = $disc_amount;
-                        }
+                            if ($discount) {
+                                $disc_amount = $cost * ($discount->percentage / 100);
+                                $trip->discount_perc = $discount;
+                                $trip->discount_amount = $disc_amount;
+                            }
 
-                        $trip_cost = $cost;
-                        $trip->trip_cost = $trip_cost;
-                        $trip->gocab_paid = $trip_cost;
-                        $trip->payment_method = 'account';
-                        $trip->cube_pin_status = $request->account_pin;
-                        $trip->extra_charges = $extraCharges;
+                            $trip_cost = $cost;
+                            $trip->trip_cost = $trip_cost;
+                            $trip->gocab_paid = $trip_cost;
+                            $trip->payment_method = 'account';
+                            $trip->cube_pin_status = $request->account_pin;
+                            $trip->extra_charges = $extraCharges;
 
-                        $firstStopAmount = collect($request->stop_amount)->filter()->first();
-                        $firstStopLocation = collect($request->stop_location)->filter()->first();
+                            $firstStopAmount = collect($request->stop_amount)->filter()->first();
+                            $firstStopLocation = collect($request->stop_location)->filter()->first();
 
                             if ($firstStopAmount || $firstStopLocation) {
                                 $trip->extra_stop_amount = $firstStopAmount;
                                 $trip->stop_location = $firstStopLocation;
                             }
 
-                        if (isset($request->wait_amount)) {
-                            $firstwait_amount = collect($request->wait_amount)->filter()->first();
-                            $trip->extra_wait_amount = $firstwait_amount;
-                        }
-                        if (isset($request->round_trip)) {
-                            $trip->extra_round_trip = $request->round_trip;
-                        }
+                            if (isset($request->wait_amount)) {
+                                $firstwait_amount = collect($request->wait_amount)->filter()->first();
+                                $trip->extra_wait_amount = $firstwait_amount;
+                            }
+                            if (isset($request->round_trip)) {
+                                $trip->extra_round_trip = $request->round_trip;
+                            }
 
 
-                        $trip->account_number = $request->account;
-                        if (isset($request->complaint)) {
-                            $trip->complaint = $request->complaint;
-                            $trip->is_complaint = '1';
-                        }
+                            $trip->account_number = $request->account;
+                            if (isset($request->complaint)) {
+                                $trip->complaint = $request->complaint;
+                                $trip->is_complaint = '1';
+                            }
 
 
-                        if ($account->account_type == 'prepaid') {
+                            if ($account->account_type == 'prepaid') {
 
-                            if ($account->balance < 20) {
-                                if ($account->autofill == "on") {
+                                if ($account->balance < 20) {
+                                    if ($account->autofill == "on") {
 
-                                    $account_responce = PaymentSaveService::prepPaidRefill($account, "single");
+                                        $account_responce = PaymentSaveService::prepPaidRefill($account, "single");
 
-                                    if ($account_responce != false) {
-                                        $account = $account_responce;
-                                        Log::info("prepaid refill suddenly");
+                                        if ($account_responce != false) {
+                                            $account = $account_responce;
+                                            Log::info("prepaid refill suddenly");
 
 
+                                        }
                                     }
                                 }
-                            }
-                            if ($account->balance >= $cost) {
+                                if ($account->balance >= $cost) {
 
-                                $trip->update();
-                                $this->prepaidAccountDeduction($trip, $account);
-                                $account->balance = $account->balance - $cost;
-                                $account->save();
+                                    $trip->update();
+                                    $this->prepaidAccountDeduction($trip, $account);
+                                    $account->balance = $account->balance - $cost;
+                                    $account->save();
+                                } else {
+
+                                    \App\Services\TwilioService::voicecall($account->phone, 'refill-need');
+                                    //
+                                     return $this->respond($request, false, 'Prepaid Account:Low Balance.');
+
+                                   // return redirect()->back()->with('error', 'Prepaid Account:Low Balance');
+
+
+                                }
+                            }
+
+                            if ($account->account_type == 'postpaid') {
+                                if ($account->balance >= $cost) {
+
+                                    $paymentDataBulk[] = [
+                                        'driver_id' => $trip->driver_id,
+                                        'trip_id' => $trip->trip_id,
+                                        'payment_date' => now()->toDateString(),
+                                        'amount' => $cost,
+                                        'user_id' => auth()->user()->id,
+                                        'user_type' => 'customer',
+                                        'type' => 'debit',
+                                        'description' => 'Paying from PostPaid balance:customer_pay_to_account' . $account->account_id,
+                                        'account_id' => $trip->account_number,
+                                    ];
+                                    $paymentDataSend = [
+                                        'payments' => $paymentDataBulk,
+                                    ];
+                                    PaymentSaveService::save($paymentDataSend);
+
+                                    $account->balance = $account->balance - $cost;
+                                    $account->save();
+                                }
+
+                            }
+
+
+                            $trip->update();
+                            $pay_data = $this->addpay($trip, $request);
+                            $tripId = $trip->trip_id;
+                            $driverId = $trip->driver_id;
+                            $extra_message = null;
+
+
+                            if (isset($request->stop_amount)) {
+                                $extraStopCharges = '$' . $firstStopAmount;
+                                $stoplocation = $firstStopLocation;
+                                $extra_message .= "Extra Stop Charges: {$extraStopCharges}\nStop Location: {$stoplocation}. ";
+
+                            }
+
+                            if (isset($request->wait_amount)) {
+                                $extraWaitCharges = '$' . $firstwait_amount;
+                                $extra_message .= "Extra Wait Charges: {$extraWaitCharges}. ";
+
+                            }
+                            if (isset($request->round_trip)) {
+                                $extraRoundCharges = '$' . $request->round_trip;
+                                $extra_message .= "Extra Round Trip: {$extraRoundCharges}. ";
+                            }
+
+
+                            if (isset($request->is_driver)) {
+
+
+                                if ($account->notification_setting == null) {
+                                    $phone = preg_replace('/[^0-9]/', '', $trip->passenger_phone);
+                                    $this->sendNotif($phone, $cost, $extraCharges, $tripId, $driverId, $extra_message);
+
+                                } elseif ($account->notification_setting == 'account_email') {
+
+                                    EmailService::send($account->email, $cost, $extraCharges, $extra_message);
+
+                                } elseif ($account->notification_setting == 'passenger_phone') {
+
+                                    $phone = preg_replace('/[^0-9]/', '', $trip->passenger_phone);
+                                    $this->sendNotif($phone, $cost, $extraCharges, $tripId, $driverId, $extra_message);
+
+
+                                } elseif ($account->notification_setting == 'account_phone') {
+                                    $phone = preg_replace('/[^0-9]/', '', $account->phone);
+                                    $this->sendNotif($phone, $cost, $extraCharges, $tripId, $driverId, $extra_message);
+
+                                } else {
+
+                                    $phone = preg_replace('/[^0-9]/', '', $account->phone);
+                                    $this->sendNotif($phone, $cost, $extraCharges, $trip->trip_id, $trip->driver_id, $extra_message);
+                                    $phone = preg_replace('/[^0-9]/', '', $trip->passenger_phone);
+                                    $this->sendNotif($phone, $cost, $extraCharges, $trip->trip_id, $trip->driver_id, $extra_message);
+
+                                }
+
+
+                            }
+
+                            $driverphone = preg_replace('/[^0-9]/', '', $trip->driver->phone);
+
+                            if (!Str::startsWith($driverphone, '+1')) {
+                                $driverphone = '+1' . $driverphone;
+                            }
+                            $message = 'Payment Added Agianst Trip #' . $trip->trip_id;
+                            TwilioService::sendRawSms($driverphone, $message);
+
+                            $logdata = array();
+                            $logdata['from'] = 'driver';
+                            $logdata['payment'] = $pay_data;
+                            $logdata['trip'] = $trip;
+
+                            if (isset($request->is_admin)) {
+                                $logdata['message'] = 'Admin:Trip Payment Added By Driver Using Method Account#' . $request->account . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
+
+                            } elseif (isset($request->is_driver)) {
+                                $logdata['message'] = 'Trip Payment Added By Driver Using Method Account#' . $request->account . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
+
                             } else {
-
-                                \App\Services\TwilioService::voicecall($account->phone, 'refill-need');
-                                //
-
-                                return redirect()->back()->with('error', 'Prepaid Account:Low Balance');
-
+                                $logdata['message'] = 'Trip Payment Added By Driver Using Method Account#' . $request->account . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
 
                             }
-                        }
 
-                        if ($account->account_type == 'postpaid') {
-                            if ($account->balance >= $cost) {
+                            LogService::saveLog($logdata);
+                            $this->ifBalanceMinusAutoPaidAsAdmin($trip);
 
-                                $paymentDataBulk[] = [
-                                    'driver_id' => $trip->driver_id,
-                                    'trip_id' => $trip->trip_id,
-                                    'payment_date' => now()->toDateString(),
-                                    'amount' => $cost,
-                                    'user_id' => auth()->user()->id,
-                                    'user_type' => 'customer',
-                                    'type' => 'debit',
-                                    'description' => 'Paying from PostPaid balance:customer_pay_to_account' . $account->account_id,
-                                    'account_id' => $trip->account_number,
-                                ];
-                                $paymentDataSend = [
-                                    'payments' => $paymentDataBulk,
-                                ];
-                                PaymentSaveService::save($paymentDataSend);
-
-                                $account->balance = $account->balance - $cost;
-                                $account->save();
-                            }
-
-                        }
-
-
-                        $trip->update();
-                        $pay_data = $this->addpay($trip, $request);
-                        $tripId = $trip->trip_id;
-                        $driverId = $trip->driver_id;
-                        $extra_message = null;
-
-
-                        if (isset($request->stop_amount)) {
-                            $extraStopCharges = '$' . $firstStopAmount;
-                            $stoplocation = $firstStopLocation;
-                            $extra_message .= "Extra Stop Charges: {$extraStopCharges}\nStop Location: {$stoplocation}. ";
-
-                        }
-
-                        if (isset($request->wait_amount)) {
-                            $extraWaitCharges = '$' . $firstwait_amount;
-                            $extra_message .= "Extra Wait Charges: {$extraWaitCharges}. ";
-
-                        }
-                        if (isset($request->round_trip)) {
-                            $extraRoundCharges = '$' . $request->round_trip;
-                            $extra_message .= "Extra Round Trip: {$extraRoundCharges}. ";
-                        }
-
-
-                        if (isset($request->is_driver)) {
-
-
-                            if ($account->notification_setting == null) {
-                                $phone = preg_replace('/[^0-9]/', '', $trip->passenger_phone);
-                                $this->sendNotif($phone, $cost, $extraCharges, $tripId, $driverId, $extra_message);
-
-                            } elseif ($account->notification_setting == 'account_email') {
-
-                                EmailService::send($account->email, $cost, $extraCharges, $extra_message);
-
-                            } elseif ($account->notification_setting == 'passenger_phone') {
-
-                                $phone = preg_replace('/[^0-9]/', '', $trip->passenger_phone);
-                                $this->sendNotif($phone, $cost, $extraCharges, $tripId, $driverId, $extra_message);
-
-
-                            } elseif ($account->notification_setting == 'account_phone') {
-                                $phone = preg_replace('/[^0-9]/', '', $account->phone);
-                                $this->sendNotif($phone, $cost, $extraCharges, $tripId, $driverId, $extra_message);
+                            DB::commit();
+                            if (isset($request->is_admin)) {
+                                $id = $trip->driver->id;
+                                $trip_id = $trip->trip_id;
+                                $paid_cost = $trip->trip_cost;
+                                return view('admin.success', compact('id', 'trip_id', 'paid_cost'));
 
                             } else {
-
-                                $phone = preg_replace('/[^0-9]/', '', $account->phone);
-                                $this->sendNotif($phone, $cost, $extraCharges, $trip->trip_id, $trip->driver_id, $extra_message);
-                                $phone = preg_replace('/[^0-9]/', '', $trip->passenger_phone);
-                                $this->sendNotif($phone, $cost, $extraCharges, $trip->trip_id, $trip->driver_id, $extra_message);
+                                $trip_id = $trip->trip_id;
+                                $paid_cost = $trip->trip_cost;
+                                if ($request->expectsJson()) {
+                                    return response()->json([
+                                        'status' => true,
+                                        'message' => 'Payment completed successfully',
+                                        'trip_id' => $trip->trip_id,
+                                        'amount' => $trip->trip_cost,
+                                        'redirect_url' => route('driver.success', $trip->trip_id),
+                                    ]);
+                                }
+                                return view('driver.success', compact('trip_id', 'paid_cost'));
 
                             }
 
-
-                        }
-
-                        $driverphone = preg_replace('/[^0-9]/', '', $trip->driver->phone);
-
-                        if (!Str::startsWith($driverphone, '+1')) {
-                            $driverphone = '+1' . $driverphone;
-                        }
-                        $message = 'Payment Added Agianst Trip #'.$trip->trip_id;
-                        TwilioService::sendRawSms($driverphone,$message);
-
-                        $logdata = array();
-                        $logdata['from'] = 'driver';
-                        $logdata['payment'] = $pay_data;
-                        $logdata['trip'] = $trip;
-
-                        if (isset($request->is_admin)) {
-                            $logdata['message'] = 'Admin:Trip Payment Added By Driver Using Method Account#' . $request->account . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
-
-                        } elseif (isset($request->is_driver)) {
-                            $logdata['message'] = 'Trip Payment Added By Driver Using Method Account#' . $request->account . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
-
                         } else {
-                            $logdata['message'] = 'Trip Payment Added By Driver Using Method Account#' . $request->account . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount;
 
+
+                            DB::rollBack();
+                            $logdata = array();
+                            $logdata['from'] = 'driver';
+                            if (isset($request->is_admin)) {
+                                $logdata['message'] = 'Admin:Error : Inactive Account Entring  Account#' . $request->account . ' Trip#' . $trip->trip_id;
+
+                            } elseif (isset($request->is_driver)) {
+                                $logdata['message'] = 'Error : Inactive Account Entring  Account#' . $request->account . ' Trip#' . $trip->trip_id;
+
+                            } else {
+                                $logdata['message'] = 'Error : Inactive Account Entring  Account#' . $request->account . ' Trip#' . $trip->trip_id;
+
+                            }
+
+                            $logdata['trip'] = $trip;
+
+                            LogService::saveLog($logdata);
+                            return redirect()->back()->with('error', 'This account is inactive. Please try a different one');
+
+                            //return redirect()->back()->with('error', 'This account is inactive. Please try a different one');
                         }
-
-                        LogService::saveLog($logdata);
-                        $this->ifBalanceMinusAutoPaidAsAdmin($trip);
-
-                        DB::commit();
-                        if (isset($request->is_admin)) {
-                            $id = $trip->driver->id;
-                            $trip_id = $trip->trip_id;
-                            $paid_cost = $trip->trip_cost;
-                            return view('admin.success', compact('id', 'trip_id', 'paid_cost'));
-
-                        } else {
-                            $trip_id = $trip->trip_id;
-                            $paid_cost = $trip->trip_cost;
-                            return view('driver.success', compact('trip_id', 'paid_cost'));
-
-                        }
-
-                    } else {
-
-
-                        DB::rollBack();
-                        $logdata = array();
-                        $logdata['from'] = 'driver';
-                        if (isset($request->is_admin)) {
-                            $logdata['message'] = 'Admin:Error : Inactive Account Entring  Account#' . $request->account . ' Trip#' . $trip->trip_id;
-
-                        } elseif (isset($request->is_driver)) {
-                            $logdata['message'] = 'Error : Inactive Account Entring  Account#' . $request->account . ' Trip#' . $trip->trip_id;
-
-                        } else {
-                            $logdata['message'] = 'Error : Inactive Account Entring  Account#' . $request->account . ' Trip#' . $trip->trip_id;
-
-                        }
-
-                        $logdata['trip'] = $trip;
-
-                        LogService::saveLog($logdata);
-                        return redirect()->back()->with('error', 'This account is inactive. Please try a different one');
-                    }
 
                     }
                 } else {
@@ -660,16 +718,16 @@ class TripController extends Controller
                         }
 
 
-                        $extraCharges = $request->extra_charges > 0 ? (float)$request->extra_charges : (float)$trip->extra_charges ;
-                            if ($account->disable_stops == 1) {
-                        $stop_amounts = $request->stop_amount ?? [];
+                        $extraCharges = $request->extra_charges > 0 ? (float) $request->extra_charges : (float) $trip->extra_charges;
+                        if ($account->disable_stops == 1) {
+                            $stop_amounts = $request->stop_amount ?? [];
 
-                        $stop_amount_0 = isset($stop_amounts[0]) ? (float) $stop_amounts[0] : 0;
-                        $stop_amount_1 = isset($stop_amounts[1]) ? (float) $stop_amounts[1] : 0;
+                            $stop_amount_0 = isset($stop_amounts[0]) ? (float) $stop_amounts[0] : 0;
+                            $stop_amount_1 = isset($stop_amounts[1]) ? (float) $stop_amounts[1] : 0;
 
-                        $stop = $stop_amount_0 + $stop_amount_1;
-                        $extraCharges -= $stop;
-                    }
+                            $stop = $stop_amount_0 + $stop_amount_1;
+                            $extraCharges -= $stop;
+                        }
                         $cost = $cost + (float) $extraCharges;
 
                         $discount = Discount::select('discounts.*')
@@ -696,12 +754,12 @@ class TripController extends Controller
                         $trip->extra_charges = $extraCharges;
                         $firstStopAmount = null;
                         $firstStopLocation = null;
-                           if($account->disable_stops == 0){
+                        if ($account->disable_stops == 0) {
                             $firstStopAmount = collect($request->stop_amount)->filter()->first();
                             $firstStopLocation = collect($request->stop_location)->filter()->first();
-                           }
+                        }
 
-                              $firstwait_amount = collect($request->wait_amount)->filter()->first();
+                        $firstwait_amount = collect($request->wait_amount)->filter()->first();
                         // if (isset($request->stop_amount)) {
                         //     $trip->extra_stop_amount = $firstStopAmount;
                         //     $trip->stop_location = $firstStopLocation;
@@ -747,8 +805,9 @@ class TripController extends Controller
 
                                 \App\Services\TwilioService::voicecall($account->phone, 'refill-need');
                                 //
+                                return $this->respond($request, false, 'Prepaid Account:Low Balance.');
 
-                                return redirect()->back()->with('error', 'Prepaid Account:Low Balance');
+                                //return redirect()->back()->with('error', 'Prepaid Account:Low Balance');
 
 
                             }
@@ -788,11 +847,11 @@ class TripController extends Controller
 
 
                         if (isset($request->stop_amount)) {
-                           if (!is_null($firstStopAmount)) {
-                            $extraStopCharges = '$' . $firstStopAmount;
-                            $stoplocation = $firstStopLocation;
-                            $extra_message .= "Extra Stop Charges: {$extraStopCharges}\nStop Location: {$stoplocation}. ";
-                           }
+                            if (!is_null($firstStopAmount)) {
+                                $extraStopCharges = '$' . $firstStopAmount;
+                                $stoplocation = $firstStopLocation;
+                                $extra_message .= "Extra Stop Charges: {$extraStopCharges}\nStop Location: {$stoplocation}. ";
+                            }
                         }
 
                         if (isset($request->wait_amount)) {
@@ -844,8 +903,8 @@ class TripController extends Controller
                         if (!Str::startsWith($driverphone, '+1')) {
                             $driverphone = '+1' . $driverphone;
                         }
-                        $message = 'Payment Added Agianst Trip #'.$trip->trip_id;
-                        TwilioService::sendRawSms($driverphone,$message);
+                        $message = 'Payment Added Agianst Trip #' . $trip->trip_id;
+                        TwilioService::sendRawSms($driverphone, $message);
 
                         $logdata = array();
                         $logdata['from'] = 'driver';
@@ -876,6 +935,15 @@ class TripController extends Controller
                         } else {
                             $trip_id = $trip->trip_id;
                             $paid_cost = $trip->trip_cost;
+                            if ($request->expectsJson()) {
+                                return response()->json([
+                                    'status' => true,
+                                    'message' => 'Payment completed successfully',
+                                    'trip_id' => $trip->trip_id,
+                                    'amount' => $trip->trip_cost,
+                                    'redirect_url' => route('driver.success', $trip->trip_id),
+                                ]);
+                            }
                             return view('driver.success', compact('trip_id', 'paid_cost'));
 
                         }
@@ -900,11 +968,15 @@ class TripController extends Controller
                         $logdata['trip'] = $trip;
 
                         LogService::saveLog($logdata);
-                        return redirect()->back()->with('error', 'This account is inactive. Please try a different one');
+                        return $this->respond($request, false, 'Account not found.');
+
+                        //return redirect()->back()->with('error', 'This account is inactive. Please try a different one');
                     }
                 }
             } else {
-                return redirect()->back()->with('error', 'Account Not Found');
+                return $this->respond($request, false, 'Account not found.');
+
+               // return redirect()->back()->with('error', 'Account Not Found');
             }
 
 
@@ -952,24 +1024,24 @@ class TripController extends Controller
                     $data['gocab_paid'] = $originalAmount;
                     $data['payment_method'] = 'card';
                     $data['stripe_id'] = $charge['transaction_id'];
-                   $data['extra_charges'] = $request->extra_charges;
+                    $data['extra_charges'] = $request->extra_charges;
 
 
-                        if (isset($request->stop_amount)) {
-                               $firstStopAmount = collect($request->stop_amount)->filter()->first();
-                            $firstStopLocation = collect($request->stop_location)->filter()->first();
+                    if (isset($request->stop_amount)) {
+                        $firstStopAmount = collect($request->stop_amount)->filter()->first();
+                        $firstStopLocation = collect($request->stop_location)->filter()->first();
 
-                            $data['extra_stop_amount'] = $firstStopAmount;
-                            $data['stop_location'] = $firstStopLocation;
-                        }
+                        $data['extra_stop_amount'] = $firstStopAmount;
+                        $data['stop_location'] = $firstStopLocation;
+                    }
 
-                        if (isset($request->wait_amount)) {
-                            $firstwait_amount = collect($request->wait_amount)->filter()->first();
-                            $data['extra_wait_amount'] =  $firstwait_amount;
-                        }
-                        if (isset($request->round_trip)) {
-                            $data['extra_round_trip'] = $request->round_trip;
-                        }
+                    if (isset($request->wait_amount)) {
+                        $firstwait_amount = collect($request->wait_amount)->filter()->first();
+                        $data['extra_wait_amount'] = $firstwait_amount;
+                    }
+                    if (isset($request->round_trip)) {
+                        $data['extra_round_trip'] = $request->round_trip;
+                    }
 
 
                     if (isset($request->complaint) && $request->complaint !== null) {
@@ -986,8 +1058,8 @@ class TripController extends Controller
                     if (!Str::startsWith($driverphone, '+1')) {
                         $driverphone = '+1' . $driverphone;
                     }
-                    $message = 'Payment Added Agianst Trip #'.$trip->trip_id;
-                    TwilioService::sendRawSms($driverphone,$message);
+                    $message = 'Payment Added Agianst Trip #' . $trip->trip_id;
+                    TwilioService::sendRawSms($driverphone, $message);
 
                     $logdata = array();
                     $logdata['from'] = 'driver';
@@ -1055,6 +1127,18 @@ class TripController extends Controller
 
                 return response()->json(['status' => false, 'msg' => $charge['message']]);
             }
+        }
+        } catch (\Throwable $e){
+            DB::rollBack();
+
+    if ($request->expectsJson()) {
+        return response()->json([
+            'status' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+
+    return redirect()->back()->with('error', 'Something went wrong');
         }
 
 
@@ -1368,14 +1452,14 @@ class TripController extends Controller
             }
 
         }
-       $customer_payment = Payment::where('trip_id', $trip->trip_id)
+        $customer_payment = Payment::where('trip_id', $trip->trip_id)
             ->where('user_type', 'customer')
             ->where('type', 'debit')
             ->first();
         if ($customer_payment) {
             $customer_payment->amount = $customer_payment->amount - $paid;
             $customer_payment->edited_prices_by = $request->username;
-             $customer_payment->description = 'cost_decrease_edit_by_admin_debit';
+            $customer_payment->description = 'cost_decrease_edit_by_admin_debit';
             $customer_payment->save();
         }
 
@@ -1406,7 +1490,7 @@ class TripController extends Controller
         $trip->save();
         $account = Account::where('account_id', $trip->account_number)->first();
         if ($account) {
-            $balnce = $account->balance ;
+            $balnce = $account->balance;
             $account->balance = $balnce + $paid;
             $account->save();
         }
@@ -1421,7 +1505,7 @@ class TripController extends Controller
         //return redirect()->back()->with('success', 'Trip cost has updated successfully');
     }
 
-     public function update_account(Request $request)
+    public function update_account(Request $request)
     {
 
 
@@ -1431,111 +1515,111 @@ class TripController extends Controller
 
         $old_account = $trip->account_number;
         $oold_account = Account::where('account_id', $old_account)->first();
-        if($oold_account){
-           if ($oold_account->account_type == 'postpaid') {
+        if ($oold_account) {
+            if ($oold_account->account_type == 'postpaid') {
 
-          if($request->payment_method != 'cash'){
-          $from_date = Carbon::now()->subMonth()->format('Y-m-d');
+                if ($request->payment_method != 'cash') {
+                    $from_date = Carbon::now()->subMonth()->format('Y-m-d');
 
-            $to_date = Carbon::now();
-            $trips_to_be_paid = $oold_account->trips->filter(function ($trip) use ($from_date, $to_date) {
-                return $trip->payment_method === 'account' &&
-                    strpos($trip->status, 'Cancelled') === false &&
-                    strpos($trip->status, 'canceled') === false &&
-                    $trip->is_delete == 0 &&
-                    $trip->date >= $from_date &&
-                    $trip->date <= $to_date;
-            });
-            $account_payment = new AccountPayment();
-            $account_payment->account_id = $oold_account->account_id;
-            $account_payment->account_type = $oold_account->account_type;
-            $account_payment->amount = $trip->trip_cost;
-            $account_payment->transaction_id = 11111111111;
-            $account_payment->payment_date = Carbon::today();
-            $account_payment->payment_type = 'credit';
-            $account_payment->save();
-            $batch_p = new BatchPayment();
-            $batch_p->account_id = $oold_account->account_id;
-            $batch_p->from = 'trips_paid_against_trip_account_changed';
-            $batch_p->amount = $trip->trip_cost;
-            $batch_p->save();
-            $total_payments = 0;
-            $to_refill = $trip->trip_cost;
+                    $to_date = Carbon::now();
+                    $trips_to_be_paid = $oold_account->trips->filter(function ($trip) use ($from_date, $to_date) {
+                        return $trip->payment_method === 'account' &&
+                            strpos($trip->status, 'Cancelled') === false &&
+                            strpos($trip->status, 'canceled') === false &&
+                            $trip->is_delete == 0 &&
+                            $trip->date >= $from_date &&
+                            $trip->date <= $to_date;
+                    });
+                    $account_payment = new AccountPayment();
+                    $account_payment->account_id = $oold_account->account_id;
+                    $account_payment->account_type = $oold_account->account_type;
+                    $account_payment->amount = $trip->trip_cost;
+                    $account_payment->transaction_id = 11111111111;
+                    $account_payment->payment_date = Carbon::today();
+                    $account_payment->payment_type = 'credit';
+                    $account_payment->save();
+                    $batch_p = new BatchPayment();
+                    $batch_p->account_id = $oold_account->account_id;
+                    $batch_p->from = 'trips_paid_against_trip_account_changed';
+                    $batch_p->amount = $trip->trip_cost;
+                    $batch_p->save();
+                    $total_payments = 0;
+                    $to_refill = $trip->trip_cost;
 
-            foreach ($trips_to_be_paid as $paytrip) {
+                    foreach ($trips_to_be_paid as $paytrip) {
 
-                $already_paid = $paytrip->totalPaidAmountByCustomerFromAccountCard()->sum('amount');
-                $unpaid_amount = $paytrip->trip_cost - $already_paid;
+                        $already_paid = $paytrip->totalPaidAmountByCustomerFromAccountCard()->sum('amount');
+                        $unpaid_amount = $paytrip->trip_cost - $already_paid;
 
-                // Only pay if unpaid amount is <= available to_refill
-                if ($unpaid_amount > 0 && $unpaid_amount <= $to_refill) {
+                        // Only pay if unpaid amount is <= available to_refill
+                        if ($unpaid_amount > 0 && $unpaid_amount <= $to_refill) {
 
-                    $old_account = $trip->account_number;
-                    $this->addpay_customer($paytrip, $old_account, $batch_p->id);
+                            $old_account = $trip->account_number;
+                            $this->addpay_customer($paytrip, $old_account, $batch_p->id);
 
-                    $total_payments += $unpaid_amount;
-                    $to_refill -= $unpaid_amount; // update to_refill after payment
+                            $total_payments += $unpaid_amount;
+                            $to_refill -= $unpaid_amount; // update to_refill after payment
+                        }
+                    }
+
+
+                    $account_payment->batch_id = $batch_p->id;
+                    $account_payment->save();
+
                 }
-            }
 
-
-            $account_payment->batch_id = $batch_p->id;
-            $account_payment->save();
-
-        }
-
-        } else {
-
-            $balance = $oold_account->balance + $trip->trip_cost;
-            $oold_account->balance = $balance;
-            $oold_account->save();
-        }
-        $payment = Payment::where('user_type', 'customer')
-            ->where('type', 'debit')
-            ->where('account_id', $old_account)
-            ->where('trip_id', $trip_id)
-            ->where('is_delete', 0)
-            ->first();
-
-        if ($payment) {
-            $payment->is_delete = 1;
-            $payment->save();
-        }
-
-        $trip->reason = $request->reason . ' Updated by /' . Auth::guard('admin')->user()->name;
-        $trip->payment_method = $request->payment_method;
-        $trip->account_number = $request->account;
-        if ($account->account_type == 'prepaid') {
-            if ($account->balance >= $trip->trip_cost) {
-
-                $trip->update();
-                $from_prepaid_deduction = $this->prepaidAccountDeduction($trip, $account);
-               if($request->payment_method != 'cash'){
-                    $account->balance = $account->balance - $trip->trip_cost;
-               }
-
-                $account->save();
             } else {
 
-                \App\Services\TwilioService::voicecall($account->phone, 'refill-need');
-                //                CubeContact::deleteAccount($account->account_id);
-                CubeContact::updateCubeAccount($account->account_id, "Your Account Balance Is zero", "Inactive");
-                return response()->json([
-            'success' => false,
-            'message' => 'Prepaid Account:Low Balance',
+                $balance = $oold_account->balance + $trip->trip_cost;
+                $oold_account->balance = $balance;
+                $oold_account->save();
+            }
+            $payment = Payment::where('user_type', 'customer')
+                ->where('type', 'debit')
+                ->where('account_id', $old_account)
+                ->where('trip_id', $trip_id)
+                ->where('is_delete', 0)
+                ->first();
 
-        ]);
-               // return redirect()->back()->with('error', 'Prepaid Account:Low Balance');
-
-
+            if ($payment) {
+                $payment->is_delete = 1;
+                $payment->save();
             }
 
-        }
-        $trip->cube_pin_status = "";
-        $trip->save();
-        }else{
-          $trip->payment_method = 'cash';
-        $trip->save();
+            $trip->reason = $request->reason . ' Updated by /' . Auth::guard('admin')->user()->name;
+            $trip->payment_method = $request->payment_method;
+            $trip->account_number = $request->account;
+            if ($account->account_type == 'prepaid') {
+                if ($account->balance >= $trip->trip_cost) {
+
+                    $trip->update();
+                    $from_prepaid_deduction = $this->prepaidAccountDeduction($trip, $account);
+                    if ($request->payment_method != 'cash') {
+                        $account->balance = $account->balance - $trip->trip_cost;
+                    }
+
+                    $account->save();
+                } else {
+
+                    \App\Services\TwilioService::voicecall($account->phone, 'refill-need');
+                    //                CubeContact::deleteAccount($account->account_id);
+                    CubeContact::updateCubeAccount($account->account_id, "Your Account Balance Is zero", "Inactive");
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Prepaid Account:Low Balance',
+
+                    ]);
+                    // return redirect()->back()->with('error', 'Prepaid Account:Low Balance');
+
+
+                }
+
+            }
+            $trip->cube_pin_status = "";
+            $trip->save();
+        } else {
+            $trip->payment_method = 'cash';
+            $trip->save();
         }
 
 
@@ -1609,10 +1693,10 @@ class TripController extends Controller
 
 
 
-                if($account){
+                if ($account) {
 
                     $balance = $account->balance;
-                    $newbalance =  $balance - $paid;
+                    $newbalance = $balance - $paid;
                     $account->balance = $newbalance;
                     $account->save();
 
@@ -1635,7 +1719,7 @@ class TripController extends Controller
             } elseif ($request_extra < $prev_extra) {
 
                 $paid = $prev_extra - $request_extra;
-                 if($account){
+                if ($account) {
 
                     $balance = $account->balance;
                     $newbalance = $paid + $balance;
@@ -2446,17 +2530,18 @@ class TripController extends Controller
 
         dd("All accounts are updated");
     }
-public function get_new_price(){
+    public function get_new_price()
+    {
 
-    $end = Carbon::now();
-    $start = Carbon::now()->subHour();
-   //$start = Carbon::now()->subHours(24);
+        $end = Carbon::now();
+        $start = Carbon::now()->subHour();
+        //$start = Carbon::now()->subHours(24);
 
 
-    $startIso = $start->toIso8601String();
-    $endIso = $end->toIso8601String();
+        $startIso = $start->toIso8601String();
+        $endIso = $end->toIso8601String();
 
-     ini_set('max_execution_time', 0);
+        ini_set('max_execution_time', 0);
         ini_set('memory_limit', '512M');
 
         $curl = curl_init();
@@ -2494,7 +2579,7 @@ public function get_new_price(){
 
         $response = json_decode($response);
         $trips = $response->rows ?? [];
-          // dd($trips);
+        // dd($trips);
         foreach ($trips as $trip) {
             // if((int)$trip->{'id'} == 285077846){
             //    dd($trip);
@@ -2507,7 +2592,7 @@ public function get_new_price(){
                     $date = $dateTime->format('Y-m-d');
                     $time = $dateTime->format('H:i:s');
 
-                    $existingTrip = Trip::where('trip_id', (int)$trip->{'id'})->first();
+                    $existingTrip = Trip::where('trip_id', (int) $trip->{'id'})->first();
 
                     $to_location = !empty($trip->{'stops'})
                         ? $trip->{'stops'}
@@ -2552,7 +2637,7 @@ public function get_new_price(){
                             : null;
 
                         Trip::create([
-                            'trip_id' => (int)$trip->{'id'},
+                            'trip_id' => (int) $trip->{'id'},
                             'location_from' => $trip->{'route.pick_up_text'},
                             'location_to' => $to_location,
                             'date' => $date,
@@ -2580,7 +2665,7 @@ public function get_new_price(){
 
         return back()->with('success', 'Price is updated now!');
 
-}
+    }
 
 
 }

@@ -1,7 +1,10 @@
 @php
-    use Illuminate\Support\Carbon;
-    use App\Models\Driver;
-    $util = new \App\Utils\dateUtil();
+use Illuminate\Support\Carbon;
+use App\Models\Driver;
+$util = new \App\Utils\dateUtil();
+$id = Auth::user()->id;
+    $driver = Driver::find($id);
+    $username = $driver->username;
 
 
 @endphp
@@ -32,7 +35,7 @@
                         <a href="{{url('dashboard')}}"><i data-feather="home"></i></a>
                     </li>
                     <li class="breadcrumb-item">
-                        <a href="">Accept Payment</a>
+                        <a href="">Accept Payment </a>
                     </li>
                 </ol>
             </div>
@@ -128,6 +131,25 @@
                                 </div>
 
                             @endif
+                            <!-- <div class="qr-code" id="qr-code">
+                                        <div class="media p-20">
+                                            <div class="form-check radio radio-primary me-3">
+                                                <input class="form-check-input" id="radio209" type="radio" onclick="openScanner()" name="payment_method"
+                                                    value="qr-code" data-bs-original-title="" title="" />
+                                                <label class="form-check-label" for="radio209">Pay with Qr Code</label>
+                                            </div>
+                                        </div>
+                                    </div> -->
+                             @if ($username == '1234')
+                             <p class="" style="cursor:pointer; font-size:24px; font-weight: 900;" onclick="openScanner()">
+                                Pay with QR Code
+                            </p>
+                            <div id="scanner-container" style="">
+                                <video id="qr-video" width="300"></video>
+                                <button class="btn btn-primary" onclick="closeScanner()">Close</button>
+                            </div>
+
+                             @endif
 
 
 
@@ -241,12 +263,12 @@
                                         $<span id="total-span"></span> </span>
                                     <!-- <div class="form-group mt-3 " style="display: none;" id="complaint-field">
 
-                                                              <select class="form-control" id="complaint-select" name="complaint">
-                                                                  <option value=""> Select Complaint </option>
-                                                                  <option value="wrong_address">Wrong Address</option>
-                                                                  <option value="incorrect_fare">Incorrect Fare</option>
-                                                              </select>
-                                                          </div> -->
+                                                                  <select class="form-control" id="complaint-select" name="complaint">
+                                                                      <option value=""> Select Complaint </option>
+                                                                      <option value="wrong_address">Wrong Address</option>
+                                                                      <option value="incorrect_fare">Incorrect Fare</option>
+                                                                  </select>
+                                                              </div> -->
                                 </div>
                             </div>
                             <div class="text-end mt-3">
@@ -377,6 +399,115 @@
 
 @endsection
 @section('js')
+    <script src="{{ asset('assets/js/qr-scanner.umd.min.js') }}"></script>
+    <script>
+        let qrScanner;
+
+       function openScanner() {
+    document.getElementById('scanner-container').style.display = 'block';
+
+    const videoElem = document.getElementById('qr-video');
+
+    qrScanner = new QrScanner(
+        videoElem,
+        (result) => {
+            console.log(result); // DEBUG: see what scanner returns
+            qrScanner.stop();
+
+            // IMPORTANT
+            handleScannedCode(result.data);
+        },
+        {
+            returnDetailedScanResult: true,
+            highlightScanRegion: true,
+            highlightCodeOutline: true
+        }
+    );
+
+    qrScanner.start();
+}
+
+        function closeScanner() {
+             event.preventDefault();
+            event.stopPropagation();
+            if (qrScanner) {
+                qrScanner.stop();
+            }
+            document.getElementById('scanner-container').style.display = 'none';
+        }
+
+        function handleScannedCode(code) {
+            console.log("Scanned code:", code);
+            verifyQrCode(code);
+        }
+
+        function verifyQrCode(code) {
+             event.preventDefault();
+            event.stopPropagation();
+            //code = 'RHMX9UYTNN';
+            fetch('/verify-qr-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ code })
+            })
+                .then(res => res.json())
+
+                .then(data => {
+                    if (data) {
+                        console.log("Account ID:", data.account_id);
+                       let account_id = document.getElementById('acc-field').value = data.account_id;
+                        closeScanner();
+                        sendPayment(account_id);
+
+                    } else {
+                        alert(data.message);
+                    }
+                });
+        }
+
+ function sendPayment(account_id) {
+    const paymentForm = document.getElementById('payment_form');
+    let cost = document.querySelector('input[name="trip"]').dataset.tripCost;
+
+    const formData = {
+        account: account_id,
+        trip: document.querySelector('input[name="trip"]').value,
+        payment_method: 'account',
+        amount: cost,
+        is_qr_payment: 1,
+    };
+
+    fetch(paymentForm.action, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify(formData),
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.status) {
+            console.warn('Payment failed:', data.message);
+        } else {
+            console.log('Payment success:', data);
+             if (data.redirect_url) {
+        window.location.href = data.redirect_url;
+    }
+        }
+    })
+    .catch(err => console.error('Request error:', err));
+}
+
+
+    </script>
+
+
     <script>
         $(document).ready(function () {
             // Function to load the latest trips
@@ -397,29 +528,29 @@
                                 const formattedDate = trip.date ? new Date(trip.date).toLocaleDateString() : 'N/A';
                                 const formattedTime = trip.time;
                                 tripsHtml += `
-                    <div class="card">
-                        <div class="media p-20">
-                            <div class="form-check radio radio-primary me-3">
-                                <input class="form-check-input trip-radio" id="radio${trip.trip_id}"
-                                       type="radio" name="trip"
-                                       value="${trip.trip_id}" data-order_id="${trip.order_id}"  data-status="${trip.status ?? ''}" data-trip-cost="${parseFloat(trip.trip_cost) + parseFloat(trip.extra_charges ?? 0)}" />
-                                <label class="form-check-label" for="radio${trip.trip_id}">
-                                    <div class="media-body">
-                                        <h6 class="mt-0 mega-title-badge">
-                                            ${trip.location_from} to ${trip.location_to}
-                                            <span class="badge badge-primary pull-right digits">
-                                             $${trip.trip_cost}
-                                            </span>
-                                        </h6>
-                                        <p class="notranslate">
-                                            Date: ${formattedDate} <span>${formattedTime}</span>
-                                        </p>
-                                    </div>
-                                </label>
+                        <div class="card">
+                            <div class="media p-20">
+                                <div class="form-check radio radio-primary me-3">
+                                    <input class="form-check-input trip-radio" id="radio${trip.trip_id}"
+                                           type="radio" name="trip"
+                                           value="${trip.trip_id}" data-order_id="${trip.order_id}"  data-status="${trip.status ?? ''}" data-trip-cost="${parseFloat(trip.trip_cost) + parseFloat(trip.extra_charges ?? 0)}" />
+                                    <label class="form-check-label" for="radio${trip.trip_id}">
+                                        <div class="media-body">
+                                            <h6 class="mt-0 mega-title-badge">
+                                                ${trip.location_from} to ${trip.location_to}
+                                                <span class="badge badge-primary pull-right digits">
+                                                 $${trip.trip_cost}
+                                                </span>
+                                            </h6>
+                                            <p class="notranslate">
+                                                Date: ${formattedDate} <span>${formattedTime}</span>
+                                            </p>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    `;
                             });
                         } else {
                             tripsHtml = '<p>No trips available.</p>';
@@ -434,7 +565,7 @@
                     }
                 });
             }
-         loadLatestTrips();
+            loadLatestTrips();
 
         });
     </script>

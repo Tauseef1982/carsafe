@@ -14,7 +14,7 @@
                     <a href="{{url('dashboard')}}"><i data-feather="home"></i></a>
                 </li>
                 <li class="breadcrumb-item">
-                    <a href="">Accept Payment</a>
+                    <a href="">Accept Payment </a>
                 </li>
             </ol>
         </div>

@@ -16,6 +16,7 @@ use App\Http\Controllers\DriverComplaintController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DriversPaymentsInfoController;
 use App\Http\Controllers\ApikeyController;
+use App\Http\Controllers\QrCodeController;
 use App\Models\Trip;
 
 
@@ -220,21 +221,33 @@ Route::group(['middleware' => 'driver.auth','as' => 'driver.'], function () {
     Route::post('/add-payment', [TripController::class, 'update'])->middleware('throttle:20,1');
     Route::post('/add-payment-new', [TripController::class, 'updateNew'])->middleware('throttle:20,1');
     Route::get('/update_price', [TripController::class, 'get_new_price']);
+    Route::post('/verify-qr-code', [QrCodeController::class, 'verify'])->name('driver.qr.verify');
 
     Route::post('register-complaint', [TripController::class,'register_complaint']);
     Route::get('/success', function () { return view('driver.success'); });
-    Route::get('/success/{trip_id}', function ($id) {
+    // Route::get('/success/{trip_id}', function ($id) {
 
 
-        $trip = Trip::where('trip_id',$id)->first();
-        $trip_id = $trip->trip_id;
-        $paid_cost = $trip->trip_cost;
+    //     $trip = Trip::where('trip_id',$id)->first();
+    //     $trip_id = $trip->trip_id;
+    //     $paid_cost = $trip->trip_cost;
 
-        \Log::info('cpmlaint-working');
-        return view('driver.success', compact('trip_id', 'paid_cost'));
+    //     \Log::info('cpmlaint-working');
+    //     return view('driver.success', compact('trip_id', 'paid_cost'));
 
 
-    });
+    // });
+    Route::get('/success/{trip_id}', function ($trip_id) {
+
+    $trip = Trip::where('trip_id', $trip_id)->firstOrFail();
+
+    $paid_cost = $trip->trip_cost;
+
+    \Log::info('complaint-working');
+
+    return view('driver.success', compact('trip_id', 'paid_cost'));
+     })->name('success');
+
     Route::post('/check-account-stops', [AccountController::class, 'checkAccountStops']);
     Route::post('/check-disable-account-payment',[AccountController::class, 'checkAccountPaymnetMethod']);
 
