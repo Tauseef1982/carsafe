@@ -445,74 +445,74 @@ $id = Auth::user()->id;
             verifyQrCode(code);
         }
 
-        // function verifyQrCode(code) {
-
-        //     fetch('/verify-qr-code', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //             'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        //         },
-        //         body: JSON.stringify({ code })
-        //     })
-        //         .then(res => res.json())
-
-        //         .then(data => {
-        //             if (data) {
-        //                 console.log("Account ID:", data.account_id);
-        //                let account_id = document.getElementById('acc-field').value = data.account_id;
-        //                 closeScanner();
-        //                 sendPayment(account_id);
-
-        //             } else {
-        //                 alert(data.message);
-        //             }
-        //         });
-        // }
-
         function verifyQrCode(code) {
 
-    fetch('/verify-qr-code', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({ code })
-    })
-    .then(res => {
-        // 🚑 prevent JSON parse crash
-        if (!res.ok) {
-            throw new Error('Server error: ' + res.status);
+            fetch('/verify-qr-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ code })
+            })
+                .then(res => res.json())
+
+                .then(data => {
+                    if (data) {
+                        console.log("Account ID:", data.account_id);
+                       let account_id = document.getElementById('acc-field').value = data.account_id;
+                        closeScanner();
+                        sendPayment(account_id);
+
+                    } else {
+                        alert(data.message);
+                    }
+                });
         }
 
-        return res.text(); // read safely first
-    })
-    .then(text => {
-        // handle empty response
-        if (!text) {
-            throw new Error('Empty response from server');
-        }
+//         function verifyQrCode(code) {
 
-        return JSON.parse(text); // parse manually
-    })
-    .then(data => {
-        if (data.status === true) {
-            console.log("Account ID:", data.account_id);
+//     fetch('/verify-qr-code', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'X-CSRF-TOKEN': '{{ csrf_token() }}'
+//         },
+//         body: JSON.stringify({ code })
+//     })
+//     .then(res => {
+//         // 🚑 prevent JSON parse crash
+//         if (!res.ok) {
+//             throw new Error('Server error: ' + res.status);
+//         }
 
-            let account_id = document.getElementById('acc-field').value = data.account_id;
-            closeScanner();
-            sendPayment(account_id);
+//         return res.text(); // read safely first
+//     })
+//     .then(text => {
+//         // handle empty response
+//         if (!text) {
+//             throw new Error('Empty response from server');
+//         }
 
-        } else {
-            alert(data.message || 'QR verification failed');
-        }
-    })
-    .catch(err => {
-        console.error('QR verify error:', err);
-        alert('Unable to verify QR code');
-    });
-}
+//         return JSON.parse(text); // parse manually
+//     })
+//     .then(data => {
+//         if (data.status === true) {
+//             console.log("Account ID:", data.account_id);
+
+//             let account_id = document.getElementById('acc-field').value = data.account_id;
+//             closeScanner();
+//             sendPayment(account_id);
+
+//         } else {
+//             alert(data.message || 'QR verification failed');
+//         }
+//     })
+//     .catch(err => {
+//         console.error('QR verify error:', err);
+//         alert('Unable to verify QR code');
+//     });
+// }
 
 
  function sendPayment(account_id) {
