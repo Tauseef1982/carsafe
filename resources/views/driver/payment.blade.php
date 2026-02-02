@@ -142,8 +142,8 @@ $id = Auth::user()->id;
                                         </div>
                                     </div>
 
-                            
-                            <div id="scanner-container" style="">
+
+                            <div id="scanner-container" style="display:none">
                                 <video id="qr-video" width="300"></video>
                                 <button class="btn btn-primary" onclick="closeScanner()">Close</button>
                             </div>
