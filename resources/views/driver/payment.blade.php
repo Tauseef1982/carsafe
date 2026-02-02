@@ -451,7 +451,7 @@ $id = Auth::user()->id;
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json', 
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 body: JSON.stringify({ code })
@@ -462,7 +462,7 @@ $id = Auth::user()->id;
                     if (data) {
                         console.log("Account ID:", data.account_id);
                        let account_id = document.getElementById('acc-field').value = data.account_id;
-                        closeScanner();
+                       
                         sendPayment(account_id);
 
                     } else {
@@ -471,49 +471,7 @@ $id = Auth::user()->id;
                 });
         }
 
-//         function verifyQrCode(code) {
 
-//     fetch('/verify-qr-code', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'X-CSRF-TOKEN': '{{ csrf_token() }}'
-//         },
-//         body: JSON.stringify({ code })
-//     })
-//     .then(res => {
-//         // 🚑 prevent JSON parse crash
-//         if (!res.ok) {
-//             throw new Error('Server error: ' + res.status);
-//         }
-
-//         return res.text(); // read safely first
-//     })
-//     .then(text => {
-//         // handle empty response
-//         if (!text) {
-//             throw new Error('Empty response from server');
-//         }
-
-//         return JSON.parse(text); // parse manually
-//     })
-//     .then(data => {
-//         if (data.status === true) {
-//             console.log("Account ID:", data.account_id);
-
-//             let account_id = document.getElementById('acc-field').value = data.account_id;
-//             closeScanner();
-//             sendPayment(account_id);
-
-//         } else {
-//             alert(data.message || 'QR verification failed');
-//         }
-//     })
-//     .catch(err => {
-//         console.error('QR verify error:', err);
-//         alert('Unable to verify QR code');
-//     });
-// }
 
 
  function sendPayment(account_id) {
