@@ -398,10 +398,10 @@ $id = Auth::user()->id;
 
 @endsection
 @section('js')
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
 <script>
   eruda.init();
-</script>
+</script> -->
 
     <script src="{{ asset('assets/js/qr-scanner.umd.min.js') }}"></script>
     <script>
@@ -462,7 +462,7 @@ $id = Auth::user()->id;
                     if (data) {
                         console.log("Account ID:", data.account_id);
                        let account_id = document.getElementById('acc-field').value = data.account_id;
-                       
+
                         sendPayment(account_id);
 
                     } else {
