@@ -131,7 +131,8 @@ $id = Auth::user()->id;
                                 </div>
 
                             @endif
-                            <!-- <div class="qr-code" id="qr-code">
+                             @if ($username == 'driver2')
+                            <div class="qr-code" id="qr-code">
                                         <div class="media p-20">
                                             <div class="form-check radio radio-primary me-3">
                                                 <input class="form-check-input" id="radio209" type="radio" onclick="openScanner()" name="payment_method"
@@ -139,11 +140,9 @@ $id = Auth::user()->id;
                                                 <label class="form-check-label" for="radio209">Pay with Qr Code</label>
                                             </div>
                                         </div>
-                                    </div> -->
-                             @if ($username == 'driver2')
-                             <p class="" style="cursor:pointer; font-size:24px; font-weight: 900;" onclick="openScanner()">
-                                Pay with QR Code
-                            </p>
+                                    </div>
+
+                            
                             <div id="scanner-container" style="">
                                 <video id="qr-video" width="300"></video>
                                 <button class="btn btn-primary" onclick="closeScanner()">Close</button>
