@@ -398,6 +398,11 @@ $id = Auth::user()->id;
 
 @endsection
 @section('js')
+<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<script>
+  eruda.init();
+</script>
+
     <script src="{{ asset('assets/js/qr-scanner.umd.min.js') }}"></script>
     <script>
         let qrScanner;
