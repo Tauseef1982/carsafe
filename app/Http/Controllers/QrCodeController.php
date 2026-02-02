@@ -78,9 +78,17 @@ class QrCodeController extends Controller
         'expires_at' => Carbon::now()->addHour(),
     ]);
 
-    $qrImage = base64_encode(
-  FacadesQrCode::format('png')->size(300)->generate($code)
-    );
+//     $qrImage = base64_encode(
+//   FacadesQrCode::format('png')->size(300)->generate($code)
+//     );
+$qrImage = base64_encode(
+    FacadesQrCode::format('png')
+        ->size(300)
+        ->color(0, 0, 0)        // QR (foreground) = black
+        ->backgroundColor(255, 255, 255) // background = white
+        ->generate($code)
+);
+
 
     return response()->json([
         'code' => $code,
@@ -135,7 +143,7 @@ class QrCodeController extends Controller
         ]);
     }
 
-   
+
 }
 
 }
