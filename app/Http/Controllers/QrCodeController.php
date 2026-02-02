@@ -97,54 +97,31 @@ $qrImage = base64_encode(
     ]);
 }
 
-//    public function verify($token)
-//     {
-
-//     $qr = QrCode::where('code', $token)->first();
-
-//         if (!$qr) {
-//             return response()->json(['message' => 'Invalid QR code'], 404);
-//         }
-
-//         if ($qr->isExpired()) {
-//             return response()->json(['message' => 'QR code expired'], 410);
-//         }
-
-
-//         return response()->json([
-//             'message' => 'QR code valid',
-//             'account_id' => $qr->account_id
-//         ]);
-//     }
-
-
- public function verify(Request $request)
+public function verify(Request $request)
 {
     $token = $request->input('code');
     $qr = QrCode::where('code', $token)->first();
 
     if (!$qr) {
-        return $request->expectsJson()
-            ? response()->json(['status' => false, 'message' => 'Invalid QR code'], 404)
-            : abort(404, 'Invalid QR code');
+        return response()->json([
+            'status' => false,
+            'message' => 'Invalid QR code'
+        ], 404);
     }
 
     if ($qr->isExpired()) {
-        return $request->expectsJson()
-            ? response()->json(['status' => false, 'message' => 'QR code expired'], 410)
-            : abort(410, 'QR code expired');
-    }
-
-    // ✅ valid QR
-    if ($request->expectsJson()) {
         return response()->json([
-            'status' => true,
-            'message' => 'QR code valid',
-            'account_id' => $qr->account_id,
-        ]);
+            'status' => false,
+            'message' => 'QR code expired'
+        ], 410);
     }
 
-
+    return response()->json([
+        'status' => true,
+        'message' => 'QR code valid',
+        'account_id' => $qr->account_id,
+    ]);
 }
+
 
 }
