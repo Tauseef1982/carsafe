@@ -118,8 +118,9 @@ $qrImage = base64_encode(
 //     }
 
 
- public function verify(Request $request, $token)
+ public function verify(Request $request)
 {
+    $token = $request->input('code');
     $qr = QrCode::where('code', $token)->first();
 
     if (!$qr) {
