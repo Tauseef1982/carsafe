@@ -6,6 +6,7 @@ use App\Models\AccountPayment;
 use App\Models\Account_Complaint;
 use App\Models\Account_invoices;
 use App\Models\BatchPayment;
+use App\Models\CustomerBooking;
 use App\Models\Trip;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
@@ -85,12 +86,16 @@ class AccountService
 
                 $trips = $trips->where('trips.account_number',$request->account_id);
 
+
+                //dd($bookings);
             }
         }
         // if ($request->type != 'all' && $request->type != 'extacost') {
         $trips = $trips->where('trips.payment_method', '!=', 'cash');
         // }
         // dd($trips->get());
+
+
         $trips = $trips->select(
             'trips.extra_charges',
             'trips.extra_stop_amount',
@@ -121,14 +126,14 @@ class AccountService
 
         $today = Carbon::today();
         $oneWeekAgo = $today->copy()->subDays(7);
-        
+
         if (!isset($request->from_date) || empty($request->from_date)) {
             $trips = $trips->whereDate('trips.date', '>=', $oneWeekAgo);
         } elseif (!empty($request->from_date) && !empty($request->to_date)) {
             $trips = $trips->whereDate('trips.date', '>=', $request->from_date)
                            ->whereDate('trips.date', '<=', $request->to_date);
         }
-        
+
 
 
         if (isset($request->driver)) {
@@ -185,6 +190,36 @@ class AccountService
         $trips = $trips = $trips->orderBy('trips.date', 'desc')
             ->orderBy('trips.time', 'desc')
             ->get();
+
+
+        $bookingTrips = Trip::where('trips.is_delete', 0)
+            ->whereIn('trips.order_id', function ($query) use ($request) {
+                $query->select('order_id')
+                    ->from('customer_bookings')
+                    ->where('account_id', $request->account_id);
+            })
+            // apply same date filter
+            // ->when(!empty($request->from_date) && !empty($request->to_date), function ($q) use ($request) {
+            //     $q->whereDate('trips.date', '>=', $request->from_date)
+            //         ->whereDate('trips.date', '<=', $request->to_date);
+            // })
+            // ->when(empty($request->from_date), function ($q) use ($oneWeekAgo) {
+            //     $q->whereDate('trips.date', '>=', $oneWeekAgo);
+            // })
+            // ->when(!empty($request->driver), function ($q) use ($request) {
+            //     $q->where('trips.driver_id', $request->driver);
+            // })
+            ->get();
+
+
+
+
+         $trips = $trips->concat($bookingTrips);
+
+            //    dd($trips);
+
+
+
 
         return ['trips'=>$trips];
     }

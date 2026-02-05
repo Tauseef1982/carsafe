@@ -94,6 +94,8 @@ class Trip extends Model
     }
 
 
+
+
     public function totalPaidAmountByCustomerFromAccountCard(){
 
         return Payment::where('trip_id',$this->trip_id)->where('is_delete',0)->where('user_type','customer')->where('type','debit');
@@ -112,6 +114,15 @@ class Trip extends Model
 
         return $this->trip_cost - $this->discount_amount;
 
+    }
+
+     public function customerBooking()
+    {
+        return $this->belongsTo(
+            CustomerBooking::class,
+            'order_id',   // foreign key on trips table
+            'order_id'    // owner key on customer_bookings table
+        );
     }
 }
 
