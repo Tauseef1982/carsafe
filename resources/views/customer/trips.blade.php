@@ -60,6 +60,7 @@
             <th>To</th>
 
             <th>Total Cost</th>
+            <th>Payment Method</th>
 
             <th>Date</th>
             <th>Time</th>
@@ -163,7 +164,7 @@
           {data: 'location_to', name: 'location_to'},
 
           {data: 'trip_cost', name: 'trip_cost'},
-
+          {data: 'payment_method', name: 'payment_method'},
           {data: 'date', name: 'date'},
           {data: 'time', name: 'time'},
 
