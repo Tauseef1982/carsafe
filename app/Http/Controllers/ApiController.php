@@ -449,13 +449,16 @@ public function getWebHookTrip(Request $request)
 
         // --- Step 14: Update or create trip record ---
         if ($existingTrip) {
+                if (!empty($trip['driverId'])) {
+                    $existingTrip->driver_id = $trip['driverId'];
+                    $existingTrip->save();
+                }
             if ($existingTrip->payment_method === 'cash' && empty($existingTrip->temp_data)) {
                 $existingTrip->update([
                     'location_from' => $trip['route.pick_up_text'] ?? '',
                     'date' => $date,
                     'time' => $time,
                     'trip_cost' => $tripCost,
-                    'driver_id' => $trip['driverId'] ?? '',
                     'account_number' => $trip['account.name'] ?? '',
                     'passenger_phone' => ($trip['passenger.phone'] ?? '') . '',
                     'estimated_cost' => !empty($trip['fx.trip_base']) ? $trip['fx.trip_base'] : ($trip['estimatedPrice'] ?? 0),
