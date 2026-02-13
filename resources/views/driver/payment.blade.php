@@ -444,32 +444,64 @@ $id = Auth::user()->id;
             console.log("Scanned code:", code);
             verifyQrCode(code);
         }
-
         function verifyQrCode(code) {
 
-            fetch('/verify-qr-code', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ code })
-            })
-                .then(res => res.json())
+    fetch('/verify-qr-code', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ code: code })
+    })
+    .then(res => res.json())
+    .then(data => {
 
-                .then(data => {
-                    if (data) {
-                        console.log("Account ID:", data.account_id);
-                       let account_id = document.getElementById('acc-field').value = data.account_id;
+        if (data.status) {
 
-                        sendPayment(account_id);
+            console.log("Account ID:", data.account_id);
 
-                    } else {
-                        alert(data.message);
-                    }
-                });
+            document.getElementById('acc-field').value = data.account_id;
+
+            sendPayment(data.account_id);
+
+        } else {
+            alert(data.message || "QR verification failed");
         }
+
+    })
+    .catch(error => {
+        console.error("Verification error:", error);
+        alert("Something went wrong while verifying QR.");
+    });
+}
+
+
+        // function verifyQrCode(code) {
+        //     fetch('/verify-qr-code', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             'Accept': 'application/json',
+        //             'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        //         },
+        //         body: JSON.stringify({ code })
+        //     })
+        //         .then(res => res.json())
+
+        //         .then(data => {
+        //             if (data.status) {
+        //                 console.log("Account ID:", data.account_id);
+        //                let account_id = document.getElementById('acc-field').value = data.account_id;
+
+        //                 sendPayment(account_id);
+
+        //             } else {
+        //                 alert(data.message);
+        //             }
+        //         });
+        // }
 
 
 

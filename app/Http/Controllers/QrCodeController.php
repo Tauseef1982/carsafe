@@ -100,26 +100,60 @@ $qrImage = base64_encode(
 public function verify(Request $request)
 {
     $token = $request->input('code');
-    $qr = QrCode::where('code', $token)->first();
+     $data = json_decode($token, true);
 
-    if (!$qr) {
+     if (!$data) {
         return response()->json([
             'status' => false,
-            'message' => 'Invalid QR code'
-        ], 404);
+            'message' => 'Invalid QR format'
+        ], 400);
     }
 
-    if ($qr->isExpired()) {
+    // Validate required fields
+    if (!isset($data['Store'], $data['Ticket'], $data['Expires'])) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Incomplete QR data'
+        ], 400);
+    }
+     $storeAccountMap = [
+        "Landau's KJ" => 8553,
+    ];
+  if (!array_key_exists($data['Store'], $storeAccountMap)) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Unauthorized store'
+        ], 403);
+    }
+     $accountId = $storeAccountMap[$data['Store']];
+      $expiresAt = Carbon::createFromFormat('m/d/y h:i A', $data['Expires']);
+
+    if (Carbon::now()->greaterThan($expiresAt)) {
         return response()->json([
             'status' => false,
             'message' => 'QR code expired'
         ], 410);
     }
+    $alreadyUsed = QrCode::where('code', $data['Ticket'])->exists();
 
-    return response()->json([
+    if ($alreadyUsed) {
+        return response()->json([
+            'status' => false,
+            'message' => 'QR code already used'
+        ], 409);
+    }
+
+     $qr = new QrCode();
+    $qr->account_id = $accountId;
+    $qr->code = $data['Ticket'];
+    $qr->expires_at = $expiresAt;
+    $qr->save();
+
+     return response()->json([
         'status' => true,
         'message' => 'QR code valid',
-        'account_id' => $qr->account_id,
+        'account_id' => $accountId,
+        'ticket' => $data['Ticket']
     ]);
 }
 
