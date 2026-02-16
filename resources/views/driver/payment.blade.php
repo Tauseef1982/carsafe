@@ -131,7 +131,7 @@ $id = Auth::user()->id;
                                 </div>
 
                             @endif
-                             @if ($username == 'driver2')
+                           
                             <div class="qr-code" id="qr-code">
                                         <div class="media p-20">
                                             <div class="form-check radio radio-primary me-3">
@@ -148,7 +148,7 @@ $id = Auth::user()->id;
                                 <button class="btn btn-primary" onclick="closeScanner()">Close</button>
                             </div>
 
-                             @endif
+
 
 
 
