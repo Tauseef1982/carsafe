@@ -87,10 +87,17 @@
     <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-      <h5 class="modal-title" id="tripModalLabel">Register Your Complaint </h5>
+      <h5 class="modal-title" id="tripModalLabel">If you would like to register a complaint.</h5>
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body" id="tripModalBody">
+      <div class="modal-body">
+        <p>we are here to help,</p>
+        <p>📧 Email: <a href="mailto:carsafevm@gmail.com">carsafevm@gmail.com</a></p>
+        <p>📞 Call Us: <a href="tel:8455125555">845-512-5555</a></p>
+        <p>Our support team is committed to resolving your concerns quickly and efficiently.
+           Your satisfaction is our priority.</p>
+      </div>
+      <!-- <div class="modal-body" id="tripModalBody">
       <form action="{{ url('add_account_complaint') }}" method="post">
         @csrf
        <input type="hidden" name="trip_id" id="trip_id">
@@ -99,7 +106,7 @@
        <textarea name="complaint" class="form-control mb-3" id="" placeholder="Please Enter Here.."></textarea>
        <input type="submit" class="btn btn-primary" value="Submit">
       </form>
-      </div>
+      </div> -->
     </div>
     </div>
   </div>
