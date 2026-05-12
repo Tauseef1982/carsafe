@@ -259,7 +259,7 @@ class TripController extends Controller
 
             if ($existingPayment) {
                 //return redirect()->back()->with('error', 'Payment already exists for this trip.');
-                return $this->respond($request, false, 'Account not found.');
+                return $this->respond($request, false, 'Payment already exists for this trip.');
 
             }
 
