@@ -1586,6 +1586,7 @@ class TripController extends Controller
                 $payment->save();
             }
 
+
             $trip->reason = $request->reason . ' Updated by /' . Auth::guard('admin')->user()->name;
             $trip->payment_method = $request->payment_method;
             $trip->account_number = $request->account;
@@ -1622,11 +1623,22 @@ class TripController extends Controller
             $trip->save();
         }
 
+         if($request->payment_method == 'cash'){
+                $driver_payment = Payment::where('user_type', 'driver')
+                ->where('type', 'credit')
+                ->where('trip_id', $trip_id)
+                ->where('is_delete', 0)
+                ->first();
 
 
+                 if ($driver_payment) {
+                $driver_payment->is_delete = 1;
+                $driver_payment->save();
+            }
 
+            }
 
-        return response()->json([
+          return response()->json([
             'success' => true,
             'message' => 'Trip account has been updated successfully',
             'account' => $trip->account_number,
