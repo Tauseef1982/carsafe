@@ -459,8 +459,8 @@ public function getWebHookTrip(Request $request)
                 $existingTrip->update([
                     'location_from' => $trip['route.pick_up_text'] ?? '',
                     'location_to' => $to_location ?? '',
-                    'date' => $date,
-                    'time' => $time,
+                    'date' => $date ?? '',
+                    'time' => $time ?? '',
                     'trip_cost' => $tripCost,
                     'driver_id' => $trip['driverId'] ?? '',
                     'account_number' => $trip['account.name'] ?? '',
@@ -479,8 +479,8 @@ public function getWebHookTrip(Request $request)
                 'trip_id' => $tripId,
                 'location_from' => $trip['route.pick_up_text'] ?? '',
                 'location_to' => $to_location,
-                'date' => $date,
-                'time' => $time,
+                'date' => $date ?? '',
+                'time' => $time ?? '',
                 'trip_cost' => $tripCost,
                 'extra_charges' => !empty($trip['fx.trip_extras']) && is_numeric($trip['fx.trip_extras'])
                     ? $trip['fx.trip_extras']
