@@ -398,13 +398,15 @@ public function getWebHookTrip(Request $request)
         // }
 
         // --- Step 8: Parse date/time safely ---
+        $date = null;
+        $time = null;
         try {
             $dateTime = Carbon::createFromFormat('m/d/Y h:i A', $trip['start']);
             $date = $dateTime->format('Y-m-d');
             $time = $dateTime->format('H:i:s');
         } catch (\Exception $e) {
             Log::warning('Invalid date format in trip start: ' . $trip['start']);
-            return response()->json(['message' => 'Invalid date format, skipping'], 200);
+           // return response()->json(['message' => 'Invalid date format, skipping'], 200);
         }
 
         // --- Step 9: Prepare key variables ---
