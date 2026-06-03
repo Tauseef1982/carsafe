@@ -404,7 +404,7 @@ public function getWebHookTrip(Request $request)
             $time = $dateTime->format('H:i:s');
         } catch (\Exception $e) {
             Log::warning('Invalid date format in trip start: ' . $trip['start']);
-            //return response()->json(['message' => 'Invalid date format, skipping'], 200);
+            return response()->json(['message' => 'Invalid date format, skipping'], 200);
         }
 
         // --- Step 9: Prepare key variables ---
