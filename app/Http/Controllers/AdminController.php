@@ -862,13 +862,17 @@ class AdminController extends Controller
             //     }
             // }
             if (!empty($request->from_date) && !empty($request->to_date)) {
-                $trips = $trips->where(function ($query) use ($request) {
-                    $query->whereBetween('trips.date', [
-                        $request->from_date,
-                        $request->to_date
-                    ])
-                        ->orWhere('trips.date', '0000-00-00');
-                });
+                // $trips = $trips->where(function ($query) use ($request) {
+                //     $query->whereBetween('trips.date', [
+                //         $request->from_date,
+                //         $request->to_date
+                //     ])
+                //         ->orWhere('trips.date', '0000-00-00');
+                // });
+                $trips = $trips->whereBetween('trips.created_at', [
+    $request->from_date . ' 00:00:00',
+    $request->to_date . ' 23:59:59',
+]);
             }
 
             // Filter by payment method
