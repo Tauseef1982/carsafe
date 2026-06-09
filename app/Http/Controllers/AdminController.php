@@ -824,8 +824,8 @@ class AdminController extends Controller
             $trips = Trip::with(['payments'])
                 ->where('trips.is_delete', 0)
                 ->where(function ($query) {
-                    $query->where('trips.payment_method', '!=', 'card')
-                        ->orWhere('trips.trip_cost', '>', 0);
+                    $query->where('trips.payment_method', '!=', 'card');
+                        // ->orWhere('trips.trip_cost', '>', 0);
                 })
                 ->select(
                     'trips.extra_charges',
