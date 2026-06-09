@@ -1020,14 +1020,30 @@ class AdminController extends Controller
 
                     return $row->ExtraDescription;
                 })
+                // ->editColumn('date', function ($row) use ($util) {
+
+                //     return $util->format_date($row->date);
+                // })
                 ->editColumn('date', function ($row) use ($util) {
-                    // Format date using utility class
+
+                    if ($row->date == '0000-00-00' || empty($row->date)) {
+                        return $util->format_date($row->created_at);
+                    }
+
                     return $util->format_date($row->date);
                 })
                 ->editColumn('time', function ($row) use ($util) {
-                    // Format time using utility class
+
+                    if ($row->time == '00:00:00' || empty($row->time)) {
+                        return date('h:i A', strtotime($row->created_at));
+                    }
+
                     return $util->time_format($row->time);
                 })
+                // ->editColumn('time', function ($row) use ($util) {
+
+                //     return $util->time_format($row->time);
+                // })
                 ->editColumn('payper_trip', function ($row) use ($util) {
                    if($row->payper_trip == 1){
                     return 'Yes';
