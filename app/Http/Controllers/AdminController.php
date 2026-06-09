@@ -824,8 +824,8 @@ class AdminController extends Controller
             $trips = Trip::with(['payments'])
                 ->where('trips.is_delete', 0)
                 ->where(function ($query) {
-                    $query->where('trips.payment_method', '!=', 'card');
-                        // ->orWhere('trips.trip_cost', '>', 0);
+                    $query->where('trips.payment_method', '!=', 'card')
+                         ->orWhere('trips.trip_cost', '>', 0);
                 })
                 ->select(
                     'trips.extra_charges',
@@ -855,11 +855,20 @@ class AdminController extends Controller
                 );
 
             // Apply date filter
-            if (isset($request->from_date) && isset($request->to_date)) {
-                if ($request->from_date != '' && $request->to_date != '') {
-                    $trips = $trips->whereDate('trips.date', '>=', $request->from_date)
-                        ->whereDate('trips.date', '<=', $request->to_date);
-                }
+            // if (isset($request->from_date) && isset($request->to_date)) {
+            //     if ($request->from_date != '' && $request->to_date != '') {
+            //         $trips = $trips->whereDate('trips.date', '>=', $request->from_date)
+            //             ->whereDate('trips.date', '<=', $request->to_date);
+            //     }
+            // }
+            if (!empty($request->from_date) && !empty($request->to_date)) {
+                $trips = $trips->where(function ($query) use ($request) {
+                    $query->whereBetween('trips.date', [
+                        $request->from_date,
+                        $request->to_date
+                    ])
+                        ->orWhere('trips.date', '0000-00-00');
+                });
             }
 
             // Filter by payment method
