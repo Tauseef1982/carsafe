@@ -46,8 +46,7 @@ class TripController extends Controller
 
             $trips = Trip::where('trips.is_delete', 0)
                 ->where('trips.driver_id', $driverId)
-                ->where('trips.date', '>', now()->subDays(3))
-                ->where('trips.payment_method', 'cash')
+                //->where('trips.date', '>', now()->subDays(3))
                 ->where('status', 'NOT LIKE', '%Cancelled%')
                 ->where('status', 'NOT LIKE', '%Client canceled%')
                 // ->whereNotNull('icked_up')
@@ -75,13 +74,25 @@ class TripController extends Controller
                 ->select('trips.*')
                 ->orderBy('trips.date', 'desc')
                 ->orderBy('trips.time', 'desc')
-                ->limit(1)
+                ->limit(2)
                 ->get();
 
-            $discount = DiscountService::AvailableDiscount();
+               $latest_trip = $trips->get(0);
+               $old_trip = $trips->get(1);
+                $resultTrips = collect();
+                if($latest_trip){
+                      $resultTrips->push($latest_trip);
+                      if(empty($latest_trip->icked_up ) && $old_trip && $old_trip->payment_method == 'cash'){
+
+                    $resultTrips->push($old_trip);
+                  }
+
+                }
+
+               $discount = DiscountService::AvailableDiscount();
 
             return response()->json([
-                'trips' => $trips,
+                'trips' => $resultTrips,
                 'discount' => $discount
             ]);
         }
