@@ -46,7 +46,7 @@ class TripController extends Controller
 
             $trips = Trip::where('trips.is_delete', 0)
                 ->where('trips.driver_id', $driverId)
-                //->where('trips.date', '>', now()->subDays(3))
+                ->where('trips.date', '>', now()->subDays(3))
                 ->where('status', 'NOT LIKE', '%Cancelled%')
                 ->where('status', 'NOT LIKE', '%Client canceled%')
                 // ->whereNotNull('icked_up')
