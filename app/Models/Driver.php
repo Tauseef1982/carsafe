@@ -115,24 +115,12 @@ class Driver extends Authenticatable
 
         $balance = (float)$balance_credit - (float)$balance_debit;
         $balance = $balance - $adjust;
-//        $balance = $balance - $adjust_debit;
+
 
          return $balance;
 
     }
-    // public function balance()
-    // {
 
-    //     $balance = Payment::where('is_delete',0)->where('driver_id',$this->driver_id)->where('type','credit')->sum('amount');
-    //     $balance_debit = Payment::where('is_delete',0)->where('user_type','!=','customer')->where('driver_id',$this->driver_id)->where('type','debit')->sum('amount');
-    //     $adjust = Adjustment::where('driver_id',$this->driver_id)->where('type','debit_driver_balance')->sum('amount');
-    //     $adjust_debit = Adjustment::where('driver_id',$this->driver_id)->where('type','admin_paid_auto')->sum('amount');
-
-    //     $balance = ((float)$balance - (float)$balance_debit);
-    //     $balance =  $balance - $adjust;
-
-    //     return $balance;
-    // }
     public function balance($from = null, $to = null)
 {
     $payments = Payment::where('is_delete', 0)

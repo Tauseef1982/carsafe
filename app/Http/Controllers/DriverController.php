@@ -105,7 +105,7 @@ class DriverController extends Controller
         $lastweekbalance = Trip::where('driver_id', $driver_id)->where('is_delete',0)
             ->whereBetween('date', [$fromlastweek, $tolastweek])
             ->whereIn('payment_method', ['account', 'card'])
-            ->whereNotIn('id',$tripsidnotinc)
+            //->whereNotIn('id',$tripsidnotinc)
             ->get(['trip_id', 'trip_cost']); // Get only trip_id and trip_cost
 
 //        $totaltriplastWeek = count($lastweekbalance);
@@ -131,7 +131,7 @@ class DriverController extends Controller
        $currentweekbalacne = Trip::where('driver_id', $driver_id)->where('is_delete',0)
             ->where('date','>=',$fromcurrentweek)
             ->where('date','<=',$tocurrentweek)
-           ->whereNotIn('id',$tripsidnotinc)
+           // ->whereNotIn('id',$tripsidnotinc)
             ->whereIn('payment_method',['account','card'])
             ->get(['trip_id', 'trip_cost']); // Get only trip_id and trip_cost
 
