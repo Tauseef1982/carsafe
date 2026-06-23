@@ -43,10 +43,10 @@ class DriverController extends Controller
 
         if ($request->ajax()) {
         //todo account na ho
-        $tripsidnotinc = Trip::where('driver_id', $driver_id)->where(function ($query) {
-            $query->where('status', 'like', '%Cancelled%')
-                  ->orWhere('status', 'like', '%canceled%');
-        })->where('payment_method', 'account')->pluck('id');
+        // $tripsidnotinc = Trip::where('driver_id', $driver_id)->where(function ($query) {
+        //     $query->where('status', 'like', '%Cancelled%')
+        //           ->orWhere('status', 'like', '%canceled%');
+        // })->where('payment_method', 'account')->pluck('id');
 
         $query = Trip::where('driver_id', $driver_id)->where('is_delete', 0);
 //        $query = Trip::where('driver_id',$driver_id)->whereNotIn('id',$tripsidnotinc);
