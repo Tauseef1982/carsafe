@@ -1906,18 +1906,26 @@ class TripController extends Controller
             if (isset($request->from_date) && isset($request->to_date)) {
                 if ($request->from_date != '' && $request->to_date != '') {
 
-                    $trips = $trips->whereDate('trips.date', '>=', $request->from_date)->whereDate('trips.date', '<=', $request->to_date);
+                    // $trips = $trips->whereDate('trips.date', '>=', $request->from_date)->whereDate('trips.date', '<=', $request->to_date);
+
+                    $trips = $trips->whereBetween('trips.created_at', [
+                        $request->from_date . ' 00:00:00',
+                        $request->to_date . ' 23:59:59',
+                    ]);
 
                 }
             }
         } else {
 
-            $trips = $trips->whereDate('trips.date', '>', '2024-09-14');
+            //$trips = $trips->whereDate('trips.date', '>', '2024-09-14');
+            $trips = $trips->where('trips.created_at', '>', '2024-09-14 23:59:59');
 
             if (isset($request->from_date) && isset($request->to_date)) {
                 if ($request->from_date != '' && $request->to_date != '') {
 
-                    $trips = $trips->whereDate('trips.date', '<=', $request->to_date);
+                    //$trips = $trips->whereDate('trips.date', '<=', $request->to_date);
+                    $trips = $trips->where('trips.created_at', '<=', $request->to_date . ' 23:59:59');
+
 
                 }
             }
