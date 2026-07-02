@@ -56,8 +56,8 @@
                 <td>{{$trip->trip_id}}</td>
                 <td>{{$trip->cube_pin}} {{$trip->cube_pin_status}}</td>
                 <td>{{$trip->location_from}}<br> To <br> {{$trip->location_to}}</td>
-                <td>{{$util->format_date($trip->date)}}</td>
-                <td>{{$util->time_format($trip->time)}}</td>
+                <td>{{$trip->created_at->format('m-d-y')}}</td>
+                <td>{{$trip->created_at->format('h:i A')}}</td>
                 <td class="account-td">
                     @if($trip->payment_method == 'cash')
                         <a target="_blank"
