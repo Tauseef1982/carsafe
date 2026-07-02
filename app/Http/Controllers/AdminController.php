@@ -870,9 +870,9 @@ class AdminController extends Controller
                 //         ->orWhere('trips.date', '0000-00-00');
                 // });
                 $trips = $trips->whereBetween('trips.created_at', [
-    $request->from_date . ' 00:00:00',
-    $request->to_date . ' 23:59:59',
-]);
+                    $request->from_date . ' 00:00:00',
+                    $request->to_date . ' 23:59:59',
+                ]);
             }
 
             // Filter by payment method
@@ -906,8 +906,7 @@ class AdminController extends Controller
 
             // Group by trip_id and paginate
             $trips = $trips->groupBy('trips.trip_id')
-                ->orderBy('trips.date', 'desc')
-                ->orderBy('trips.time', 'desc');  // Pagination for faster loading
+                ->orderBy('trips.created_at', 'desc');  // Pagination for faster loading
 
             return Datatables::of($trips)
                 ->addColumn('total_cost', function ($row) {
@@ -1026,19 +1025,23 @@ class AdminController extends Controller
                 // })
                 ->editColumn('date', function ($row) use ($util) {
 
-                    if ($row->date == '0000-00-00' || empty($row->date)) {
-                        return $util->format_date($row->created_at);
+                    if (is_null($row->date) ||  $row->date == '0000-00-00' || trim($row->date) == '') {
+                         return $util->format_date($row->created_at->toDateString());
+                    }else{
+                        return $util->format_date($row->date);
                     }
 
-                    return $util->format_date($row->date);
+
                 })
                 ->editColumn('time', function ($row) use ($util) {
 
-                    if ($row->time == '00:00:00' || empty($row->time)) {
-                        return date('h:i A', strtotime($row->created_at));
+                    if ( is_null($row->time) || $row->time == '00:00:00' || trim($row->time) == '') {
+                         return $row->created_at->format('h:i A');
+                    }else{
+                       return $util->time_format($row->time);
                     }
 
-                    return $util->time_format($row->time);
+
                 })
                 // ->editColumn('time', function ($row) use ($util) {
 
