@@ -66,10 +66,12 @@ class DriverController extends Controller
         }
 
         if ($apply == true) {
-            $query->whereDate('date', '>=', $from)->whereDate('date', '<=', $to)->orderBy('date', 'desc')->orderBy('time', 'desc');
-        } else {
-
-            $query->whereDate('date', '>=', '2024-09-15')->orderBy('date', 'desc')->orderBy('time', 'desc');
+           // $query->whereDate('date', '>=', $from)->whereDate('date', '<=', $to)->orderBy('date', 'desc')->orderBy('time', 'desc');
+            $query->whereDate('created_at', '>=', $from)
+                  ->whereDate('created_at', '<=', $to)->orderBy('created_at', 'desc');
+            } else {
+            $query->whereDate('created_at', '>=', '2024-09-15')->whereDate('created_at', '<=', Carbon::now()->toDateString())->orderBy('created_at', 'desc');
+           // $query->whereDate('date', '>=', '2024-09-15')->orderBy('date', 'desc')->orderBy('time', 'desc');
         }
         $trips = $query->get();
         $total_trip = count($trips);
@@ -103,7 +105,7 @@ class DriverController extends Controller
         $tolastweek = Carbon::now()->subWeek()->endOfWeek(Carbon::SATURDAY)->toDateString();
 
         $lastweekbalance = Trip::where('driver_id', $driver_id)->where('is_delete',0)
-            ->whereBetween('date', [$fromlastweek, $tolastweek])
+            ->whereBetween('created_at', [$fromlastweek, $tolastweek])
             ->whereIn('payment_method', ['account', 'card'])
             //->whereNotIn('id',$tripsidnotinc)
             ->get(['trip_id', 'trip_cost']); // Get only trip_id and trip_cost
@@ -129,8 +131,8 @@ class DriverController extends Controller
 
 
        $currentweekbalacne = Trip::where('driver_id', $driver_id)->where('is_delete',0)
-            ->where('date','>=',$fromcurrentweek)
-            ->where('date','<=',$tocurrentweek)
+            ->where('created_at','>=',$fromcurrentweek)
+            ->where('created_at','<=',$tocurrentweek)
            // ->whereNotIn('id',$tripsidnotinc)
             ->whereIn('payment_method',['account','card'])
             ->get(['trip_id', 'trip_cost']); // Get only trip_id and trip_cost
@@ -151,8 +153,8 @@ class DriverController extends Controller
         $unpaid_current_week2 = $driver->balance_details($fromcurrentweek,$tocurrentweek,true);
 
 
-        $edit_history_increase = TripEditHistory::where('driver_id',$driver_id)->where('date','>=',$fromcurrentweek)
-            ->where('date','<=',$tocurrentweek)->where('type','credit')->sum('amount');
+        $edit_history_increase = TripEditHistory::where('driver_id',$driver_id)->where('created_at','>=',$fromcurrentweek)
+            ->where('created_at','<=',$tocurrentweek)->where('type','credit')->sum('amount');
 
         $edit_history_decrease = TripEditHistory::where('driver_id',$driver_id)->where('date','>=',$fromcurrentweek)
                 ->where('date','<=',$tocurrentweek)->where('type','debit')->sum('amount');

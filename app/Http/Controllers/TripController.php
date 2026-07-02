@@ -191,7 +191,8 @@ class TripController extends Controller
                     $query->where('status', 'not like', '%Cancelled%')
                         ->orWhere('status', 'not like', '%canceled%')
                         ->orWhereNull('status');
-                })->where(function ($query) {
+                })
+                ->where(function ($query) {
                     $query->where('payment_method', '!=', 'card') // Include trips where payment method is not card
                         ->orWhere(function ($subQuery) { // Nested condition for card payment method
                             $subQuery->where('payment_method', 'card')
