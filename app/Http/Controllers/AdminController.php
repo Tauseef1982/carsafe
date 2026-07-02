@@ -1027,27 +1027,19 @@ class AdminController extends Controller
                 ->editColumn('date', function ($row) use ($util) {
 
                     if ($row->date == '0000-00-00') {
-                         return $util->format_date($row->created_at);
+                         return $row->created_at->format('m-d-y');
                     }else{
                         return $util->format_date($row->date);
                     }
-
-
-
-                })
+                    })
                 ->editColumn('time', function ($row) use ($util) {
 
                     if ($row->time == '00:00:00' ) {
-                         return $util->time_format($row->created_at);
+                         return $row->created_at->format('h:i A');
                     }else{
                         return $util->time_format($row->time);
                     }
-
-                
-
-
-
-                })
+                    })
                 // ->editColumn('time', function ($row) use ($util) {
 
                 //     return $util->time_format($row->time);
