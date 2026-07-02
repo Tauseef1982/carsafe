@@ -1026,7 +1026,7 @@ class AdminController extends Controller
                 ->editColumn('date', function ($row) use ($util) {
 
                     if (is_null($row->date) ||  $row->date == '0000-00-00' || trim($row->date) == '') {
-                         return $util->format_date($row->created_at->toDateString());
+                         return $util->format_date($row->created_at);
                     }
                         return $util->format_date($row->date);
 
