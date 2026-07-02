@@ -1027,9 +1027,9 @@ class AdminController extends Controller
 
                     if (is_null($row->date) ||  $row->date == '0000-00-00' || trim($row->date) == '') {
                          return $util->format_date($row->created_at->toDateString());
-                    }else{
-                        return $util->format_date($row->date);
                     }
+                        return $util->format_date($row->date);
+
 
 
                 })
@@ -1037,9 +1037,10 @@ class AdminController extends Controller
 
                     if ( is_null($row->time) || $row->time == '00:00:00' || trim($row->time) == '') {
                          return $row->created_at->format('h:i A');
-                    }else{
-                       return $util->time_format($row->time);
                     }
+
+                    return $util->time_format($row->time);
+
 
 
                 })
