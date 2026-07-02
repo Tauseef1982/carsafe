@@ -1028,8 +1028,9 @@ class AdminController extends Controller
 
                     if ($row->date == '0000-00-00') {
                          return $util->format_date($row->created_at);
-                    }
+                    }else{
                         return $util->format_date($row->date);
+                    }
 
 
 
@@ -1038,9 +1039,11 @@ class AdminController extends Controller
 
                     if ($row->time == '00:00:00' ) {
                          return $util->time_format($row->created_at);
+                    }else{
+                        return $util->time_format($row->time);
                     }
 
-                    return $util->time_format($row->time);
+                
 
 
 
