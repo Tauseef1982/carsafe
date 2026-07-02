@@ -850,7 +850,8 @@ class AdminController extends Controller
                     'trips.accepted_by',
                     'trips.cube_pin',
                     'trips.cube_pin_status',
-                    'trips.payper_trip'
+                    'trips.payper_trip',
+                    'trips.created_at',
 
                 );
 
