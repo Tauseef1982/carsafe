@@ -1025,21 +1025,21 @@ class AdminController extends Controller
                 // })
                 ->editColumn('date', function ($row) use ($util) {
 
-                    //if (is_null($row->date) ||  $row->date == '0000-00-00' || trim($row->date) == '') {
+                    if ($row->date == '0000-00-00') {
                          return $util->format_date($row->created_at);
-                   // }
-                        //return $util->format_date($row->date);
+                    }
+                        return $util->format_date($row->date);
 
 
 
                 })
                 ->editColumn('time', function ($row) use ($util) {
 
-                   // if ( is_null($row->time) || $row->time == '00:00:00' || trim($row->time) == '') {
+                    if ($row->time == '00:00:00' ) {
                          return $util->time_format($row->created_at);
-                    //}
+                    }
 
-                    //return $util->time_format($row->time);
+                    return $util->time_format($row->time);
 
 
 
