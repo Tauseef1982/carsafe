@@ -1036,7 +1036,7 @@ class AdminController extends Controller
                 ->editColumn('time', function ($row) use ($util) {
 
                     if ( is_null($row->time) || $row->time == '00:00:00' || trim($row->time) == '') {
-                         return $row->created_at->format('h:i A');
+                         return $util->time_format($row->created_at);
                     }
 
                     return $util->time_format($row->time);
