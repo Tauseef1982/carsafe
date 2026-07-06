@@ -476,7 +476,7 @@ class DriverController extends Controller
                 ->whereIn('payment_method', ['account', 'card'])
                 ->when(
                     $from && $to,
-                    fn($q) => $q->whereBetween('date', [$from, $to])
+                    fn($q) => $q->whereBetween('created_at', [$from, $to])
                 )
                 ->groupBy('driver_id');
 
