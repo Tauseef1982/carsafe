@@ -558,6 +558,7 @@ class DriverController extends Controller
 
 
                 )
+                 ->where('drivers.driver_status', 1)
                 ->whereRaw(
                     '(COALESCE(credit.total_credit,0)
                 - COALESCE(debit.total_debit,0)
