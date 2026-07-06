@@ -105,8 +105,8 @@ class DriverController extends Controller
         $tolastweek = Carbon::now()->subWeek()->endOfWeek(Carbon::SATURDAY)->toDateString();
 
         $lastweekbalance = Trip::where('driver_id', $driver_id)->where('is_delete',0)
-            ->where('created_at','>=',$fromlastweek)
-            ->where('created_at','<=',$tolastweek)
+            ->where('created_at','>=',$fromlastweek . ' 00:00:00')
+            ->where('created_at','<=',$tolastweek . ' 23:59:59')
             ->whereIn('payment_method', ['account', 'card'])
             //->whereNotIn('id',$tripsidnotinc)
             ->get(['trip_id', 'trip_cost']); // Get only trip_id and trip_cost
@@ -132,8 +132,8 @@ class DriverController extends Controller
 
 
        $currentweekbalacne = Trip::where('driver_id', $driver_id)->where('is_delete',0)
-            ->where('created_at','>=',$fromcurrentweek)
-            ->where('created_at','<=',$tocurrentweek)
+            ->where('created_at','>=',$fromcurrentweek . ' 00:00:00')
+            ->where('created_at','<=',$tocurrentweek. ' 23:59:59')
            // ->whereNotIn('id',$tripsidnotinc)
             ->whereIn('payment_method',['account','card'])
             ->get(['trip_id', 'trip_cost']); // Get only trip_id and trip_cost
@@ -154,11 +154,11 @@ class DriverController extends Controller
         $unpaid_current_week2 = $driver->balance_details($fromcurrentweek,$tocurrentweek,true);
 
 
-        $edit_history_increase = TripEditHistory::where('driver_id',$driver_id)->where('created_at','>=',$fromcurrentweek)
-            ->where('created_at','<=',$tocurrentweek)->where('type','credit')->sum('amount');
+        $edit_history_increase = TripEditHistory::where('driver_id',$driver_id)->where('created_at','>=',$fromcurrentweek . ' 00:00:00')
+            ->where('created_at','<=',$tocurrentweek . ' 23:59:59')->where('type','credit')->sum('amount');
 
         $edit_history_decrease = TripEditHistory::where('driver_id',$driver_id)->where('date','>=',$fromcurrentweek)
-                ->where('date','<=',$tocurrentweek)->where('type','debit')->sum('amount');
+                ->where('date','<=',$tocurrentweek )->where('type','debit')->sum('amount');
 
 
         $deduction = $edit_history_increase - $edit_history_decrease;
