@@ -105,7 +105,8 @@ class DriverController extends Controller
         $tolastweek = Carbon::now()->subWeek()->endOfWeek(Carbon::SATURDAY)->toDateString();
 
         $lastweekbalance = Trip::where('driver_id', $driver_id)->where('is_delete',0)
-            ->whereBetween('created_at', [$fromlastweek, $tolastweek])
+            ->where('created_at','>=',$fromlastweek)
+            ->where('created_at','<=',$tolastweek)
             ->whereIn('payment_method', ['account', 'card'])
             //->whereNotIn('id',$tripsidnotinc)
             ->get(['trip_id', 'trip_cost']); // Get only trip_id and trip_cost
