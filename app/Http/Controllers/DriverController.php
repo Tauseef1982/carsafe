@@ -460,16 +460,7 @@ class DriverController extends Controller
             $from = $request->input('from');
             $to = $request->input('to');
 
-            // $creditSub = DB::table('payments')
-            //     ->select('driver_id', DB::raw('SUM(amount) as total_credit'))
-            //     ->where('is_delete', 0)
-            //     ->where('type', 'credit')
-            //     ->when(
-            //         $from && $to,
-            //         fn($q) =>
-            //         $q->whereBetween('payment_date', [$from, $to])
-            //     )
-            //     ->groupBy('driver_id');
+
             $creditSub = DB::table('trips')
                 ->select('driver_id', DB::raw('SUM(trip_cost) as total_credit'))
                 ->where('is_delete', 0)
@@ -558,7 +549,7 @@ class DriverController extends Controller
 
 
                 )
-                 ->where('drivers.status', 1)
+              
                 ->whereRaw(
                     '(COALESCE(credit.total_credit,0)
                 - COALESCE(debit.total_debit,0)
