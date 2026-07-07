@@ -159,21 +159,21 @@ class AdminController extends Controller
 
 
         $lastWeekTrips = Trip::where('is_delete', 0)
-            ->where('date', '>=', $fromlastweek)
-            ->where('date', '<=', $tolastweek)
+            ->where('created_at', '>=', $fromlastweek . ' 00:00:00')
+            ->where('created_at', '<=', $tolastweek . ' 23:59:59')
             ->get(['trip_id', 'trip_cost']);
 
 
         // trip cost + extra in trips where payment method is not cash
         $lastWeekcost = Trip::where('is_delete', 0)
-            ->where('date', '>=', $fromlastweek)
-            ->where('date', '<=', $tolastweek)
+            ->where('created_at', '>=', $fromlastweek . ' 00:00:00')
+            ->where('created_at', '<=', $tolastweek . ' 23:59:59')
             ->where('payment_method', '!=', 'cash')
             ->sum('trip_cost');
 
         $lastWeekextra = Trip::where('is_delete', 0)
-            ->where('date', '>=', $fromlastweek)
-            ->where('date', '<=', $tolastweek)
+            ->where('created_at', '>=', $fromlastweek . ' 00:00:00')
+            ->where('created_at', '<=', $tolastweek . ' 23:59:59')
             ->where('payment_method', '!=', 'cash')
             ->sum('extra_charges');
 
@@ -183,14 +183,14 @@ class AdminController extends Controller
 //    ->where('trips.payment_method', '!=', 'cash')
 //   ->sum('trip_cost');
 
-        $tripsidnotinc = Trip::where(function ($query) {
-            $query->where('status', 'like', '%Cancelled%')
-                ->orWhere('status', 'like', '%canceled%');
-        })->where('payment_method', 'account')->pluck('id');
+        // $tripsidnotinc = Trip::where(function ($query) {
+        //     $query->where('status', 'like', '%Cancelled%')
+        //         ->orWhere('status', 'like', '%canceled%');
+        // })->where('payment_method', 'account')->pluck('id');
         $tripsUnpaid = Trip::where('is_delete', 0)
-            ->whereBetween('date', [$fromlastweek, $tolastweek])
+            ->whereBetween('created_at', [$fromlastweek . ' 00:00:00', $tolastweek . ' 23:59:59'])
             ->whereIn('payment_method', ['account', 'card'])
-            ->whereNotIn('id', $tripsidnotinc)
+           // ->whereNotIn('id', $tripsidnotinc)
             ->get(['trip_id', 'trip_cost']); // Get only trip_id and trip_cost
 
         $totalCost = $tripsUnpaid->sum('trip_cost'); // Sum the trip costs
@@ -218,35 +218,22 @@ class AdminController extends Controller
 
 
         $currentWeekTrips = Trip::where('is_delete', 0)
-            ->where('date', '>=', $fromcurrentweek)
-            ->where('date', '<=', $tocurrentweek)
+            ->where('created_at', '>=', $fromcurrentweek . ' 00:00:00')
+            ->where('created_at', '<=', $tocurrentweek . ' 23:59:59')
             ->get(['trip_id', 'trip_cost']);
 
         $currentWeekRearn = $currentWeekTrips->sum('trip_cost');
         $currentWeekTrips = count($currentWeekTrips);
 
-        //        $Currenttotal_payments = Payment::where('is_delete',0)->where('type', 'credit')
-//            ->where('payment_date','>=',$fromcurrentweek)->where('payment_date','<=',$tocurrentweek)
-//            ->sum('amount');
-//
-//        $Currenttotal_recieved = Payment::where('is_delete',0)->where('type', 'debit')->where('user_type','admin')
-//            ->where('payment_date','>=',$fromcurrentweek)->where('payment_date','<=',$tocurrentweek)
-//            ->sum('amount');
-//
-//        $Currentadjust = Adjustment::where('type','debit_driver_balance')
-//            ->where('date','>=',$fromcurrentweek)->where('date','<=',$tocurrentweek)
-//            ->sum('amount');
 
-        // $CurrentWeekOwed = $Currenttotal_payments - $Currenttotal_recieved;
-        // $CurrentWeekOwed = $CurrentWeekOwed - $Currentadjust;
         $CurrentWeekcost = Trip::where('is_delete', 0)
-            ->where('date', '>=', $fromcurrentweek)
-            ->where('date', '<=', $tocurrentweek)
+            ->where('created_at', '>=', $fromcurrentweek . ' 00:00:00')
+            ->where('created_at', '<=', $tocurrentweek . ' 23:59:59')
             ->where('payment_method', '!=', 'cash')
             ->sum('trip_cost');
         $CurrentWeekextra = Trip::where('is_delete', 0)
-            ->where('date', '>=', $fromcurrentweek)
-            ->where('date', '<=', $tocurrentweek)
+            ->where('created_at', '>=', $fromcurrentweek . ' 00:00:00')
+            ->where('created_at', '<=', $tocurrentweek . ' 23:59:59')
             ->where('payment_method', '!=', 'cash')
             ->sum('extra_charges');
 
