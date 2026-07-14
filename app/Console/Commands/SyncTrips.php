@@ -83,6 +83,11 @@ class SyncTrips extends Command
 
         foreach ($trips as $trip) {
 
+        if ((int)$trip->{'id'} == 325685476) {
+
+        Log::info('trip is threre'.$trip->id);
+
+
 
             // Check if 'start' is valid
             if ($trip->{'start'} != '-' && $trip->{'start'} != '') {
@@ -154,7 +159,10 @@ class SyncTrips extends Command
                     }
                 }
 
-            }
+
+        }
+         break;
+        }
         }
 
 
