@@ -43,13 +43,10 @@ class DriverController extends Controller
 
         if ($request->ajax()) {
         //todo account na ho
-        // $tripsidnotinc = Trip::where('driver_id', $driver_id)->where(function ($query) {
-        //     $query->where('status', 'like', '%Cancelled%')
-        //           ->orWhere('status', 'like', '%canceled%');
-        // })->where('payment_method', 'account')->pluck('id');
+
 
         $query = Trip::where('driver_id', $driver_id)->where('is_delete', 0);
-//        $query = Trip::where('driver_id',$driver_id)->whereNotIn('id',$tripsidnotinc);
+
 
         $apply = true;
 
@@ -66,29 +63,22 @@ class DriverController extends Controller
         }
 
         if ($apply == true) {
-           // $query->whereDate('date', '>=', $from)->whereDate('date', '<=', $to)->orderBy('date', 'desc')->orderBy('time', 'desc');
+
             $query->whereDate('created_at', '>=', $from)
                   ->whereDate('created_at', '<=', $to)->orderBy('created_at', 'desc');
             } else {
             $query->whereDate('created_at', '>=', '2024-09-15')->whereDate('created_at', '<=', Carbon::now()->toDateString())->orderBy('created_at', 'desc');
-           // $query->whereDate('date', '>=', '2024-09-15')->orderBy('date', 'desc')->orderBy('time', 'desc');
+
         }
         $trips = $query->get();
         $total_trip = count($trips);
 
-//        $total_earnings = collect($trips)->sum('trip_cost');
 
-//        $cash_rec = collect($trips)->where('payment_method', 'cash')->sum('trip_cost');
 
         $driver = Driver::where('driver_id',$driver_id)->first();
         $balance = $driver->balance_details($from,$to,$apply);
 
-//        $balance_debit = 0;
-//        $total_recived = (float)$balance_debit + (float)$cash_rec;
 
-//        if ($total_recived < 0) {
-//            $total_recived = 0;
-//        }
 
         if (isset($request->driver_id)) {
 
@@ -549,7 +539,7 @@ class DriverController extends Controller
 
 
                 )
-              
+
                 ->whereRaw(
                     '(COALESCE(credit.total_credit,0)
                 - COALESCE(debit.total_debit,0)

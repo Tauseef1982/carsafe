@@ -8,6 +8,7 @@ use App\Models\Adjustment;
 use App\Models\Driver;
 use App\Models\Payment;
 use App\Models\Trip;
+use App\Models\DriverBalanceHistory;
 use App\Models\Account;
 use App\Models\Discount;
 use App\Models\TripEditHistory;
@@ -270,7 +271,7 @@ class TripController extends Controller
                 ->where('type', 'credit')->where('is_delete', 0)->first();
 
             if ($existingPayment) {
-                //return redirect()->back()->with('error', 'Payment already exists for this trip.');
+
                 return $this->respond($request, false, 'Payment already exists for this trip.');
 
             }
@@ -281,9 +282,7 @@ class TripController extends Controller
             $trip->accepted_by = $request->accept_by;
         }
 
-        // if(!empty($trip->order_id)){
-        //     $request->payment_method = 'card';
-        // }
+
 
         if ($request->has('trip') && $request->payment_method == 'account') {
 
@@ -296,13 +295,12 @@ class TripController extends Controller
             if (!$account) {
                 return $this->respond($request, false, 'Account not found.');
 
-                //return redirect()->back()->with('error', 'Account not found.');
+
             }
 
             if ($account->status == 0) {
                 return $this->respond($request, false, 'Account is inactive.');
 
-                // return redirect()->back()->with('error', 'Account is Inactive');
             }
             if ($account->address_restriction) {
                 $allowed = $account->allowedAddresses->pluck('address')->map(fn($a) => strtolower(trim($a)));
@@ -322,7 +320,7 @@ class TripController extends Controller
             if ($account->is_trip_restricted_by_phone == 1) {
                 if (!empty($account->restricted_phones)) {
                     $phone = $trip->passenger_phone;
-                    // $phone = preg_replace('/^\+1/', '', $phone);
+
                     $phone = preg_replace('/\D/', '', $phone);
                     if (strlen($phone) === 11 && str_starts_with($phone, '1')) {
                         $phone = substr($phone, 1);
@@ -410,7 +408,29 @@ class TripController extends Controller
                         }
 
                         $trip->update($data);
+                        $weekStart = now()->startOfWeek(Carbon::SUNDAY);
+                        $driver = Driver::where('driver_id' , $trip->driver_id)->first();
+                        $is_dispatcher = 0;
+                        if(isset($request->is_admin)){
+                           $role = auth()->user()->role;
+                            if($role == 'dispatcher'){
+                               $is_dispatcher = 1;
+                            }
+                        }
+                        $before = $driver->balance_details($weekStart, now(), true);
                         $pay_data = $this->addpay($trip, $request);
+                            $after = $driver->fresh()->balance_details($weekStart, now(), true);
+
+                            DriverBalanceHistory::create([
+                                'driver_id' => $driver->driver_id,
+                                'trip_id' => $trip->trip_id,
+                                'week_start' => $weekStart,
+                                'balance_before' => $before,
+                                'transaction_amount' => $pay_data->amount,
+                                'balance_after' => $after,
+                                'is_dispatcher' => $is_dispatcher,
+                                'payment_method' => 'card',
+                            ]);
 
                         $logMessage = 'Trip Payment Added By Driver Using Method Card#' .
                             $charge['transaction_id'] .
@@ -561,34 +581,58 @@ class TripController extends Controller
                                 }
                             }
 
-                            if ($account->account_type == 'postpaid') {
-                                if ($account->balance >= $cost) {
+                            // if ($account->account_type == 'postpaid') {
+                            //     if ($account->balance >= $cost) {
 
-                                    $paymentDataBulk[] = [
-                                        'driver_id' => $trip->driver_id,
-                                        'trip_id' => $trip->trip_id,
-                                        'payment_date' => now()->toDateString(),
-                                        'amount' => $cost,
-                                        'user_id' => auth()->user()->id,
-                                        'user_type' => 'customer',
-                                        'type' => 'debit',
-                                        'description' => 'Paying from PostPaid balance:customer_pay_to_account' . $account->account_id,
-                                        'account_id' => $trip->account_number,
-                                    ];
-                                    $paymentDataSend = [
-                                        'payments' => $paymentDataBulk,
-                                    ];
-                                    PaymentSaveService::save($paymentDataSend);
+                            //         $paymentDataBulk[] = [
+                            //             'driver_id' => $trip->driver_id,
+                            //             'trip_id' => $trip->trip_id,
+                            //             'payment_date' => now()->toDateString(),
+                            //             'amount' => $cost,
+                            //             'user_id' => auth()->user()->id,
+                            //             'user_type' => 'customer',
+                            //             'type' => 'debit',
+                            //             'description' => 'Paying from PostPaid balance:customer_pay_to_account' . $account->account_id,
+                            //             'account_id' => $trip->account_number,
+                            //         ];
+                            //         $paymentDataSend = [
+                            //             'payments' => $paymentDataBulk,
+                            //         ];
+                            //         PaymentSaveService::save($paymentDataSend);
 
-                                    $account->balance = $account->balance - $cost;
-                                    $account->save();
-                                }
+                            //         $account->balance = $account->balance - $cost;
+                            //         $account->save();
+                            //     }
 
-                            }
+                            // }
 
 
                             $trip->update();
-                            $pay_data = $this->addpay($trip, $request);
+
+                              $weekStart = now()->startOfWeek(Carbon::SUNDAY);
+                        $driver = Driver::where('driver_id' , $trip->driver_id)->first();
+                        $is_dispatcher = 0;
+                        if(isset($request->is_admin)){
+                           $role = auth()->user()->role;
+                            if($role == 'dispatcher'){
+                               $is_dispatcher = 1;
+                            }
+                        }
+                        $before = $driver->balance_details($weekStart, now(), true);
+                        $pay_data = $this->addpay($trip, $request);
+                            $after = $driver->fresh()->balance_details($weekStart, now(), true);
+
+                            DriverBalanceHistory::create([
+                                'driver_id' => $driver->driver_id,
+                                'trip_id' => $trip->trip_id,
+                                'week_start' => $weekStart,
+                                'balance_before' => $before,
+                                'transaction_amount' => $pay_data->amount,
+                                'balance_after' => $after,
+                                'is_dispatcher' => $is_dispatcher,
+                                'payment_method' => 'account',
+                            ]);
+
                             $tripId = $trip->trip_id;
                             $driverId = $trip->driver_id;
                             $extra_message = null;
@@ -723,6 +767,7 @@ class TripController extends Controller
                     }
                 } else {
                     if ($account->status == 1) {
+
                         if ($trip->trip_cost == 0) {
                             $cost = (float) $request->amount;
                         } else {
@@ -825,34 +870,62 @@ class TripController extends Controller
                             }
                         }
 
-                        if ($account->account_type == 'postpaid') {
-                            if ($account->balance >= $cost) {
+                        // if ($account->account_type == 'postpaid') {
+                        //     if ($account->balance >= $cost) {
 
-                                $paymentDataBulk[] = [
-                                    'driver_id' => $trip->driver_id,
-                                    'trip_id' => $trip->trip_id,
-                                    'payment_date' => now()->toDateString(),
-                                    'amount' => $cost,
-                                    'user_id' => auth()->user()->id,
-                                    'user_type' => 'customer',
-                                    'type' => 'debit',
-                                    'description' => 'Paying from PostPaid balance:customer_pay_to_account' . $account->account_id,
-                                    'account_id' => $trip->account_number,
-                                ];
-                                $paymentDataSend = [
-                                    'payments' => $paymentDataBulk,
-                                ];
-                                PaymentSaveService::save($paymentDataSend);
+                        //         $paymentDataBulk[] = [
+                        //             'driver_id' => $trip->driver_id,
+                        //             'trip_id' => $trip->trip_id,
+                        //             'payment_date' => now()->toDateString(),
+                        //             'amount' => $cost,
+                        //             'user_id' => auth()->user()->id,
+                        //             'user_type' => 'customer',
+                        //             'type' => 'debit',
+                        //             'description' => 'Paying from PostPaid balance:customer_pay_to_account' . $account->account_id,
+                        //             'account_id' => $trip->account_number,
+                        //         ];
+                        //         $paymentDataSend = [
+                        //             'payments' => $paymentDataBulk,
+                        //         ];
+                        //         PaymentSaveService::save($paymentDataSend);
 
-                                $account->balance = $account->balance - $cost;
-                                $account->save();
-                            }
+                        //         $account->balance = $account->balance - $cost;
+                        //         $account->save();
+                        //     }
 
-                        }
+                        // }
 
 
                         $trip->update();
+
+                          $weekStart = now()->startOfWeek(Carbon::SUNDAY);
+                        $driver = Driver::where('driver_id' , $trip->driver_id)->first();
+                        $is_dispatcher = 0;
+                        if(isset($request->is_admin)){
+                            $role = auth()->user()->role;
+                            if($role == 'dispatcher'){
+                               $is_dispatcher = 1;
+                            }
+
+                        }
+                        $before = $driver->balance_details($weekStart, now(), true);
+
                         $pay_data = $this->addpay($trip, $request);
+
+                        $after = $driver->fresh()->balance_details($weekStart, now(), true);
+
+                           $driver_balance = new DriverBalanceHistory;
+                                $driver_balance->driver_id = $driver->driver_id;
+                                $driver_balance->trip_id = $trip->trip_id;
+                                $driver_balance->week_start = $weekStart;
+                                $driver_balance->balance_before = $before;
+                                 $driver_balance->payment_id = $pay_data->id;
+                                $driver_balance->transaction_amount = $pay_data->amount;
+                                $driver_balance->balance_after = $after;
+                                $driver_balance->is_dispatcher = $is_dispatcher;
+                                $driver_balance->payment_method = 'account';
+                            $driver_balance->save();
+
                         $tripId = $trip->trip_id;
                         $driverId = $trip->driver_id;
                         $extra_message = null;
@@ -1063,7 +1136,29 @@ class TripController extends Controller
 
                     $trip->update($data);
 
-                    $pay_data = $this->addpay($trip, $request);
+                      $weekStart = now()->startOfWeek(Carbon::SUNDAY);
+                        $driver = Driver::where('driver_id' , $trip->driver_id)->first();
+                        $is_dispatcher = 0;
+                        if(isset($request->is_admin)){
+                            $role = auth()->user()->role;
+                            if($role == 'dispatcher'){
+                               $is_dispatcher = 1;
+                            }
+                        }
+                        $before = $driver->balance_details($weekStart, now(), true);
+                        $pay_data = $this->addpay($trip, $request);
+                            $after = $driver->fresh()->balance_details($weekStart, now(), true);
+
+                            DriverBalanceHistory::create([
+                                'driver_id' => $driver->driver_id,
+                                'trip_id' => $trip->trip_id,
+                                'week_start' => $weekStart,
+                                'balance_before' => $before,
+                                'transaction_amount' => $pay_data->amount,
+                                'balance_after' => $after,
+                                'is_dispatcher' => $is_dispatcher,
+                                'payment_method' => 'card',
+                            ]);
 
                     $driverphone = preg_replace('/[^0-9]/', '', $trip->driver->phone);
 
