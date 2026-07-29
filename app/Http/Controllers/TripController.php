@@ -408,29 +408,33 @@ class TripController extends Controller
                         }
 
                         $trip->update($data);
-                        $weekStart = now()->startOfWeek(Carbon::SUNDAY);
+                         $weekStart = now()->startOfWeek(Carbon::SUNDAY);
                         $driver = Driver::where('driver_id' , $trip->driver_id)->first();
                         $is_dispatcher = 0;
                         if(isset($request->is_admin)){
-                           $role = auth()->user()->role;
+                            $role = auth()->user()->role;
                             if($role == 'dispatcher'){
                                $is_dispatcher = 1;
                             }
+
                         }
                         $before = $driver->balance_details($weekStart, now(), true);
-                        $pay_data = $this->addpay($trip, $request);
-                            $after = $driver->fresh()->balance_details($weekStart, now(), true);
 
-                            DriverBalanceHistory::create([
-                                'driver_id' => $driver->driver_id,
-                                'trip_id' => $trip->trip_id,
-                                'week_start' => $weekStart,
-                                'balance_before' => $before,
-                                'transaction_amount' => $pay_data->amount,
-                                'balance_after' => $after,
-                                'is_dispatcher' => $is_dispatcher,
-                                'payment_method' => 'card',
-                            ]);
+                        $pay_data = $this->addpay($trip, $request);
+
+                        $after = $driver->fresh()->balance_details($weekStart, now(), true);
+
+                           $driver_balance = new DriverBalanceHistory;
+                                $driver_balance->driver_id = $driver->driver_id;
+                                $driver_balance->trip_id = $trip->trip_id;
+                                $driver_balance->week_start = $weekStart;
+                                $driver_balance->balance_before = $before;
+                                 $driver_balance->payment_id = $pay_data->id;
+                                $driver_balance->transaction_amount = $pay_data->amount;
+                                $driver_balance->balance_after = $after;
+                                $driver_balance->is_dispatcher = $is_dispatcher;
+                                $driver_balance->payment_method = 'card';
+                            $driver_balance->save();
 
                         $logMessage = 'Trip Payment Added By Driver Using Method Card#' .
                             $charge['transaction_id'] .
@@ -609,30 +613,33 @@ class TripController extends Controller
 
                             $trip->update();
 
-                              $weekStart = now()->startOfWeek(Carbon::SUNDAY);
+                               $weekStart = now()->startOfWeek(Carbon::SUNDAY);
                         $driver = Driver::where('driver_id' , $trip->driver_id)->first();
                         $is_dispatcher = 0;
                         if(isset($request->is_admin)){
-                           $role = auth()->user()->role;
+                            $role = auth()->user()->role;
                             if($role == 'dispatcher'){
                                $is_dispatcher = 1;
                             }
+
                         }
                         $before = $driver->balance_details($weekStart, now(), true);
+
                         $pay_data = $this->addpay($trip, $request);
-                            $after = $driver->fresh()->balance_details($weekStart, now(), true);
 
-                            DriverBalanceHistory::create([
-                                'driver_id' => $driver->driver_id,
-                                'trip_id' => $trip->trip_id,
-                                'week_start' => $weekStart,
-                                'balance_before' => $before,
-                                'transaction_amount' => $pay_data->amount,
-                                'balance_after' => $after,
-                                'is_dispatcher' => $is_dispatcher,
-                                'payment_method' => 'account',
-                            ]);
+                        $after = $driver->fresh()->balance_details($weekStart, now(), true);
 
+                           $driver_balance = new DriverBalanceHistory;
+                                $driver_balance->driver_id = $driver->driver_id;
+                                $driver_balance->trip_id = $trip->trip_id;
+                                $driver_balance->week_start = $weekStart;
+                                $driver_balance->balance_before = $before;
+                                 $driver_balance->payment_id = $pay_data->id;
+                                $driver_balance->transaction_amount = $pay_data->amount;
+                                $driver_balance->balance_after = $after;
+                                $driver_balance->is_dispatcher = $is_dispatcher;
+                                $driver_balance->payment_method = 'account';
+                            $driver_balance->save();
                             $tripId = $trip->trip_id;
                             $driverId = $trip->driver_id;
                             $extra_message = null;
@@ -1136,7 +1143,7 @@ class TripController extends Controller
 
                     $trip->update($data);
 
-                      $weekStart = now()->startOfWeek(Carbon::SUNDAY);
+                       $weekStart = now()->startOfWeek(Carbon::SUNDAY);
                         $driver = Driver::where('driver_id' , $trip->driver_id)->first();
                         $is_dispatcher = 0;
                         if(isset($request->is_admin)){
@@ -1144,22 +1151,25 @@ class TripController extends Controller
                             if($role == 'dispatcher'){
                                $is_dispatcher = 1;
                             }
+
                         }
                         $before = $driver->balance_details($weekStart, now(), true);
+
                         $pay_data = $this->addpay($trip, $request);
-                            $after = $driver->fresh()->balance_details($weekStart, now(), true);
 
-                            DriverBalanceHistory::create([
-                                'driver_id' => $driver->driver_id,
-                                'trip_id' => $trip->trip_id,
-                                'week_start' => $weekStart,
-                                'balance_before' => $before,
-                                'transaction_amount' => $pay_data->amount,
-                                'balance_after' => $after,
-                                'is_dispatcher' => $is_dispatcher,
-                                'payment_method' => 'card',
-                            ]);
+                        $after = $driver->fresh()->balance_details($weekStart, now(), true);
 
+                           $driver_balance = new DriverBalanceHistory;
+                                $driver_balance->driver_id = $driver->driver_id;
+                                $driver_balance->trip_id = $trip->trip_id;
+                                $driver_balance->week_start = $weekStart;
+                                $driver_balance->balance_before = $before;
+                                 $driver_balance->payment_id = $pay_data->id;
+                                $driver_balance->transaction_amount = $pay_data->amount;
+                                $driver_balance->balance_after = $after;
+                                $driver_balance->is_dispatcher = $is_dispatcher;
+                                $driver_balance->payment_method = 'card';
+                            $driver_balance->save();
                     $driverphone = preg_replace('/[^0-9]/', '', $trip->driver->phone);
 
                     if (!Str::startsWith($driverphone, '+1')) {
