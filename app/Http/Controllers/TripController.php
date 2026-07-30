@@ -411,12 +411,10 @@ class TripController extends Controller
                          $weekStart = now()->startOfWeek(Carbon::SUNDAY);
                         $driver = Driver::where('driver_id' , $trip->driver_id)->first();
                         $is_dispatcher = 0;
-                        if(isset($request->is_admin)){
-                            $role = auth()->user()->role;
-                            if($role == 'dispatcher'){
-                               $is_dispatcher = 1;
+                        if ($request->has('is_admin') && auth()->check()) {
+                            if (auth()->user()->role === 'dispatcher') {
+                                $is_dispatcher = 1;
                             }
-
                         }
                         $before = $driver->balance_details($weekStart, now(), true);
 
@@ -616,12 +614,10 @@ class TripController extends Controller
                                $weekStart = now()->startOfWeek(Carbon::SUNDAY);
                         $driver = Driver::where('driver_id' , $trip->driver_id)->first();
                         $is_dispatcher = 0;
-                        if(isset($request->is_admin)){
-                            $role = auth()->user()->role;
-                            if($role == 'dispatcher'){
-                               $is_dispatcher = 1;
+                        if ($request->has('is_admin') && auth()->check()) {
+                            if (auth()->user()->role === 'dispatcher') {
+                                $is_dispatcher = 1;
                             }
-
                         }
                         $before = $driver->balance_details($weekStart, now(), true);
 
@@ -907,13 +903,12 @@ class TripController extends Controller
 
                           $weekStart = now()->startOfWeek(Carbon::SUNDAY);
                         $driver = Driver::where('driver_id' , $trip->driver_id)->first();
-                        $is_dispatcher = 0;
-                        if(isset($request->is_admin)){
-                            $role = auth()->user()->role;
-                            if($role == 'dispatcher'){
-                               $is_dispatcher = 1;
-                            }
 
+                         $is_dispatcher = 0;
+                        if ($request->has('is_admin') && auth()->check()) {
+                            if (auth()->user()->role === 'dispatcher') {
+                                $is_dispatcher = 1;
+                            }
                         }
                         $before = $driver->balance_details($weekStart, now(), true);
 
@@ -1146,12 +1141,10 @@ class TripController extends Controller
                        $weekStart = now()->startOfWeek(Carbon::SUNDAY);
                         $driver = Driver::where('driver_id' , $trip->driver_id)->first();
                         $is_dispatcher = 0;
-                        if(isset($request->is_admin)){
-                            $role = auth()->user()->role;
-                            if($role == 'dispatcher'){
-                               $is_dispatcher = 1;
+                        if ($request->has('is_admin') && auth()->check()) {
+                            if (auth()->user()->role === 'dispatcher') {
+                                $is_dispatcher = 1;
                             }
-
                         }
                         $before = $driver->balance_details($weekStart, now(), true);
 
