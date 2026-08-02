@@ -4,6 +4,7 @@
 use App\Mail\CustomerLogins;
 use App\Models\Account;
 use App\Models\Trip;
+use App\Models\Payment;
 use App\Services\CubeContact;
 use App\Services\PaymentSaveService;
 use Illuminate\Support\Facades\Hash;
@@ -168,32 +169,7 @@ echo "Accounts where  balance is less in actual: {$lessBalnceaccounts}<br>";
 });
 
 
-// Route::get('/script/account_defaultPin', function () {
 
-//     $accounts = \App\Models\Account::where('account_type' , 'postpaid')->get();
-
-
-//     sleep(2);
-//     foreach($accounts as $account){
-
-//         if($account->cube_id != '') {
-//             if ($account->status == 0) {
-//                 CubeContact::updateCubeAccount($account->account_id,"Your Account Is Closed","Inactive");
-
-//             } elseif ($account->status == 1) {
-
-
-//                     CubeContact::updateCubeAccount($account->account_id, null, "active");
-
-
-
-//             }
-//         }
-//         sleep(1);
-//     }
-
-
-// });
 
 Route::get('/script/account_defaultPin', function () {
 
@@ -274,79 +250,10 @@ Route::get('/send-logins', function () {
 });
 
 
-Route::get('/testcubec/{id}', function ($id) {
-
-
-    dd('not allow');
-
-
-    $token = \App\Services\TokenService::cubeToken();
-
-    $account = \App\Models\Account::find($id);
-    $data = [
-        "email" => $account->email,
-        "first_name" => $account->f_name,
-        "last_name" => $account->account_type.'.',
-        "phone" => $account->account_id,
-    ];
-
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://tapcube.co/contacts',
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => json_encode($data),
-        CURLOPT_HTTPHEADER => array(
-            'Authorization: Bearer '.$token,
-            'Content-Type: application/json'
-        ),
-    ));
-    $response = curl_exec($curl);
-    curl_close($curl);
-    $response = json_decode($response, true);
-    $account->cube_id = $response[0]['_id'];
-    $account->save();
-
-    return $response;
-
-});
-
-
-Route::get('/cube-contacts', function () {
 
 
 
-    dd('not allow');
-    $token = \App\Services\TokenService::cubeToken().'iii';
 
-
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://tapcube.co/contacts',
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'GET',
-        CURLOPT_HTTPHEADER => array(
-            'Authorization: Bearer ' . $token,
-            'Content-Type: application/json'
-        ),
-    ));
-    $response = curl_exec($curl);
-    curl_close($curl);
-    $response = json_decode($response, true);
-
-    dd($response);
-
-});
 
 Route::get("customers", function(){
 
@@ -654,4 +561,89 @@ Route::get('account_balance', function(){
     return 'Account balances updated successfully.';
 
 
+});
+
+Route::get('update_trips',function(){
+    $trips = [
+    327872799,
+    327865156,
+    327860768,
+    327860523,
+    327860491,
+    327858454,
+    327858554,
+    327858695,
+    327858779,
+    327858996,
+    327859031,
+    327859048,
+    327859057,
+    327859069,
+    327859104,
+    327859258,
+    327859350,
+    327859394,
+    327859400,
+    327859419,
+    327859479,
+    327859524,
+    327859582,
+    327859618,
+    327859636,
+    327859651,
+    327859652,
+    327859684,
+    327859702,
+    327859725,
+    327859746,
+    327859789,
+    327859811,
+    327859875,
+    327860085,
+    327860097,
+    327860164,
+    327860239,
+    327860339,
+    327860362,
+    327860477,
+    327873837,
+    327878237,
+    327885641
+];
+
+    foreach ($trips as $trip_id) {
+    $trip = Trip::where('trip_id', $trip_id)->first();
+
+    if ($trip) {
+        $trip->payment_method = 'card';
+        $trip->gocab_paid = (float) $trip->trip_cost;
+        $trip->save();
+
+        // Check if a payment already exists for this trip
+        $existingPayment = Payment::where('trip_id', $trip->trip_id)
+            ->where('user_type', 'driver')
+            ->where('type', 'credit')
+            ->where('is_delete', 0)
+            ->exists();
+
+        if ($existingPayment) {
+             echo "Payment already exists for trip ID: {$trip_id}\n";
+            continue;
+             // Skip if payment record already exists
+        }
+
+        $new = new Payment();
+        $new->driver_id    = $trip->driver_id;
+        $new->trip_id      = $trip->trip_id;
+        $new->payment_date = now()->toDateString();
+        $new->amount       = (float) $trip->gocab_paid;
+        $new->user_id      = $trip->driver_id;
+        $new->user_type    = 'driver';
+        $new->type         = 'credit';
+        $new->description  = 'trips accepted which were paid on card';
+        $new->save();
+    }
+
+    echo "Processed trip ID: {$trip_id}\n";
+}
 });
