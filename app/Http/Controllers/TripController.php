@@ -1729,8 +1729,27 @@ class TripController extends Controller
             $trip->cube_pin_status = "";
             $trip->save();
         } else {
-            $trip->payment_method = 'cash';
+            if($request->payment_method == 'account'){
+              $trip->payment_method = 'account';
+            $trip->account_number = $request->account;
+             $trip->save();
+            }else{
+                 $trip->payment_method = 'cash';
             $trip->save();
+              $driver_payment = Payment::where('user_type', 'driver')
+                ->where('type', 'credit')
+                ->where('trip_id', $trip_id)
+                ->where('is_delete', 0)
+                ->first();
+
+
+                 if ($driver_payment) {
+                $driver_payment->is_delete = 1;
+                $driver_payment->save();
+            }
+
+            }
+
         }
 
          if($request->payment_method == 'cash'){

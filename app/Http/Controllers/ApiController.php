@@ -341,6 +341,10 @@ public function getWebHookTrip(Request $request)
     try {
         // --- Step 1: Get and log raw webhook content ---
         $tripContent = $request->getContent();
+            Log::info('Taxicaller webhook received', [
+                'received_at' => now()->toDateTimeString(),
+                'payload' => $tripContent,
+            ]);
 
         $data = [
             'from' => 'taxicaller',
@@ -387,19 +391,7 @@ public function getWebHookTrip(Request $request)
             }
         }
 
-        // --- Step 6: Skip invalid "start" values ---
-        // if (!isset($trip['start']) || in_array($trip['start'], ['-', '', null], true)) {
-        //     return response()->json(['message' => 'Invalid start time, skipping'], 200);
-        // }
 
-        // --- Step 7: Required driverId check ---
-        // if (empty($trip['driverId'])) {
-        //     return response()->json(['message' => 'Missing driverId, skipping'], 200);
-        // }
-
-        // --- Step 8: Parse date/time safely ---
-        // $date = null;
-        // $time = null;
             try {
                 $dateTime = !empty($trip['start'])
                     ? Carbon::createFromFormat('m/d/Y h:i A', $trip['start'])
