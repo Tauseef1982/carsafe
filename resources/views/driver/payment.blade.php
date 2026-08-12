@@ -131,7 +131,7 @@ $id = Auth::user()->id;
                                 </div>
 
                             @endif
-                           
+
                             <div class="qr-code" id="qr-code">
                                         <div class="media p-20">
                                             <div class="form-check radio radio-primary me-3">

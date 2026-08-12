@@ -1190,7 +1190,7 @@ class TripController extends Controller
                     LogService::saveLog($logdata);
                     $this->ifBalanceMinusAutoPaidAsAdmin($trip);
                     DB::commit();
-                    return response()->json(['status' => true, 'msg' => 'Payment Completed Thank you!']);
+                    return response()->json(['status' => true, 'message' => 'Payment Completed Thank you!']);
 
                 } else {
 
@@ -1213,7 +1213,7 @@ class TripController extends Controller
 
                     LogService::saveLog($logdata);
 
-                    return response()->json(['status' => false, 'msg' => $charge['message']]);
+                    return response()->json(['status' => false, 'message' => $charge['message']]);
 
                 }
             } catch (\Exception $e) {
@@ -1235,7 +1235,7 @@ class TripController extends Controller
                 }
                 LogService::saveLog($logdata);
 
-                return response()->json(['status' => false, 'msg' => $charge['message']]);
+                return response()->json(['status' => false, 'message' => $charge['message']]);
             }
         }
         } catch (\Throwable $e){
