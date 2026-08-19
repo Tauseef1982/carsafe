@@ -65,7 +65,7 @@ class SyncTrips extends Command
                     "report_type": "jobs",
                     "output_format": "json",
                     "template_id": 14122,
-                    "search_query": {"period":{"@type":"relative","unit":"day","offset":0,"count":7},
+                    "search_query": {"period":{"@type":"relative","unit":"day","offset":0,"count":2},
                     "results":{"offset":0,"limit":15000}}
                     }',
             CURLOPT_HTTPHEADER => array(
@@ -83,9 +83,9 @@ class SyncTrips extends Command
 
         foreach ($trips as $trip) {
 
-        if ((int)$trip->{'id'} == 329736854) {
 
-        Log::info('trip is threre'.$trip->id);
+
+
 
 
 
@@ -161,8 +161,8 @@ class SyncTrips extends Command
 
 
         }
-         break;
-        }
+         
+
         }
 
 
