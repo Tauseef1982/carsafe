@@ -570,6 +570,7 @@ class TripController extends Controller
                                     $trip->update();
                                     $this->prepaidAccountDeduction($trip, $account);
                                     $account->balance = $account->balance - $cost;
+                                    $account->status = 1;
                                     $account->save();
                                 } else {
 
@@ -582,31 +583,6 @@ class TripController extends Controller
 
                                 }
                             }
-
-                            // if ($account->account_type == 'postpaid') {
-                            //     if ($account->balance >= $cost) {
-
-                            //         $paymentDataBulk[] = [
-                            //             'driver_id' => $trip->driver_id,
-                            //             'trip_id' => $trip->trip_id,
-                            //             'payment_date' => now()->toDateString(),
-                            //             'amount' => $cost,
-                            //             'user_id' => auth()->user()->id,
-                            //             'user_type' => 'customer',
-                            //             'type' => 'debit',
-                            //             'description' => 'Paying from PostPaid balance:customer_pay_to_account' . $account->account_id,
-                            //             'account_id' => $trip->account_number,
-                            //         ];
-                            //         $paymentDataSend = [
-                            //             'payments' => $paymentDataBulk,
-                            //         ];
-                            //         PaymentSaveService::save($paymentDataSend);
-
-                            //         $account->balance = $account->balance - $cost;
-                            //         $account->save();
-                            //     }
-
-                            // }
 
 
                             $trip->update();
