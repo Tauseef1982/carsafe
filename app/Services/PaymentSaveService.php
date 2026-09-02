@@ -34,7 +34,7 @@ class PaymentSaveService
         }
     }
 
-    public static function prepPaidRefill($acc,$type = "multi")
+    public static function prepPaidRefill($acc,$type = "multi",$customAmount = null)
     {
 
         if($type == 'single'){
@@ -53,7 +53,8 @@ class PaymentSaveService
 //            DB::beginTransaction();
 
             try {
-                $to_refill = $account->recharge;
+                $to_refill = $customAmount ?? $account->recharge;
+                Log::info("Processing Account ID: {$account->account_id} for refill amount: {$to_refill}");
                 $cardknoxToken = $account->card ? $account->card->cardnox_token : null;
                 if(!$cardknoxToken){
 

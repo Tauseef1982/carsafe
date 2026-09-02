@@ -837,42 +837,32 @@ class TripController extends Controller
                                 $this->prepaidAccountDeduction($trip, $account);
                                 $account->balance = $account->balance - $cost;
                                 $account->save();
-                            } else {
+                            } elseif($account->balance < $cost) {
 
-                                \App\Services\TwilioService::voicecall($account->phone, 'refill-need');
-                                //
-                                return $this->respond($request, false, 'Prepaid Account:Low Balance.');
+                                  $account_responce = PaymentSaveService::prepPaidRefill($account, "single", $cost);
 
-                                //return redirect()->back()->with('error', 'Prepaid Account:Low Balance');
+                                   if ($account_responce != false) {
+                                        $account = $account_responce;
+                                        Log::info("prepaid refill suddenly only for trip cost " . $trip->trip_id);
+                                        $trip->update();
+                                        $this->prepaidAccountDeduction($trip, $account);
+                                        $account->balance = $account->balance - $cost;
+                                        $account->save();
+
+                                    }else{
+
+                                        \App\Services\TwilioService::voicecall($account->phone, 'refill-need');
+                                        return $this->respond($request, false, 'Prepaid Account:Low Balance.');
+                                    }
+
+
+                               
 
 
                             }
                         }
 
-                        // if ($account->account_type == 'postpaid') {
-                        //     if ($account->balance >= $cost) {
 
-                        //         $paymentDataBulk[] = [
-                        //             'driver_id' => $trip->driver_id,
-                        //             'trip_id' => $trip->trip_id,
-                        //             'payment_date' => now()->toDateString(),
-                        //             'amount' => $cost,
-                        //             'user_id' => auth()->user()->id,
-                        //             'user_type' => 'customer',
-                        //             'type' => 'debit',
-                        //             'description' => 'Paying from PostPaid balance:customer_pay_to_account' . $account->account_id,
-                        //             'account_id' => $trip->account_number,
-                        //         ];
-                        //         $paymentDataSend = [
-                        //             'payments' => $paymentDataBulk,
-                        //         ];
-                        //         PaymentSaveService::save($paymentDataSend);
-
-                        //         $account->balance = $account->balance - $cost;
-                        //         $account->save();
-                        //     }
-
-                        // }
 
 
                         $trip->update();
