@@ -305,7 +305,7 @@ class AccountController extends Controller
 
         // Process card payment
         $cardknoxToken = $creditCard->cardnox_token;
-        $fee = $account->first_refill * 0.03;
+        $fee = number_format(($account->first_refill * 0.03333333333) + 0.3, 2, '.', '');
         $amount = $fee + $account->first_refill;
 
         $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $amount, $account->account_id);
@@ -543,7 +543,7 @@ class AccountController extends Controller
                         return redirect()->back()->with('error', 'No credit card details found for Account: ' . $account_id);
                     }
                 }
-                $fee = $to_refill * 0.03;
+                $fee = ($to_refill * 0.03333333333) + 0.3;
                 $to_refill = $to_refill + $fee;
                 $cardknoxToken = $cardDetails->cardnox_token;
                 $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $to_refill, $account_id);
@@ -1407,7 +1407,7 @@ class AccountController extends Controller
 
         } else {
 
-            $fee = number_format($total_payments * 0.0375, 2, '.', '');
+            $fee = number_format(($total_payments * 0.03333333333) + 0.3, 2, '.', '');
 
 
         }
@@ -1602,7 +1602,7 @@ class AccountController extends Controller
                 }
             }
             if ($total_payments > 0) {
-                $fee = number_format($total_payments * 0.0375, 2, '.', '');
+                $fee = number_format(($total_payments * 0.03333333333) + 0.3, 2, '.', '');
                 $amuntWithfee = $total_payments + $fee;
 
                 // Add to bulk insert data

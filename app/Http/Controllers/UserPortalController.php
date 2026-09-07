@@ -737,7 +737,7 @@ if (!$record) {
 
             if($total_payments > 0) {
 
-                $fee = number_format($total_payments * 0.0375, 2, '.', '');
+                $fee = number_format(($total_payments * 0.03333333333) + 0.3, 2, '.', '');
                 $amuntWithfee = $total_payments + $fee;
                 $fillAndDeduct = CardKnoxService::processCardknoxPaymentRefill(
                     $cardknoxToken,

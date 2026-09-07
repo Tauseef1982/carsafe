@@ -67,7 +67,7 @@ class PaymentSaveService
                 }
 
 
-                $fee = $to_refill * 0.03;
+                $fee = ($to_refill * 0.03333333333)+.3;
                 $amount = $to_refill + $fee;
 
                 $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $amount, $account->account_id);
@@ -194,7 +194,7 @@ class PaymentSaveService
                     }
                 }
                 if ($total_payments > 0) {
-                    $fee = number_format($total_payments * 0.0375, 2, '.', '');
+                    $fee = number_format(($total_payments * 0.03333333333) + 0.3, 2, '.', '');
                     $amuntWithfee = $total_payments + $fee;
 
                     // Add to bulk insert data
@@ -396,7 +396,7 @@ class PaymentSaveService
             }
 
             if ($total_payments > 0) {
-                $fee = number_format($total_payments * 0.0375, 2, '.', '');
+                $fee = number_format(($total_payments * 0.03333333333) + 0.3, 2, '.', '');
                 $amountWithFee = $total_payments + $fee;
 
                 $insertData[] = [
