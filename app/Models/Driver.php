@@ -121,40 +121,62 @@ class Driver extends Authenticatable
 
     }
 
-    public function balance($from = null, $to = null)
+//     public function balance($from = null, $to = null)
+// {
+//     $payments = Payment::where('is_delete', 0)
+//         ->where('driver_id', $this->driver_id)
+//         ->where('type', 'credit');
+
+//     $payments_debit = Payment::where('is_delete', 0)
+//         ->where('user_type', '!=', 'customer')
+//         ->where('driver_id', $this->driver_id)
+//         ->where('type', 'debit');
+
+
+//     $adjustments = Adjustment::where('driver_id', $this->driver_id)
+//         ->where('type', 'debit_driver_balance');
+
+//     $adjustments_debit = Adjustment::where('driver_id', $this->driver_id)
+//         ->where('type', 'admin_paid_auto');
+
+//     if ($from && $to) {
+//         $payments->whereBetween('payment_date', [$from, $to]);
+//         $payments_debit->whereBetween('payment_date', [$from, $to]);
+//         $adjustments->whereBetween('created_at', [$from, $to]);
+//         $adjustments_debit->whereBetween('created_at', [$from, $to]);
+//     }
+
+//     $balance = (float) $payments->sum('amount') - (float) $payments_debit->sum('amount');
+//     $balance -= (float) $adjustments->sum('amount');
+
+
+//     return $balance;
+// }
+
+public function balance($from = null, $to = null)
 {
-    $payments = Payment::where('is_delete', 0)
+    // 1. Single query for all payment credits and debits via conditional aggregation
+    $netPayments = (float) Payment::query()
+        ->where('is_delete', 0)
         ->where('driver_id', $this->driver_id)
-        ->where('type', 'credit');
+        ->when($from && $to, fn ($q) => $q->whereBetween('payment_date', [$from, $to]))
+        ->selectRaw("
+            SUM(CASE WHEN type = 'credit' THEN amount ELSE 0 END) -
+            SUM(CASE WHEN type = 'debit' AND user_type != 'customer' THEN amount ELSE 0 END) as net_total
+        ")
+        ->value('net_total');
 
-    $payments_debit = Payment::where('is_delete', 0)
-        ->where('user_type', '!=', 'customer')
+    // 2. Single query for adjustments
+    $netAdjustments = (float) Adjustment::query()
         ->where('driver_id', $this->driver_id)
-        ->where('type', 'debit');
-
-
-    $adjustments = Adjustment::where('driver_id', $this->driver_id)
-        ->where('type', 'debit_driver_balance');
-
-    $adjustments_debit = Adjustment::where('driver_id', $this->driver_id)
-        ->where('type', 'admin_paid_auto');
-
-    if ($from && $to) {
-        $payments->whereBetween('payment_date', [$from, $to]);
-        $payments_debit->whereBetween('payment_date', [$from, $to]);
-        $adjustments->whereBetween('created_at', [$from, $to]);
-        $adjustments_debit->whereBetween('created_at', [$from, $to]);
-    }
-
-    $balance = (float) $payments->sum('amount') - (float) $payments_debit->sum('amount');
-    $balance -= (float) $adjustments->sum('amount');
-    // $balance -= (float) $adjustments_debit->sum('amount');
-
+        ->where('type', 'debit_driver_balance')
+        ->when($from && $to, fn ($q) => $q->whereBetween('created_at', [$from, $to]))
+        ->sum('amount');
+        $balance = $netPayments - $netAdjustments;
     return $balance;
 }
 
-
-    public function trips()
+public function trips()
     {
 
         return $this->hasMany(Trip::class, 'driver_id', 'driver_id');

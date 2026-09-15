@@ -336,16 +336,6 @@ class AdminController extends Controller
                         return 'Inactive';
                     }
                 })
-                ->editColumn('beta', function ($row) {
-                    $isChecked = ($row->beta == 1) ? 'checked' : '';
-                    return '
-                        <label class="switch">
-                            <input  type="checkbox" data-id="' . $row->id . '" ' . $isChecked . '>
-                            <span class="switch-state"></span>
-                            </label>';
-                })
-
-
                 ->addColumn('balance', function ($row) {
                     return $row->balance();
                 })->addColumn('last_trip_date', function ($row) {
@@ -357,7 +347,7 @@ class AdminController extends Controller
                         : 'N/A';
                 })
 
-                ->rawColumns(['action', 'beta', 'last_trip_date'])
+                ->rawColumns(['action', 'last_trip_date'])
                 ->editColumn('created_at', function ($row) {
                     return Carbon::parse($row->created_at)
                         ->setTimezone('America/New_York')

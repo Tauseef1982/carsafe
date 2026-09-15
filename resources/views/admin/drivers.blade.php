@@ -41,9 +41,9 @@
                                 </div>
                             </div>
                         </div>
-                       
-                       
-                      
+
+
+
 
                     </div>
                     <div class="card-body pt-0 ">
@@ -61,7 +61,7 @@
                                         <th>Last trip Date</th>
                                         <th>Current Balance</th>
                                         <th>Created At</th>
-                                        <th>Beta</th>
+
                                         <th>Action</th>
                                     </tr>
                                     </thead>
@@ -79,7 +79,7 @@
                                         <th>Last trip Date</th>
                                         <th>Current Balance</th>
                                         <th>Created At</th>
-                                        <th>Beta</th>
+
                                         <th>Action</th>
                                     </tr>
                                     </tfoot>
@@ -122,8 +122,6 @@
                     {data: 'last_trip_date', name: 'last_trip_date'},
                     {data: 'balance', name: 'balance'},
                     {data: 'created_at', name: 'created_at'},
-
-                    {data: 'beta', name: 'beta'},
                     {data: 'action', name: 'action', orderable: false, searchable: false},
                 ]
             });
