@@ -153,6 +153,22 @@ class Driver extends Authenticatable
 //     return $balance;
 // }
 
+public function payments()
+{
+    return $this->hasMany(Payment::class, 'driver_id')->where('is_delete', 0);
+}
+
+public function adjustments()
+{
+    return $this->hasMany(Adjustment::class, 'driver_id');
+}
+
+// Eager load ONLY the latest trip efficiently
+public function latestTrip()
+{
+    return $this->hasOne(Trip::class, 'driver_id')->latestOfMany();
+}
+
 public function balance($from = null, $to = null)
 {
     // 1. Single query for all payment credits and debits via conditional aggregation
@@ -174,6 +190,31 @@ public function balance($from = null, $to = null)
         ->sum('amount');
         $balance = $netPayments - $netAdjustments;
     return $balance;
+}
+
+// Scope to calculate balance directly inside SQL
+public function scopeWithBalance($query)
+{
+    // Subquery for net payments (credits minus debits)
+    $paymentsSub = "
+        (SELECT COALESCE(SUM(CASE WHEN type = 'credit' THEN amount WHEN type = 'debit' AND user_type != 'customer' THEN -amount ELSE 0 END), 0)
+         FROM payments
+         WHERE payments.driver_id = drivers.driver_id
+           AND is_delete = 0)
+    ";
+
+    // Subquery for adjustments
+    $adjustmentsSub = "
+        (SELECT COALESCE(SUM(amount), 0)
+         FROM adjustments
+         WHERE adjustments.driver_id = drivers.driver_id
+           AND type = 'debit_driver_balance')
+    ";
+
+    return $query->select('drivers.*')
+        ->selectRaw("{$paymentsSub} as net_payments")
+        ->selectRaw("{$adjustmentsSub} as net_adjustments")
+        ->selectRaw("(({$paymentsSub}) - ({$adjustmentsSub})) as calculated_balance");
 }
 
 public function trips()

@@ -314,47 +314,88 @@ class AdminController extends Controller
     public function drivers(Request $request)
     {
 
+        // if ($request->ajax()) {
+
+
+        //     if (isset($request->show_negative)) {
+        //         $data = Driver::where('role', 'LIKE', '%"DRIVER"%');
+        //         $data = $data->filter(function ($driver) {
+        //             return $driver->balance() < 0;
+        //         });
+        //     } else {
+        //         $data = Driver::where('role', 'LIKE', '%"DRIVER"%')->where('status','=',1);
+        //     }
+        //     return DataTables::of($data)
+        //         ->addColumn('action', function ($row) {
+        //             return '<a href="' . url('admin/driver') . '/' . $row->id . '" class="btn btn-primary">View</a>';
+        //         })
+        //         ->editColumn('status', function ($row) {
+        //             if ($row->status == 1 || $row->status === null) {
+        //                 return 'Active';
+        //             } else {
+        //                 return 'Inactive';
+        //             }
+        //         })
+        //         ->addColumn('balance', function ($row) {
+        //             return $row->balance();
+        //         })->addColumn('last_trip_date', function ($row) {
+        //             $lastTrip = $row->trips()->latest()->first();
+        //             return $lastTrip
+        //                 ? Carbon::parse($lastTrip->created_at)
+        //                     ->setTimezone('America/New_York')
+        //                     ->format('m-d-y')
+        //                 : 'N/A';
+        //         })
+
+        //         ->rawColumns(['action', 'last_trip_date'])
+        //         ->editColumn('created_at', function ($row) {
+        //             return Carbon::parse($row->created_at)
+        //                 ->setTimezone('America/New_York')
+        //                 ->format('m-d-y');
+        //         })
+        //         ->make();
+        // }
+
         if ($request->ajax()) {
+    $query = Driver::query()
+        ->withBalance()
+        ->with('latestTrip') // Eager loads latest trip in 1 query
+        ->where('role', 'LIKE', '%"DRIVER"%');
 
+    if (isset($request->show_negative)) {
+        // Filter negative balances directly in SQL (no PHP filtering!)
+        $query->having('calculated_balance', '<', 0);
+    } else {
+        $query->where('status', 1);
+    }
 
-            if (isset($request->show_negative)) {
-                $data = Driver::where('role', 'LIKE', '%"DRIVER"%');
-                $data = $data->filter(function ($driver) {
-                    return $driver->balance() < 0;
-                });
-            } else {
-                $data = Driver::where('role', 'LIKE', '%"DRIVER"%')->where('status','=',1);
-            }
-            return DataTables::of($data)
-                ->addColumn('action', function ($row) {
-                    return '<a href="' . url('admin/driver') . '/' . $row->id . '" class="btn btn-primary">View</a>';
-                })
-                ->editColumn('status', function ($row) {
-                    if ($row->status == 1 || $row->status === null) {
-                        return 'Active';
-                    } else {
-                        return 'Inactive';
-                    }
-                })
-                ->addColumn('balance', function ($row) {
-                    return $row->balance();
-                })->addColumn('last_trip_date', function ($row) {
-                    $lastTrip = $row->trips()->latest()->first();
-                    return $lastTrip
-                        ? Carbon::parse($lastTrip->created_at)
-                            ->setTimezone('America/New_York')
-                            ->format('m-d-y')
-                        : 'N/A';
-                })
-
-                ->rawColumns(['action', 'last_trip_date'])
-                ->editColumn('created_at', function ($row) {
-                    return Carbon::parse($row->created_at)
-                        ->setTimezone('America/New_York')
-                        ->format('m-d-y');
-                })
-                ->make();
-        }
+    return DataTables::of($query)
+        ->addColumn('action', function ($row) {
+            return '<a href="' . url('admin/driver') . '/' . $row->id . '" class="btn btn-primary">View</a>';
+        })
+        ->editColumn('status', function ($row) {
+            return ($row->status == 1 || $row->status === null) ? 'Active' : 'Inactive';
+        })
+        ->addColumn('balance', function ($row) {
+            // Read pre-computed SQL balance (0 extra queries)
+            return number_format($row->calculated_balance ?? 0, 2);
+        })
+        ->addColumn('last_trip_date', function ($row) {
+            // Read eager-loaded relation (0 extra queries)
+            return $row->latestTrip
+                ? Carbon::parse($row->latestTrip->created_at)
+                    ->setTimezone('America/New_York')
+                    ->format('m-d-y')
+                : 'N/A';
+        })
+        ->rawColumns(['action', 'last_trip_date'])
+        ->editColumn('created_at', function ($row) {
+            return Carbon::parse($row->created_at)
+                ->setTimezone('America/New_York')
+                ->format('m-d-y');
+        })
+        ->make(true);
+}
          $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY); // Sunday 00:00 AM
          $endOfWeek = Carbon::now()->endOfWeek(Carbon::SATURDAY);
 
