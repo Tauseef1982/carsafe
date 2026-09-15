@@ -59,7 +59,7 @@
                                         <th>Phone</th>
                                         <th>Username</th>
                                         <th>Last trip Date</th>
-                                        <th>Current Balance</th>
+                                       
                                         <th>Created At</th>
 
                                         <th>Action</th>
@@ -77,7 +77,7 @@
                                         <th>Phone</th>
                                         <th>Username</th>
                                         <th>Last trip Date</th>
-                                        <th>Current Balance</th>
+
                                         <th>Created At</th>
 
                                         <th>Action</th>
@@ -120,7 +120,7 @@
                     {data: 'phone', name: 'phone'},
                     {data: 'username', name: 'username'},
                     {data: 'last_trip_date', name: 'last_trip_date'},
-                    {data: 'balance', name: 'balance'},
+
                     {data: 'created_at', name: 'created_at'},
                     {data: 'action', name: 'action', orderable: false, searchable: false},
                 ]

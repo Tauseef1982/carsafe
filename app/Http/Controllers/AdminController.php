@@ -358,7 +358,6 @@ class AdminController extends Controller
 
         if ($request->ajax()) {
     $query = Driver::query()
-        ->withBalance()
         ->with('latestTrip') // Eager loads latest trip in 1 query
         ->where('role', 'LIKE', '%"DRIVER"%');
 
@@ -375,12 +374,7 @@ class AdminController extends Controller
         })
         ->editColumn('status', function ($row) {
             return ($row->status == 1 || $row->status === null) ? 'Active' : 'Inactive';
-        })
-        ->addColumn('balance', function ($row) {
-            // Read pre-computed SQL balance (0 extra queries)
-            return number_format($row->calculated_balance ?? 0, 2);
-        })
-        ->addColumn('last_trip_date', function ($row) {
+        })->addColumn('last_trip_date', function ($row) {
             // Read eager-loaded relation (0 extra queries)
             return $row->latestTrip
                 ? Carbon::parse($row->latestTrip->created_at)
