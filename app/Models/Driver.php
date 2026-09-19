@@ -169,28 +169,28 @@ public function latestTrip()
     return $this->hasOne(Trip::class, 'driver_id')->latestOfMany();
 }
 
-public function balance($from = null, $to = null)
-{
-    // 1. Single query for all payment credits and debits via conditional aggregation
-    $netPayments = (float) Payment::query()
-        ->where('is_delete', 0)
-        ->where('driver_id', $this->driver_id)
-        ->when($from && $to, fn ($q) => $q->whereBetween('payment_date', [$from, $to]))
-        ->selectRaw("
-            SUM(CASE WHEN type = 'credit' THEN amount ELSE 0 END) -
-            SUM(CASE WHEN type = 'debit' AND user_type != 'customer' THEN amount ELSE 0 END) as net_total
-        ")
-        ->value('net_total');
+// public function balance($from = null, $to = null)
+// {
+//     // 1. Single query for all payment credits and debits via conditional aggregation
+//     $netPayments = (float) Payment::query()
+//         ->where('is_delete', 0)
+//         ->where('driver_id', $this->driver_id)
+//         ->when($from && $to, fn ($q) => $q->whereBetween('payment_date', [$from, $to]))
+//         ->selectRaw("
+//             SUM(CASE WHEN type = 'credit' THEN amount ELSE 0 END) -
+//             SUM(CASE WHEN type = 'debit' AND user_type != 'customer' THEN amount ELSE 0 END) as net_total
+//         ")
+//         ->value('net_total');
 
-    // 2. Single query for adjustments
-    $netAdjustments = (float) Adjustment::query()
-        ->where('driver_id', $this->driver_id)
-        ->where('type', 'debit_driver_balance')
-        ->when($from && $to, fn ($q) => $q->whereBetween('created_at', [$from, $to]))
-        ->sum('amount');
-        $balance = $netPayments - $netAdjustments;
-    return $balance;
-}
+//     // 2. Single query for adjustments
+//     $netAdjustments = (float) Adjustment::query()
+//         ->where('driver_id', $this->driver_id)
+//         ->where('type', 'debit_driver_balance')
+//         ->when($from && $to, fn ($q) => $q->whereBetween('created_at', [$from, $to]))
+//         ->sum('amount');
+//         $balance = $netPayments - $netAdjustments;
+//     return $balance;
+// }
 
 // Scope to calculate balance directly inside SQL
 public function scopeWithBalance($query)
@@ -229,6 +229,22 @@ public function trips()
 
         $this->balance();
     }
+
+     public function balance()
+    {
+
+        $balance = Payment::where('is_delete', 0)->where('driver_id', $this->driver_id)->where('type', 'credit')->sum('amount');
+        $balance_debit = Payment::where('is_delete', 0)->where('user_type', '!=', 'customer')->where('driver_id', $this->driver_id)->where('type', 'debit')->sum('amount');
+        $adjust = Adjustment::where('driver_id', $this->driver_id)->where('type', 'debit_driver_balance')->sum('amount');
+        $adjust_debit = Adjustment::where('driver_id', $this->driver_id)->where('type', 'admin_paid_auto')->sum('amount');
+
+        $balance = ((float)$balance - (float)$balance_debit);
+        $balance = $balance - $adjust;
+//        $balance = $balance - $adjust_debit;
+        return $balance;
+    }
+
+
 
     public function complaints()
 {

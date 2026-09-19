@@ -117,7 +117,7 @@
                     {data: 'status', name: 'status'},
                     {data: 'phone', name: 'phone'},
                     {data: 'username', name: 'username'},
-                    {data: 'last_trip_date', name: 'last_trip_date'},
+                    {data: 'last_trip_at', name: 'last_trip_at'},
 
                     {data: 'created_at', name: 'created_at'},
                     {data: 'action', name: 'action', orderable: false, searchable: false},
