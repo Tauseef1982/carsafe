@@ -781,10 +781,14 @@ public function getWebHookTrip(Request $request)
             DB::commit();
         } elseif ($cardknoxResponse['status'] == 'declined') {
              Log::info('got declined with this card ');
+            // return response()->json([
+            //     'valid' => false,
+            //     'message' => 'Card Decline'
+            // ]);
             return response()->json([
-                'valid' => false,
-                'message' => 'Card Decline'
-            ]);
+            'valid' => false,
+            'message' => 'Card Decline'
+        ], 400);
 
         } else {
             return response()->json([
