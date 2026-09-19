@@ -697,7 +697,7 @@ public function getWebHookTrip(Request $request)
         $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $to_refill, $account_id);
 
         if ($cardknoxResponse['status'] == 'approved') {
-
+            Log::info('got approved with this card ' . $cardknoxResponse['masked_card_number']);
             $account_payment = new AccountPayment();
             $account_payment->account_id = $uaccount->account_id;
             $account_payment->account_type = $uaccount->account_type;
@@ -706,53 +706,53 @@ public function getWebHookTrip(Request $request)
             $account_payment->payment_date = Carbon::today();
             $account_payment->payment_type = 'card';
             $account_payment->save();
-            if($uaccount->account_type == 'postpaid'){
+            // if($uaccount->account_type == 'postpaid'){
 
-                $trips_to_be_paid = Trip::whereIn('trip_id',$trip_ids)->get();
-                Log::info('inside');
-                $total_payments = 0;
-                $batch_p = new BatchPayment();
-                $batch_p->account_id = $uaccount->account_id;
-                $batch_p->from = 'trips_paid_with_upfront_credit';
-                $batch_p->amount = $total_payments;
-                $batch_p->save();
-                Log::info('Batch='.$batch_p->id);
-                Log::info('refill='.$to_refill);
+            //     $trips_to_be_paid = Trip::whereIn('trip_id',$trip_ids)->get();
+            //     Log::info('inside');
+            //     $total_payments = 0;
+            //     $batch_p = new BatchPayment();
+            //     $batch_p->account_id = $uaccount->account_id;
+            //     $batch_p->from = 'trips_paid_with_upfront_credit';
+            //     $batch_p->amount = $total_payments;
+            //     $batch_p->save();
+            //     Log::info('Batch='.$batch_p->id);
+            //     Log::info('refill='.$to_refill);
 
-                foreach ($trips_to_be_paid as $paytrip) {
+            //     foreach ($trips_to_be_paid as $paytrip) {
 
-                    $unpaid_amount = $paytrip->trip_cost;
-                    Log::info($paytrip->trip_id);
+            //         $unpaid_amount = $paytrip->trip_cost;
+            //         Log::info($paytrip->trip_id);
 
-                    // Only pay if unpaid amount is <= available to_refill
-                    if ($unpaid_amount > 0 && $unpaid_amount <= $to_refill) {
-                        //$pay_data = $this->addpay_customer($paytrip, $request,  $batch_p->id);
-                        $new = new Payment();
-                        $new->driver_id = $paytrip->driver_id;
-                        $new->trip_id = $paytrip->trip_id;
-                        $new->payment_date = now()->toDateString();
-                        $new->amount = (float)$paytrip->trip_cost;
-                        $new->user_id = 0;
-                        $new->user_type = 'customer';
-                        $new->type = 'debit';
-                        $new->batch_id = $batch_p->id;
-                        $new->description = 'payment_added_from_twilio_' . $request['account_id'];
-                        $new->account_id = $paytrip->account_number;
-                        $new->save();
-                        $total_payments += $unpaid_amount;
-                        $to_refill -= $unpaid_amount; // update to_refill after payment
-                        Log::info($unpaid_amount);
+            //         // Only pay if unpaid amount is <= available to_refill
+            //         if ($unpaid_amount > 0 && $unpaid_amount <= $to_refill) {
+            //             //$pay_data = $this->addpay_customer($paytrip, $request,  $batch_p->id);
+            //             $new = new Payment();
+            //             $new->driver_id = $paytrip->driver_id;
+            //             $new->trip_id = $paytrip->trip_id;
+            //             $new->payment_date = now()->toDateString();
+            //             $new->amount = (float)$paytrip->trip_cost;
+            //             $new->user_id = 0;
+            //             $new->user_type = 'customer';
+            //             $new->type = 'debit';
+            //             $new->batch_id = $batch_p->id;
+            //             $new->description = 'payment_added_from_twilio_' . $request['account_id'];
+            //             $new->account_id = $paytrip->account_number;
+            //             $new->save();
+            //             $total_payments += $unpaid_amount;
+            //             $to_refill -= $unpaid_amount; // update to_refill after payment
+            //             Log::info($unpaid_amount);
 
-                    }
+            //         }
 
-                }
+            //     }
 
-                $batch_p->amount = $total_payments;
-                $batch_p->save();
-                $account_payment->batch_id = $batch_p->id;
-                $account_payment->save();
+            //     $batch_p->amount = $total_payments;
+            //     $batch_p->save();
+            //     $account_payment->batch_id = $batch_p->id;
+            //     $account_payment->save();
 
-            }
+            // }
 
                 $uaccount->balance += $to_refill;
                 $uaccount->save();
@@ -762,11 +762,6 @@ public function getWebHookTrip(Request $request)
 
                     if ($uaccount->balance > 0) {
                         $uaccount->status = 1;
-                        if ($uaccount->cube_id == null || $uaccount->cube_id == '') {
-                          //  CubeContact::createAccount($uaccount->account_id);
-                        }
-                        // CubeContact::updateCubeAccount($uaccount->account_id,null,'active');
-
                         $uaccount->save();
                     }
                 }
@@ -785,7 +780,7 @@ public function getWebHookTrip(Request $request)
 
             DB::commit();
         } elseif ($cardknoxResponse['status'] == 'declined') {
-
+             Log::info('got declined with this card ' . $cardknoxResponse['masked_card_number']);
             return response()->json([
                 'valid' => false,
                 'message' => 'Card Decline'
