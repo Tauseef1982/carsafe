@@ -490,7 +490,12 @@ public function getWebHookTrip(Request $request)
                 'order_id' => $order_id,
                 'stop_location' => $stops,
             ]);
-            return response()->json('created', 201);
+                $driver = Driver::where('driver_id', $trip['driverId'])->first();
+                if ($driver) {
+                    $driver->last_trip_at = $date;
+                    $driver->save();
+                }
+                return response()->json('created', 201);
         }
 
         return response()->json('no action', 200);
