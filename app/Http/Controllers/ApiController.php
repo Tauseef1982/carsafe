@@ -686,7 +686,7 @@ public function getWebHookTrip(Request $request)
                 return response()->json([
                     'valid' => false,
                     'new_balace' => 'No credit card details found for Account'
-                ]);
+                ], 400);
 
 
             }
@@ -781,10 +781,7 @@ public function getWebHookTrip(Request $request)
             DB::commit();
         } elseif ($cardknoxResponse['status'] == 'declined') {
              Log::info('got declined with this card ');
-            // return response()->json([
-            //     'valid' => false,
-            //     'message' => 'Card Decline'
-            // ]);
+
             return response()->json([
             'valid' => false,
             'message' => 'Card Decline'
@@ -794,7 +791,7 @@ public function getWebHookTrip(Request $request)
             return response()->json([
                 'valid' => false,
                 'message' => 'Payment Failed'
-            ]);
+            ], 400);
 
         }
 
@@ -860,7 +857,7 @@ public function getWebHookTrip(Request $request)
                  return response()->json([
             'valid' => false,
             'message' => 'Error in proccessing please try again'
-        ]);
+        ], 400);
 
         }
 
