@@ -654,7 +654,7 @@ public function getWebHookTrip(Request $request)
         $trips = $uaccount->trips->where('date', '>=', '2024-10-15')->where('payment_method', 'account');
 
         $filteredTrips = $trips->filter(function ($trip) {
-            $paid = $trip->TripPaidByCustomerFromAccount->sum('amount');
+            $paid = $trip?->TripPaidByCustomerFromAccount?->sum('amount') ?? 0;
             return $trip->trip_cost > $paid;
         });
         $tids = $filteredTrips->pluck('trip_id')->toArray();

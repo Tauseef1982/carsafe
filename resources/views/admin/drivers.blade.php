@@ -59,7 +59,7 @@
                                         <th>Phone</th>
                                         <th>Username</th>
                                         <th>Last trip Date</th>
-                                       
+
                                         <th>Created At</th>
 
                                         <th>Action</th>
@@ -77,9 +77,7 @@
                                         <th>Phone</th>
                                         <th>Username</th>
                                         <th>Last trip Date</th>
-
                                         <th>Created At</th>
-
                                         <th>Action</th>
                                     </tr>
                                     </tfoot>
