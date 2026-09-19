@@ -366,28 +366,28 @@ return app(\Yajra\DataTables\DataTables::class)
 
         }
 
-        $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY); // Sunday 00:00 AM
-        $endOfWeek = Carbon::now()->endOfWeek(Carbon::SATURDAY);
+    $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY); // Sunday 00:00:00
+$endOfWeek   = Carbon::now()->endOfWeek(Carbon::SATURDAY);   // Saturday 23:59:59
 
-        $driversWithoutTrips = Driver::where('status', 1)->where('role', 'LIKE', '%DRIVER%')
-            ->whereDoesntHave('trips', function ($query) use ($startOfWeek, $endOfWeek) {
-                $query->whereBetween('date', [$startOfWeek, $endOfWeek]);
-            })
-            ->count();
+// Standardized role filter (adjust if your schema uses %DRIVER% without quotes)
+$roleFilter = '%"DRIVER"%';
 
-        $this_week_drivers = Driver::where('status', 1)->where('role', 'LIKE', '%DRIVER%')->whereDate('created_at', '>=', $startOfWeek)->whereDate('created_at', '<=', $endOfWeek)->count();
+$metrics = Driver::where('status', 1)
+    ->where('role', 'LIKE', $roleFilter)
+    ->selectRaw("
+        COUNT(*) as active_drivers,
+        COUNT(CASE WHEN created_at BETWEEN ? AND ? THEN 1 END) as this_week_drivers,
+        COUNT(CASE WHEN NOT EXISTS (
+            SELECT 1 FROM trips
+            WHERE trips.driver_id = drivers.driver_id
+            AND trips.date BETWEEN ? AND ?
+        ) THEN 1 END) as drivers_without_trips
+    ", [$startOfWeek, $endOfWeek, $startOfWeek, $endOfWeek])
+    ->first();
 
-
-        // $inactive_drivers = Driver::where('role', 'NOT LIKE', '%"DISPATCHER"%')
-        //     ->where('status', 0)
-        //     ->whereBetween('last_inactive_at', [$startOfWeek, $endOfWeek])
-        //     ->count();
-
-
-
-
-
-        $active_drivers = Driver::where('role', 'LIKE', '%"DRIVER"%')->where('status', 1)->count();
+$active_drivers      = $metrics->active_drivers ?? 0;
+$this_week_drivers   = $metrics->this_week_drivers ?? 0;
+$driversWithoutTrips = $metrics->drivers_without_trips ?? 0;
 
         return view('admin.drivers', compact('this_week_drivers', 'driversWithoutTrips', 'active_drivers',  ));
 
