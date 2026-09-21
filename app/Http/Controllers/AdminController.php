@@ -875,248 +875,384 @@ $driversWithoutTrips = $metrics->drivers_without_trips ?? 0;
 
 
         $util = new dateUtil();
-
         if ($request->ajax()) {
 
-            // Eager load payments to calculate total_paid
-            $trips = Trip::with(['payments'])
-                ->where('trips.is_delete', 0)
-                ->where(function ($query) {
-                    $query->where('trips.payment_method', '!=', 'card')
-                         ->orWhere('trips.trip_cost', '>', 0);
-                })
-                ->select(
-                    'trips.extra_charges',
-                    'trips.extra_stop_amount',
-                    'trips.stop_location',
-                    'trips.extra_wait_amount',
-                    'trips.location_from',
-                    'trips.location_to',
-                    'trips.account_number',
-                    'trips.payment_method',
-                    'trips.driver_id',
-                    'trips.trip_id',
-                    'trips.passenger_phone',
-                    'trips.date',
-                    'trips.trip_cost',
-                    'trips.time',
-                    'trips.reason',
-                    'trips.is_complaint',
-                    'trips.complaint',
-                    'trips.is_auto_paid_as_adjustment',
-                    'trips.status',
-                    'trips.accepted_by',
-                    'trips.cube_pin',
-                    'trips.cube_pin_status',
-                    'trips.payper_trip',
-                    'trips.created_at',
+    // Eager-load relations and sum payments directly in SQL to prevent N+1 queries & memory overhead
+    $trips = Trip::with(['driver'])
+        ->withSum(['payments as admin_total_paid' => function ($query) {
+            $query->where('user_admin', 'admin');
+        }], 'amount')
+        ->where('trips.is_delete', 0)
+        ->where(function ($query) {
+            $query->where('trips.payment_method', '!=', 'card')
+                  ->orWhere('trips.trip_cost', '>', 0);
+        })
+        ->select([
+            'trips.id', // Included primary key to ensure relations map correctly
+            'trips.extra_charges',
+            'trips.extra_stop_amount',
+            'trips.stop_location',
+            'trips.extra_wait_amount',
+            'trips.location_from',
+            'trips.location_to',
+            'trips.account_number',
+            'trips.payment_method',
+            'trips.driver_id',
+            'trips.trip_id',
+            'trips.passenger_phone',
+            'trips.date',
+            'trips.trip_cost',
+            'trips.time',
+            'trips.reason',
+            'trips.is_complaint',
+            'trips.complaint',
+            'trips.is_auto_paid_as_adjustment',
+            'trips.status',
+            'trips.accepted_by',
+            'trips.cube_pin',
+            'trips.cube_pin_status',
+            'trips.payper_trip',
+            'trips.created_at',
+        ])
+        // Modern conditional query scopes
+        ->when($request->filled(['from_date', 'to_date']), function ($query) use ($request) {
+            $query->whereBetween('trips.created_at', [
+                $request->from_date . ' 00:00:00',
+                $request->to_date . ' 23:59:59',
+            ]);
+        })
+        ->when($request->filled('account'), function ($query) use ($request) {
+            $query->where('trips.account_number', $request->account);
+        })
+        ->when($request->filled('type'), function ($query) use ($request) {
+            $query->where('trips.payment_method', $request->type);
+        })
+        ->when($request->filled('driver'), function ($query) use ($request) {
+            $query->where('trips.driver_id', $request->driver);
+        })
+        ->orderBy('trips.created_at', 'desc');
 
-                );
+    $isAdmin = Auth::guard('admin')->user()?->role === 'admin';
 
-            // Apply date filter
-            // if (isset($request->from_date) && isset($request->to_date)) {
-            //     if ($request->from_date != '' && $request->to_date != '') {
-            //         $trips = $trips->whereDate('trips.date', '>=', $request->from_date)
-            //             ->whereDate('trips.date', '<=', $request->to_date);
-            //     }
-            // }
-            if (!empty($request->from_date) && !empty($request->to_date)) {
-                // $trips = $trips->where(function ($query) use ($request) {
-                //     $query->whereBetween('trips.date', [
-                //         $request->from_date,
-                //         $request->to_date
-                //     ])
-                //         ->orWhere('trips.date', '0000-00-00');
-                // });
-                $trips = $trips->whereBetween('trips.created_at', [
-                    $request->from_date . ' 00:00:00',
-                    $request->to_date . ' 23:59:59',
-                ]);
+    return Datatables::of($trips)
+        ->addColumn('total_cost', fn($row) => number_format($row->trip_cost, 2, '.', ','))
+
+        ->addColumn('cost', function ($row) use ($isAdmin) {
+            $cost = number_format($row->trip_cost - $row->extra_charges, 2, '.', ',');
+            if ($isAdmin && $row->payment_method !== 'cash') {
+                $cost .= '<button class="btn" onclick="edit_trip_prices(this)" data-type="cost" data-trip_id="' . $row->trip_id . '" data-bs-toggle="modal" data-bs-target="#extraModaledit"><i class="fa fa-pencil"></i></button>';
+            }
+            return $cost;
+        })
+
+        ->addColumn('paid', fn($row) => number_format($row->admin_total_paid ?? 0, 2, '.', ','))
+
+        ->editColumn('payment_method', function ($row) {
+            if ($row->payment_method === 'cash') {
+                return $row->payment_method . '<a target="_blank" href="' . url('admin/trip/pay/' . $row->trip_id) . '" class="btn-sm btn-primary w-100">Accept Customer Payment</a>';
             }
 
-            // Filter by payment method
-            if (isset($request->account)) {
-                if ($request->account != '') {
-                    $trips = $trips->where('trips.account_number', $request->account);
-                }
+            $modalHtml = htmlspecialchars('
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Update Account and Payment Method</h5>
+                        <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="post" class="account_update_form" data-trip-id="' . $row->trip_id . '">
+                        <div class="modal-body">
+                            ' . csrf_field() . '
+                            <input hidden class="form-control mb-3" value="' . $row->trip_id . '" name="trip_id"/>
+                            <label>Please Enter Account Number</label>
+                            <input type="number" name="account" required value="' . $row->account_number . '" class="form-control mb-3" placeholder="Please Add Account" />
+                            <label>Please Select Payment Method</label>
+                            <select name="payment_method" class="form-select">
+                                <option value="' . $row->payment_method . '" selected>' . $row->payment_method . '</option>
+                                <option value="account">Account</option>
+                                <option value="cash">Cash</option>
+                                <option value="card">Card</option>
+                            </select>
+                            <label>Please Enter Reason</label>
+                            <textarea name="reason" class="form-control" required placeholder="Enter Here">' . $row->reason . '</textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-dark" type="button" data-bs-dismiss="modal">Close</button>
+                            <button class="btn btn-primary account_form_submit_btn" type="button" data-trip-id="' . $row->trip_id . '">Save</button>
+                        </div>
+                    </form>
+                </div>', ENT_QUOTES, 'UTF-8');
+
+            return 'Acc #:' . $row->account_number .
+                   '<button class="btn" onclick="show_extra_model(this)" data-type="account" data-trip_id="' . $row->trip_id . '" data-bs-toggle="modal" data-bs-target="#extraModaledit" data-modelcontent="' . $modalHtml . '"><i class="fa fa-pencil"></i></button>';
+        })
+
+        ->editColumn('extra_charges', function ($row) {
+            $html = number_format($row->extra_charges, 2, '.', ',');
+            if ($row->payment_method !== 'cash') {
+                $html .= '<button class="btn" onclick="edit_trip_prices(this)" data-type="extra" data-trip_id="' . $row->trip_id . '" data-bs-toggle="modal" data-bs-target="#extraModaledit"><i class="fa fa-pencil"></i></button>';
             }
+            return $html;
+        })
+
+        ->editColumn('driver_id', fn($row) => $row->driver
+            ? '<a href="' . url('admin/driver/' . $row->driver->id) . '" target="_blank">' . $row->driver_id . '</a>'
+            : 'Not Found'
+        )
+
+        ->addColumn('extra_description', fn($row) => $row->ExtraDescription)
+
+        ->editColumn('date', fn($row) => ($row->date === '0000-00-00' || empty($row->date))
+            ? $row->created_at?->format('m-d-y')
+            : $util->format_date($row->date)
+        )
+
+        ->editColumn('time', fn($row) => ($row->time === '00:00:00' || empty($row->time))
+            ? $row->created_at?->format('h:i A')
+            : $util->time_format($row->time)
+        )
+
+        ->editColumn('payper_trip', fn($row) => $row->payper_trip == 1 ? 'Yes' : 'No')
+
+        ->editColumn('cube_pin_status', fn($row) => $row->cube_pin . ' ' . $row->cube_pin_status)
+
+        ->rawColumns(['paid', 'payment_method', 'cost', 'extra_charges', 'driver_id'])
+        ->make(true);
+}
+
+//         if ($request->ajax()) {
+
+//             // Eager load payments to calculate total_paid
+//             $trips = Trip::with(['payments'])
+//                 ->where('trips.is_delete', 0)
+//                 ->where(function ($query) {
+//                     $query->where('trips.payment_method', '!=', 'card')
+//                          ->orWhere('trips.trip_cost', '>', 0);
+//                 })
+//                 ->select(
+//                     'trips.extra_charges',
+//                     'trips.extra_stop_amount',
+//                     'trips.stop_location',
+//                     'trips.extra_wait_amount',
+//                     'trips.location_from',
+//                     'trips.location_to',
+//                     'trips.account_number',
+//                     'trips.payment_method',
+//                     'trips.driver_id',
+//                     'trips.trip_id',
+//                     'trips.passenger_phone',
+//                     'trips.date',
+//                     'trips.trip_cost',
+//                     'trips.time',
+//                     'trips.reason',
+//                     'trips.is_complaint',
+//                     'trips.complaint',
+//                     'trips.is_auto_paid_as_adjustment',
+//                     'trips.status',
+//                     'trips.accepted_by',
+//                     'trips.cube_pin',
+//                     'trips.cube_pin_status',
+//                     'trips.payper_trip',
+//                     'trips.created_at',
+
+//                 );
+
+//             // Apply date filter
+//             // if (isset($request->from_date) && isset($request->to_date)) {
+//             //     if ($request->from_date != '' && $request->to_date != '') {
+//             //         $trips = $trips->whereDate('trips.date', '>=', $request->from_date)
+//             //             ->whereDate('trips.date', '<=', $request->to_date);
+//             //     }
+//             // }
+//             if (!empty($request->from_date) && !empty($request->to_date)) {
+//                 // $trips = $trips->where(function ($query) use ($request) {
+//                 //     $query->whereBetween('trips.date', [
+//                 //         $request->from_date,
+//                 //         $request->to_date
+//                 //     ])
+//                 //         ->orWhere('trips.date', '0000-00-00');
+//                 // });
+//                 $trips = $trips->whereBetween('trips.created_at', [
+//                     $request->from_date . ' 00:00:00',
+//                     $request->to_date . ' 23:59:59',
+//                 ]);
+//             }
+
+//             // Filter by payment method
+//             if (isset($request->account)) {
+//                 if ($request->account != '') {
+//                     $trips = $trips->where('trips.account_number', $request->account);
+//                 }
+//             }
 
 
-            if (isset($request->type)) {
-                if ($request->type != '') {
-                    $trips = $trips->where('trips.payment_method', $request->type);
-                }
-            }
+//             if (isset($request->type)) {
+//                 if ($request->type != '') {
+//                     $trips = $trips->where('trips.payment_method', $request->type);
+//                 }
+//             }
 
-            // Filter by driver
-            if (isset($request->driver)) {
-                if ($request->driver != '') {
-                    $trips = $trips->where('trips.driver_id', $request->driver);
-                }
-            }
+//             // Filter by driver
+//             if (isset($request->driver)) {
+//                 if ($request->driver != '') {
+//                     $trips = $trips->where('trips.driver_id', $request->driver);
+//                 }
+//             }
 
-            // Handling paid and half-paid tabs
-            if ($request->tab == 'paid') {
-                //                $trips = $trips->havingRaw('total_paid >= trips.trip_cost AND trips.trip_cost > 0 OR trips.is_auto_paid_as_adjustment = 1');
-            }
-            if ($request->tab == 'half') {
-                //                $trips = $trips->havingRaw('total_paid < trips.trip_cost AND total_paid > 0');
-            }
+//             // Handling paid and half-paid tabs
+//             if ($request->tab == 'paid') {
+//                 //                $trips = $trips->havingRaw('total_paid >= trips.trip_cost AND trips.trip_cost > 0 OR trips.is_auto_paid_as_adjustment = 1');
+//             }
+//             if ($request->tab == 'half') {
+//                 //                $trips = $trips->havingRaw('total_paid < trips.trip_cost AND total_paid > 0');
+//             }
 
-            // Group by trip_id and paginate
-            $trips = $trips->groupBy('trips.trip_id')
-                ->orderBy('trips.created_at', 'desc');  // Pagination for faster loading
+//             // Group by trip_id and paginate
+//             $trips = $trips->groupBy('trips.trip_id')
+//                 ->orderBy('trips.created_at', 'desc');  // Pagination for faster loading
 
-            return Datatables::of($trips)
-                ->addColumn('total_cost', function ($row) {
-                    return number_format($row->trip_cost, 2, '.', ',');
-                })
-                ->addColumn('cost', function ($row) {
+//             return Datatables::of($trips)
+//                 ->addColumn('total_cost', function ($row) {
+//                     return number_format($row->trip_cost, 2, '.', ',');
+//                 })
+//                 ->addColumn('cost', function ($row) {
 
 
-                    $html = number_format($row->trip_cost - $row->extra_charges, 2, '.', ',');
-                    if (Auth::guard('admin')->user()->role == 'admin') {
-                        if($row->payment_method != "cash"){
-                        $html .= '<button class="btn" onclick="edit_trip_prices(this)" data-type="cost" data-trip_id="' . $row->trip_id . '" data-bs-toggle="modal" data-original-title="test"
-                        data-bs-target="#extraModaledit"  ><i class="fa fa-pencil"></i></button>';
-                    }
-                }
+//                     $html = number_format($row->trip_cost - $row->extra_charges, 2, '.', ',');
+//                     if (Auth::guard('admin')->user()->role == 'admin') {
+//                         if($row->payment_method != "cash"){
+//                         $html .= '<button class="btn" onclick="edit_trip_prices(this)" data-type="cost" data-trip_id="' . $row->trip_id . '" data-bs-toggle="modal" data-original-title="test"
+//                         data-bs-target="#extraModaledit"  ><i class="fa fa-pencil"></i></button>';
+//                     }
+//                 }
 
-                    return $html;
+//                     return $html;
 
-                })
-                ->addColumn('paid', function ($row) {
-                    $paid = 0;
-                    if ($row->is_auto_paid_as_adjustment == 1) {
-                        //                        $paid .= '<p class="text-success">PAID AUTO <a href="' . url('admin/adjustments') . '" target="_blank">view</a></p>';
-                    }
-                    $paid = number_format($row->payments->where('user_admin', 'admin')->sum('amount'), 2, '.', ',');
+//                 })
+//                 ->addColumn('paid', function ($row) {
+//                     $paid = 0;
+//                     if ($row->is_auto_paid_as_adjustment == 1) {
+//                         //                        $paid .= '<p class="text-success">PAID AUTO <a href="' . url('admin/adjustments') . '" target="_blank">view</a></p>';
+//                     }
+//                     $paid = number_format($row->payments->where('user_admin', 'admin')->sum('amount'), 2, '.', ',');
 
-                    foreach ($row->payments as $pp) {
-                        //                         $paid = $paid + number_format($pp->amount, 2, '.', ',');
+//                    // foreach ($row->payments as $pp) {
+//                         //                         $paid = $paid + number_format($pp->amount, 2, '.', ',');
 
-                    }
+//                    // }
 
-                    return $paid;
-                })
-                ->editColumn('payment_method', function ($row) {
-                    $return = $row->payment_method;
-                    if ($row->payment_method == 'cash') {
-                        $return .= '<a target="_blank"
-                            href="' . url('admin/trip/pay') . '/' . $row->trip_id . '"
-                            class="btn-sm btn-primary w-100">Accept Customer Payment</a>';
-                    } else {
-                        $return .= 'Acc #:' . $row->account_number;
-                        $return .= '<button class="btn" onclick="show_extra_model(this)"
-                        data-type="account"
-                        data-trip_id="' . $row->trip_id . '"
-                        data-bs-toggle="modal"
-                        data-original-title="test"
-                        data-bs-target="#extraModaledit"
-                        data-modelcontent="' . htmlspecialchars('
-                        <div class=\'modal-content\'>
-                           <div class=\'modal-header\'>
-                               <h5 class=\'modal-title\' id=\'exampleModalLabel\'>Update Account and Payment Method</h5>
-                               <button class=\'btn-close\' type=\'button\' data-bs-dismiss=\'modal\' aria-label=\'Close\'></button>
-                           </div>
-                           <form method=\'post\' class=\'account_update_form\' data-trip-id=\'' . $row->trip_id . '\'>
-                               <div class=\'modal-body\'>
-                                   ' . csrf_field() . '
-                                   <input hidden class=\'form-control mb-3\' value=\'' . $row->trip_id . '\' name=\'trip_id\'/>
+//                     return $paid;
+//                 })
+//                 ->editColumn('payment_method', function ($row) {
+//                     $return = $row->payment_method;
+//                     if ($row->payment_method == 'cash') {
+//                         $return .= '<a target="_blank"
+//                             href="' . url('admin/trip/pay') . '/' . $row->trip_id . '"
+//                             class="btn-sm btn-primary w-100">Accept Customer Payment</a>';
+//                     } else {
+//                         $return .= 'Acc #:' . $row->account_number;
+//                         $return .= '<button class="btn" onclick="show_extra_model(this)"
+//                         data-type="account"
+//                         data-trip_id="' . $row->trip_id . '"
+//                         data-bs-toggle="modal"
+//                         data-original-title="test"
+//                         data-bs-target="#extraModaledit"
+//                         data-modelcontent="' . htmlspecialchars('
+//                         <div class=\'modal-content\'>
+//                            <div class=\'modal-header\'>
+//                                <h5 class=\'modal-title\' id=\'exampleModalLabel\'>Update Account and Payment Method</h5>
+//                                <button class=\'btn-close\' type=\'button\' data-bs-dismiss=\'modal\' aria-label=\'Close\'></button>
+//                            </div>
+//                            <form method=\'post\' class=\'account_update_form\' data-trip-id=\'' . $row->trip_id . '\'>
+//                                <div class=\'modal-body\'>
+//                                    ' . csrf_field() . '
+//                                    <input hidden class=\'form-control mb-3\' value=\'' . $row->trip_id . '\' name=\'trip_id\'/>
 
-                                   <label for=\'\'>Please Enter Account Number</label>
-                                   <input type=\'number\' name=\'account\' required
-                                       value=\'' . $row->account_number . '\'
-                                       class=\'form-control mb-3\'
-                                       placeholder=\'Please Add Account\' />
+//                                    <label for=\'\'>Please Enter Account Number</label>
+//                                    <input type=\'number\' name=\'account\' required
+//                                        value=\'' . $row->account_number . '\'
+//                                        class=\'form-control mb-3\'
+//                                        placeholder=\'Please Add Account\' />
 
-                                   <label for=\'\'>Please Select Payment Method</label>
-                                   <select name=\'payment_method\' class=\'form-select\'>
-                                       <option value=\'' . $row->payment_method . '\' selected>' . $row->payment_method . '</option>
-                                       <option value=\'account\'>Account</option>
-                                       <option value=\'cash\'>Cash</option>
-                                       <option value=\'card\'>Card</option>
-                                   </select>
+//                                    <label for=\'\'>Please Select Payment Method</label>
+//                                    <select name=\'payment_method\' class=\'form-select\'>
+//                                        <option value=\'' . $row->payment_method . '\' selected>' . $row->payment_method . '</option>
+//                                        <option value=\'account\'>Account</option>
+//                                        <option value=\'cash\'>Cash</option>
+//                                        <option value=\'card\'>Card</option>
+//                                    </select>
 
-                                   <label for=\'\'>Please Enter Reason</label>
-                                   <textarea name=\'reason\' id=\'\' class=\'form-control\' required placeholder=\'Enter Here\'>' . $row->reason . '</textarea>
-                               </div>
-                               <div class=\'modal-footer\'>
-                                   <button class=\'btn btn-dark\' type=\'button\' data-bs-dismiss=\'modal\'>Close</button>
-                                   <button class=\'btn btn-primary account_form_submit_btn\' type=\'button\' data-trip-id=\'' . $row->trip_id . '\'>Save</button>
-                               </div>
-                           </form>
-                       </div>', ENT_QUOTES, 'UTF-8') . '">
-                            <i class="fa fa-pencil"></i>
-                        </button>';
+//                                    <label for=\'\'>Please Enter Reason</label>
+//                                    <textarea name=\'reason\' id=\'\' class=\'form-control\' required placeholder=\'Enter Here\'>' . $row->reason . '</textarea>
+//                                </div>
+//                                <div class=\'modal-footer\'>
+//                                    <button class=\'btn btn-dark\' type=\'button\' data-bs-dismiss=\'modal\'>Close</button>
+//                                    <button class=\'btn btn-primary account_form_submit_btn\' type=\'button\' data-trip-id=\'' . $row->trip_id . '\'>Save</button>
+//                                </div>
+//                            </form>
+//                        </div>', ENT_QUOTES, 'UTF-8') . '">
+//                             <i class="fa fa-pencil"></i>
+//                         </button>';
 
-                    }
+//                     }
 
-                    return $return;
-                })
-                ->editColumn('extra_charges', function ($row) {
-//                    return number_format($row->extra_charges, 2, '.', ',');
+//                     return $return;
+//                 })
+//                 ->editColumn('extra_charges', function ($row) {
+// //                    return number_format($row->extra_charges, 2, '.', ',');
 
-                    $html = number_format($row->extra_charges, 2, '.', ',');
-                    if($row->payment_method != "cash"){
-                    $html .= '<button class="btn" onclick="edit_trip_prices(this)" data-type="extra" data-trip_id="' . $row->trip_id . '" data-bs-toggle="modal" data-original-title="test"
-                    data-bs-target="#extraModaledit"  ><i class="fa fa-pencil"></i></button>';
-                    }
-                    return $html;
-                })
-                ->editColumn('driver_id', function ($row) {
-                    $driver = Driver::where('driver_id', $row->driver_id)->first();
-                    if($driver) {
-                        $driverLink = '<a href="' . url('admin/driver/' . $driver->id) . '" target="_blank">'
-                            . $row->driver_id . '</a>';
-                        return $driverLink;
-                    }else{
-                        return 'Not Found';
-                    }
-                })
-                ->addColumn('extra_description', function ($row) {
+//                     $html = number_format($row->extra_charges, 2, '.', ',');
+//                     if($row->payment_method != "cash"){
+//                     $html .= '<button class="btn" onclick="edit_trip_prices(this)" data-type="extra" data-trip_id="' . $row->trip_id . '" data-bs-toggle="modal" data-original-title="test"
+//                     data-bs-target="#extraModaledit"  ><i class="fa fa-pencil"></i></button>';
+//                     }
+//                     return $html;
+//                 })
+//                 ->editColumn('driver_id', function ($row) {
+//                     $driver = Driver::where('driver_id', $row->driver_id)->first();
+//                     if($driver) {
+//                         $driverLink = '<a href="' . url('admin/driver/' . $driver->id) . '" target="_blank">'
+//                             . $row->driver_id . '</a>';
+//                         return $driverLink;
+//                     }else{
+//                         return 'Not Found';
+//                     }
+//                 })
+//                 ->addColumn('extra_description', function ($row) {
 
-                    return $row->ExtraDescription;
-                })
-                // ->editColumn('date', function ($row) use ($util) {
+//                     return $row->ExtraDescription;
+//                 })
 
-                //     return $util->format_date($row->date);
-                // })
-                ->editColumn('date', function ($row) use ($util) {
+//                 ->editColumn('date', function ($row) use ($util) {
 
-                    if ($row->date == '0000-00-00') {
-                         return $row->created_at->format('m-d-y');
-                    }else{
-                        return $util->format_date($row->date);
-                    }
-                    })
-                ->editColumn('time', function ($row) use ($util) {
+//                     if ($row->date == '0000-00-00') {
+//                          return $row->created_at->format('m-d-y');
+//                     }else{
+//                         return $util->format_date($row->date);
+//                     }
+//                     })
+//                 ->editColumn('time', function ($row) use ($util) {
 
-                    if ($row->time == '00:00:00' ) {
-                         return $row->created_at->format('h:i A');
-                    }else{
-                        return $util->time_format($row->time);
-                    }
-                    })
-                // ->editColumn('time', function ($row) use ($util) {
+//                     if ($row->time == '00:00:00' ) {
+//                          return $row->created_at->format('h:i A');
+//                     }else{
+//                         return $util->time_format($row->time);
+//                     }
+//                     })
 
-                //     return $util->time_format($row->time);
-                // })
-                ->editColumn('payper_trip', function ($row) use ($util) {
-                   if($row->payper_trip == 1){
-                    return 'Yes';
-                   }else{
-                    return 'No';
-                   }
+//                 ->editColumn('payper_trip', function ($row) use ($util) {
+//                    if($row->payper_trip == 1){
+//                     return 'Yes';
+//                    }else{
+//                     return 'No';
+//                    }
 
-                })
-                ->editColumn('cube_pin_status', function ($row) use ($util) {
-                    // Format time using utility class
-                    return $row->cube_pin.' '.$row->cube_pin_status;
-                })
-                ->rawColumns(['paid', 'payment_method', 'cost','extra_charges','driver_id'])
-                ->make();
-        }
+//                 })
+//                 ->editColumn('cube_pin_status', function ($row) use ($util) {
+//                     // Format time using utility class
+//                     return $row->cube_pin.' '.$row->cube_pin_status;
+//                 })
+//                 ->rawColumns(['paid', 'payment_method', 'cost','extra_charges','driver_id'])
+//                 ->make();
+//         }
 
         $drivers = Driver::where('role', 'like', '%"DRIVER"%')->get();
         $accounts = Account::where('is_deleted', 0)->get();
