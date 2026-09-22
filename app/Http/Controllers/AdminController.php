@@ -914,24 +914,12 @@ $driversWithoutTrips = $metrics->drivers_without_trips ?? 0;
                 );
 
             // Apply date filter
-            // if (isset($request->from_date) && isset($request->to_date)) {
-            //     if ($request->from_date != '' && $request->to_date != '') {
-            //         $trips = $trips->whereDate('trips.date', '>=', $request->from_date)
-            //             ->whereDate('trips.date', '<=', $request->to_date);
-            //     }
-            // }
+
             if (!empty($request->from_date) && !empty($request->to_date)) {
-                // $trips = $trips->where(function ($query) use ($request) {
-                //     $query->whereBetween('trips.date', [
-                //         $request->from_date,
-                //         $request->to_date
-                //     ])
-                //         ->orWhere('trips.date', '0000-00-00');
-                // });
-                $trips = $trips->whereBetween('trips.created_at', [
-                    $request->from_date . ' 00:00:00',
-                    $request->to_date . ' 23:59:59',
-                ]);
+           $fromDate = Carbon::parse($request->from_date)->startOfDay();
+           $toDate = Carbon::parse($request->to_date)->endOfDay();     
+                 
+            $trips = $trips->whereBetween('trips.created_at', [ $fromDate, $toDate,]);
             }
 
             // Filter by payment method
