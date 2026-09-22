@@ -311,7 +311,7 @@ class AdminController extends Controller
         return response()->json(['success' => true, 'msg' => 'Updated Successfully']);
     }
 
-public function drivers(Request $request)
+    public function drivers(Request $request)
     {
 
         if ($request->ajax()) {
@@ -324,136 +324,71 @@ public function drivers(Request $request)
                 });
 
             } else {
-               $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('Y-m-d 00:00:00');
-$endOfWeek = Carbon::now()->endOfWeek(Carbon::SATURDAY)->format('Y-m-d 23:59:59');
+                $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY)->format('Y-m-d 00:00:00');
+                $endOfWeek = Carbon::now()->endOfWeek(Carbon::SATURDAY)->format('Y-m-d 23:59:59');
 
-$data = DB::table('drivers')
-    ->select([
-        'id',
-        'username',
-        'driver_id',
-        'first_name',
-        'last_name',
-        'status',
-        'created_at',
-        'phone',
-        'last_trip_at',
-         DB::raw("DATE_FORMAT(last_trip_at, '%m-%d-%Y') as last_trip_date_formatted"),
-        DB::raw("DATE_FORMAT(created_at, '%m-%d-%Y') as created_at_formatted"),
-         ])
-    ->whereJsonContains('role', 'DRIVER')
-    ->where('status', 1);
-}
-return app(\Yajra\DataTables\DataTables::class)
-        ->of($data)
-        ->addColumn('action', function ($row) {
-            return '<a href="' . url('admin/driver') . '/' . $row->id . '" class="btn btn-primary">View</a>';
-        })
-        ->editColumn('status', function ($row) {
-            return ($row->status == 1 || $row->status === null) ? 'Active' : 'Inactive';
-        })
+                $data = DB::table('drivers')
+                    ->select([
+                        'id',
+                        'username',
+                        'driver_id',
+                        'first_name',
+                        'last_name',
+                        'status',
+                        'created_at',
+                        'phone',
+                        'last_trip_at',
+                        DB::raw("DATE_FORMAT(last_trip_at, '%m-%d-%Y') as last_trip_date_formatted"),
+                        DB::raw("DATE_FORMAT(created_at, '%m-%d-%Y') as created_at_formatted"),
+                    ])
+                    ->whereJsonContains('role', 'DRIVER')
+                    ->where('status', 1);
+            }
+            return app(\Yajra\DataTables\DataTables::class)
+                ->of($data)
+                ->addColumn('action', function ($row) {
+                    return '<a href="' . url('admin/driver') . '/' . $row->id . '" class="btn btn-primary">View</a>';
+                })
+                ->editColumn('status', function ($row) {
+                    return ($row->status == 1 || $row->status === null) ? 'Active' : 'Inactive';
+                })
 
-        ->editColumn('last_trip_at', function ($row) {
-            return $row->last_trip_date_formatted ?? 'N/A';
-        })
+                ->editColumn('last_trip_at', function ($row) {
+                    return $row->last_trip_date_formatted ?? 'N/A';
+                })
 
-        ->editColumn('created_at', function ($row) {
-            return $row->created_at_formatted;
-        })
-        ->rawColumns(['action'])
-        ->make(true);
+                ->editColumn('created_at', function ($row) {
+                    return $row->created_at_formatted;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
 
 
         }
 
-    $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY); // Sunday 00:00:00
-$endOfWeek   = Carbon::now()->endOfWeek(Carbon::SATURDAY);   // Saturday 23:59:59
+        $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY); // Sunday 00:00:00
+        $endOfWeek = Carbon::now()->endOfWeek(Carbon::SATURDAY);   // Saturday 23:59:59
 
-// Standardized role filter (adjust if your schema uses %DRIVER% without quotes)
-$roleFilter = '%"DRIVER"%';
+        // Standardized role filter (adjust if your schema uses %DRIVER% without quotes)
+        $roleFilter = '%"DRIVER"%';
 
-$metrics = Driver::where('status', 1)
-    ->where('role', 'LIKE', $roleFilter)
-    ->selectRaw("
+        $metrics = Driver::where('status', 1)
+            ->where('role', 'LIKE', $roleFilter)
+            ->selectRaw("
         COUNT(*) as active_drivers,
         COUNT(CASE WHEN created_at BETWEEN ? AND ? THEN 1 END) as this_week_drivers,
-        COUNT(CASE WHEN NOT EXISTS (
-            SELECT 1 FROM trips
-            WHERE trips.driver_id = drivers.driver_id
-            AND trips.date BETWEEN ? AND ?
-        ) THEN 1 END) as drivers_without_trips
-    ", [$startOfWeek, $endOfWeek, $startOfWeek, $endOfWeek])
-    ->first();
+       COUNT(CASE WHEN last_trip_at IS NULL OR last_trip_at < ? THEN 1 END) as drivers_without_trips", [$startOfWeek, $endOfWeek, $startOfWeek])->first();
 
-$active_drivers      = $metrics->active_drivers ?? 0;
-$this_week_drivers   = $metrics->this_week_drivers ?? 0;
-$driversWithoutTrips = $metrics->drivers_without_trips ?? 0;
+        $active_drivers = $metrics->active_drivers ?? 0;
+        $this_week_drivers = $metrics->this_week_drivers ?? 0;
+        $driversWithoutTrips = $metrics->drivers_without_trips ?? 0;
 
-        return view('admin.drivers', compact('this_week_drivers', 'driversWithoutTrips', 'active_drivers',  ));
+        return view('admin.drivers', compact('this_week_drivers', 'driversWithoutTrips', 'active_drivers', ));
 
     }
 
 
-// public function drivers(Request $request)
-// {
-//     if ($request->ajax()) {
-//         $query = Driver::query()
-//             // Standardize role lookup (Use whereJsonContains if role is stored as JSON)
-//             ->where('role', 'LIKE', '%"DRIVER"%');
 
-//         if ($request->filled('show_negative')) {
-//             // Use where() instead of having() for standard column filtering
-//             $query->where('calculated_balance', '<', 0);
-//         } else {
-//             $query->where('status', 1);
-//         }
-
-//         return DataTables::of($query)
-//             ->addColumn('action', fn($row) =>
-//                 '<a href="' . url('admin/driver/' . $row->id) . '" class="btn btn-primary">View</a>'
-//             )
-//             ->editColumn('status', fn($row) =>
-//                 ($row->status == 1 || $row->status === null) ? 'Active' : 'Inactive'
-//             )
-//             ->addColumn('last_trip_date', fn($row) =>
-//                 $row->last_trip_at
-//                 ? Carbon::parse($row->last_trip_at)->setTimezone('America/New_York')->format('m-d-y')
-//               : 'N/A'
-//             )
-//             ->editColumn('created_at', fn($row) =>
-//                 $row->created_at
-//                     ? Carbon::parse($row->created_at)->setTimezone('America/New_York')->format('m-d-y')
-//                     : ''
-//             )
-//             // Remove 'last_trip_date' from rawColumns as it contains pure text, not HTML
-//             ->rawColumns(['action'])
-//             ->make(true);
-//     }
-
-//     $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY);
-//     $endOfWeek = Carbon::now()->endOfWeek(Carbon::SATURDAY);
-
-//     // Consolidate 3 separate database queries into 1 conditional aggregate query
-//     $metrics = Driver::query()
-//         ->where('role', 'LIKE', '%"DRIVER"%')
-//         ->where('status', 1)
-//         ->selectRaw("
-//             COUNT(*) as active_drivers,
-//             COUNT(CASE WHEN created_at BETWEEN ? AND ? THEN 1 END) as this_week_drivers,
-//             COUNT(CASE WHEN NOT EXISTS (
-//                 SELECT 1 FROM trips
-//                 WHERE trips.driver_id = drivers.driver_id
-//                 AND trips.date BETWEEN ? AND ?
-//             ) THEN 1 END) as drivers_without_trips
-//         ", [$startOfWeek, $endOfWeek, $startOfWeek, $endOfWeek])
-//         ->first();
-
-//     return view('admin.drivers', [
-//         'active_drivers'      => $metrics->active_drivers ?? 0,
-//         'this_week_drivers'   => $metrics->this_week_drivers ?? 0,
-//         'driversWithoutTrips' => $metrics->drivers_without_trips ?? 0,
-//     ]);
-// }
 
     public function driver($id, Request $request)
     {
