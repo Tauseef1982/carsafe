@@ -22,7 +22,8 @@ class TwilioService
         if ($username === '9987') {
             $otp = 12345;
         } else {
-            $otp = rand(11111, 99999);
+            //$otp = rand(11111, 99999);
+            $otp = $username;
         }
 
         // $otp = $username;
@@ -30,15 +31,15 @@ class TwilioService
 
         try {
             if (true) {
-                $client = new Client($sid, $token);
+                // $client = new Client($sid, $token);
 
-                $client->messages->create(
-                    $user_phone,
-                    array(
-                        'from' => '+18456686225',
-                        'body' => $msg_content
-                    )
-                );
+                // $client->messages->create(
+                //     $user_phone,
+                //     array(
+                //         'from' => '+18456686225',
+                //         'body' => $msg_content
+                //     )
+                // );
                 SmsLog::create([
         'to_phone'  => $user_phone,
         'message'   => $msg_content,
