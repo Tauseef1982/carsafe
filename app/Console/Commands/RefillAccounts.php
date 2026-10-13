@@ -56,6 +56,7 @@ class RefillAccounts extends Command
 
     // Fetch eligible accounts
     $accounts = Account::where('autofill', 'on')
+         ->where('recharge', '>', 0)
         ->where('account_type', 'prepaid')
         ->where('balance', '<', 21)
         ->where('status', 1)

@@ -555,14 +555,16 @@ class TripController extends Controller
                                 if ($account->balance < 20) {
                                     if ($account->autofill == "on") {
 
-                                        $account_responce = PaymentSaveService::prepPaidRefill($account, "single");
+                                        if($account->recharge > 0){
+                                    $account_responce = PaymentSaveService::prepPaidRefill($account, "single");
 
-                                        if ($account_responce != false) {
-                                            $account = $account_responce;
-                                            Log::info("prepaid refill suddenly");
+                                    if ($account_responce != false) {
+                                        $account = $account_responce;
+                                        Log::info("prepaid refill suddenly");
 
 
-                                        }
+                                    }
+                                }
                                     }
                                 }
                                 if ($account->balance >= $cost) {
@@ -820,7 +822,7 @@ class TripController extends Controller
 
                             if ($account->balance < 20) {
                                 if ($account->autofill == "on") {
-
+                                if($account->recharge > 0){
                                     $account_responce = PaymentSaveService::prepPaidRefill($account, "single");
 
                                     if ($account_responce != false) {
@@ -829,6 +831,7 @@ class TripController extends Controller
 
 
                                     }
+                                }
                                 }
                             }
                             if ($account->balance >= $cost) {
@@ -856,7 +859,7 @@ class TripController extends Controller
                                     }
 
 
-                               
+
 
 
                             }
