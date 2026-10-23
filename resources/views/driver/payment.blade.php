@@ -138,7 +138,7 @@ $username = $driver->username ?? '';
                                             </div>
                                         </div>
                                     </div>
-                            @if(strcasecmp(trim($username), 'manuel r') === 0 || (isset($driver) && strcasecmp(trim($driver->first_name), 'manuel r') === 0))
+                            
                             <div class="card" id="gocab-check" style="cursor: pointer;">
                                 <div class="media p-20">
                                     <div class="form-check radio radio-primary me-3">
@@ -148,7 +148,7 @@ $username = $driver->username ?? '';
                                     </div>
                                 </div>
                             </div>
-                             @endif
+
 
                             <div id="scanner-container" style="display:none">
                                 <video id="qr-video" width="300"></video>
