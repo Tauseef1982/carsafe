@@ -111,8 +111,8 @@ class TwilioService
     public static function sendSms($phone, $cost, $extraCharges, $tripId, $driverId, $extra_message=null)
     {
         // if ($extraCharges > 0) {
-        //   //  Log::info('Extra charges (' . $extraCharges . ') are greater than the fare (' . $cost . ') for trip ID ' . $tripId . '. SMS will not be sent.');
-        //     return;
+        //    Log::info('Extra charges (' .  . ') are greater than the fare (' . $cost . ') for trip ID ' . $tripId . '. SMS will not be sent.');
+
         // }
 
         $sid = config("app.TWILIO_SID");
