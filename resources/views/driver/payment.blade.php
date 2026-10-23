@@ -87,61 +87,71 @@ $id = Auth::user()->id;
                             </h5>
 
                             @if ($driver->accept_payment_setting == "account")
-                                <div class="card" id="account-check">
+                                <div class="card" id="account-check" style="cursor: pointer;">
                                     <div class="media p-20">
                                         <div class="form-check radio radio-primary me-3">
                                             <input class="form-check-input" id="radio19" type="radio" name="payment_method"
                                                 value="account" data-bs-original-title="" title="" />
-                                            <label class="form-check-label" for="radio19">
+                                            <label class="form-check-label" for="radio19" style="cursor: pointer;">
                                                 Account
                                             </label>
                                         </div>
                                     </div>
                                 </div>
                             @elseif($driver->accept_payment_setting == "card")
-                                <div class="card" id="card-check">
+                                <div class="card" id="card-check" style="cursor: pointer;">
                                     <div class="media p-20">
                                         <div class="form-check radio radio-primary me-3">
                                             <input class="form-check-input" id="radio20" type="radio" name="payment_method"
                                                 value="card" data-bs-original-title="" title="" />
-                                            <label class="form-check-label" for="radio20">Card</label>
+                                            <label class="form-check-label" for="radio20" style="cursor: pointer;">Card</label>
                                         </div>
                                     </div>
                                 </div>
                             @elseif($driver->accept_payment_setting == "both")
-                                <div class="card" id="account-check">
+                                <div class="card" id="account-check" style="cursor: pointer;">
                                     <div class="media p-20">
                                         <div class="form-check radio radio-primary me-3">
                                             <input class="form-check-input" id="radio19" type="radio" name="payment_method"
                                                 value="account" data-bs-original-title="" title="" />
-                                            <label class="form-check-label" for="radio19">
+                                            <label class="form-check-label" for="radio19" style="cursor: pointer;">
                                                 Account
                                             </label>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card" id="card-check">
+                                <div class="card" id="card-check" style="cursor: pointer;">
                                     <div class="media p-20">
                                         <div class="form-check radio radio-primary me-3">
                                             <input class="form-check-input" id="radio20" type="radio" name="payment_method"
                                                 value="card" data-bs-original-title="" title="" />
-                                            <label class="form-check-label" for="radio20">Card</label>
+                                            <label class="form-check-label" for="radio20" style="cursor: pointer;">Card</label>
                                         </div>
                                     </div>
                                 </div>
 
                             @endif
 
-                            <div class="qr-code" id="qr-code">
+                            <div class="qr-code" id="qr-code" style="cursor: pointer;">
                                         <div class="media p-20">
                                             <div class="form-check radio radio-primary me-3">
                                                 <input class="form-check-input" id="radio209" type="radio" onclick="openScanner()" name="payment_method"
                                                     value="qr-code" data-bs-original-title="" title="" />
-                                                <label class="form-check-label" for="radio209">Pay with Qr Code</label>
+                                                <label class="form-check-label" for="radio209" style="cursor: pointer;">Pay with Qr Code</label>
                                             </div>
                                         </div>
                                     </div>
-
+                            @if($username == 1234)
+                            <div class="card" id="gocab-check" style="cursor: pointer;">
+                                <div class="media p-20">
+                                    <div class="form-check radio radio-primary me-3">
+                                        <input class="form-check-input" id="radioGoCab" type="radio" name="payment_method"
+                                            value="scn_card" data-bs-original-title="" title="" />
+                                        <label class="form-check-label" for="radioGoCab" style="cursor: pointer;">SCN Card</label>
+                                    </div>
+                                </div>
+                            </div>
+                             @endif
 
                             <div id="scanner-container" style="display:none">
                                 <video id="qr-video" width="300"></video>
@@ -383,6 +393,29 @@ $id = Auth::user()->id;
                                 </button>
                             </div>
                         </div>
+
+                        <div class="card-body pt-0 hide" id="gocab-div">
+                            <h5>
+                                SCN Card
+                                <span class="badge badge-primary pull-right digits btn show-method-div">Go Back</span>
+                            </h5>
+                            <div class="card">
+                                <div class="media p-20">
+                                    <div class="w-100">
+                                        <label for="gocab_card_number" class="form-label fw-bold">SCN Card Number</label>
+                                        <input class="form-control mb-2 text-uppercase" type="text" name="scn_card_number" value="" id="gocab_card_number"
+                                            placeholder="e.g. GC-100200300" autocomplete="off" />
+                                        <small class="text-muted d-block">This trip will be charged directly against the customer's SCN Card balance.</small>
+                                        <div id="gocab-error-msg" class="text-danger mt-2 fw-bold" style="display:none;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-end mt-3">
+                                <button class="btn btn-primary btn-block w-100" type="button" id="gocab-submit-btn">
+                                    Charge SCN Card
+                                </button>
+                            </div>
+                        </div>
                     </form>
                     <div class="px-3">
                         <button type="button" class="btn btn-outline-primary  btn-block w-100" id="start-over">
@@ -407,7 +440,7 @@ $id = Auth::user()->id;
     <script>
         let qrScanner;
 
-       function openScanner() {
+     function openScanner() {
     document.getElementById('scanner-container').style.display = 'block';
 
     const videoElem = document.getElementById('qr-video');
@@ -861,6 +894,17 @@ $id = Auth::user()->id;
                     $("#amount-div").hide();
                     $("#extra-div").hide();
 
+                } else if (selectedValue == 'scn_card' || selectedValue == 'gocab') {
+                    let totalAmount = $('input[name="amount"]').val() || 0;
+                    let extraChargesTota = parseFloat($('#extra_charges').val()) || 0;
+                    let total = (parseFloat(totalAmount) || 0) + extraChargesTota;
+                    total = parseFloat(total.toFixed(2));
+
+                    $('#gocab-submit-btn').html('Charge SCN Card - $' + total);
+                    $("#gocab-div").show();
+                    $("#method-div").hide();
+                    $("#amount-div").hide();
+                    $("#extra-div").hide();
                 }
 
             });
@@ -868,6 +912,7 @@ $id = Auth::user()->id;
             $('.show-method-div').click(function () {
                 $("#method-div").show();
                 $("#gocab-account-div").hide();
+                $("#gocab-div").hide();
                 $("#card-div").hide();
                 $("#amount-div").hide();
                 $("#extra-div").hide();
@@ -948,6 +993,7 @@ $id = Auth::user()->id;
                     $("#method-div").hide();
                     $("#complaint-div").hide();
                     $("#gocab-account-div").hide();
+                    $("#gocab-div").hide();
                     $("#card-div").hide();
                     $("#amount-div").show();
                     $('#amount-field').val(selectedTripCost);
@@ -955,6 +1001,7 @@ $id = Auth::user()->id;
                     console.log(selectedValue + " its account" + selectedTripCost);
                     $("#method-div").hide();
                     $("#complaint-div").hide();
+                    $("#gocab-div").hide();
                     $("#gocab-account-div").show();
                     $("#card-div").hide();
                     if (selectedTripCost == 0 || selectedTripCost == null) {
@@ -982,12 +1029,44 @@ $id = Auth::user()->id;
                         });
 
                     }
+                } else if (selectedValue == 'scn_card' || selectedValue == 'gocab') {
+                    $("#method-div").hide();
+                    $("#complaint-div").hide();
+                    $("#gocab-account-div").hide();
+                    $("#card-div").hide();
+
+                    if (selectedTripCost === undefined || selectedTripCost === null || selectedTripCost === '') {
+                        let checkedTripCost = $('input[name="trip"]:checked').data('trip-cost');
+                        if (checkedTripCost !== undefined && checkedTripCost !== null && checkedTripCost !== '') {
+                            selectedTripCost = checkedTripCost;
+                        }
+                    }
+
+                    if (selectedTripCost == 0 || selectedTripCost == null) {
+                        $("#amount-div").show();
+                        $('#amount-field').focus();
+                        $("#gocab-div").hide();
+                    } else {
+                        let totalCost = parseFloat(selectedTripCost) || 0;
+                        let extraChargesTotal = parseFloat($('#extra_charges').val()) || 0;
+                        let total = totalCost + extraChargesTotal;
+                        total = parseFloat(total.toFixed(2));
+
+                        $('#trip_price').val(totalCost.toFixed(2));
+                        $('#amount-field').val(totalCost.toFixed(2));
+                        $('#gocab-submit-btn').html('Charge SCN Card - $' + total);
+                        $("#amount-div").hide();
+                        $("#extra-div").hide();
+                        $("#gocab-div").show();
+                        $('#gocab_card_number').focus();
+                    }
                 }
             });
 
             $('.show-amount-div').click(function () {
                 $("#method-div").hide();
                 $("#complaint-div").hide();
+                $("#gocab-div").hide();
 
                 $("#gocab-account-div").hide();
                 $("#card-div").hide();
@@ -999,6 +1078,7 @@ $id = Auth::user()->id;
             $('#show-method-back').click(function () {
                 $("#method-div").show();
                 $("#complaint-div").hide();
+                $("#gocab-div").hide();
             });
 
             $('#account-check').click(function () {
@@ -1008,8 +1088,21 @@ $id = Auth::user()->id;
             $('#card-check').click(function () {
                 $('#radio20').prop('checked', true);
                 $("#show-amount-div").click();
+            });
+            $('#gocab-check').click(function () {
+                $('#radioGoCab').prop('checked', true);
+                $("#show-amount-div").click();
+            });
 
-
+            $('#gocab-submit-btn').click(function () {
+                let cardNum = ($('#gocab_card_number').val() || '').trim();
+                if (!cardNum) {
+                    $('#gocab-error-msg').text('Please enter a valid SCN Card number (e.g. SCN-100200300).').show();
+                    return;
+                }
+                $('#gocab-error-msg').hide();
+                $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verifying SCN Card...');
+                $('#payment_form').submit();
             });
 
 
@@ -1062,6 +1155,7 @@ $id = Auth::user()->id;
 
                 $("#method-div").hide();
                 $("#gocab-account-div").hide();
+                $("#gocab-div").hide();
                 $("#card-div").hide();
                 $("#amount-div").hide();
                 $("#extra-div").hide();
@@ -1071,6 +1165,7 @@ $id = Auth::user()->id;
                 $('#trip-div').show();
                 $("#method-div").hide();
                 $("#gocab-account-div").hide();
+                $("#gocab-div").hide();
                 $("#card-div").hide();
                 $("#amount-div").hide();
                 $("#extra-div").hide();
@@ -1214,6 +1309,7 @@ $id = Auth::user()->id;
                 $("#trip-div").show();
                 $("#method-div").hide();
                 $("#gocab-account-div").hide();
+                $("#gocab-div").hide();
                 $("#card-div").hide();
                 $("#amount-div").hide();
                 $("#extra-div").hide();

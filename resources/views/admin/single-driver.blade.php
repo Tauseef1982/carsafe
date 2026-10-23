@@ -748,7 +748,7 @@
                                                                     {{$trip->account_number}}
                                                                 @endif
                                                             </td>
-                                                            <td>{{$trip->payment_method}}</td>
+                                                            <td>@if($trip->payment_method == 'scn_card' || $trip->payment_method == 'gocab')<span class="badge bg-primary">SCN Card</span>@else{{ $trip->payment_method }}@endif</td>
 
                                                             <td class="cost-td">
                                                                 {{number_format($trip->trip_cost - $trip->extra_charges, 2, '.', ',')}}

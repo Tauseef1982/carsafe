@@ -122,7 +122,21 @@
                     @endif
                     @endif
                 </td>
-                <td class="method-td">{{$trip->payment_method}}</td>
+                <td class="method-td">
+                    @if($trip->payment_method == 'scn_card' || $trip->payment_method == 'gocab')
+                        <span class="badge bg-primary">SCN Card</span>
+                        <a href="javascript:void(0);" class="text-info ms-1" title="View SCN Card Details" onclick="show_gocab_modal('{{$trip->trip_id}}')">
+                            <i class="fa fa-info-circle"></i>
+                        </a>
+                    @elseif($trip->gocab_status === 'VOID')
+                        cash <span class="badge bg-secondary">SCN Voided</span>
+                        <a href="javascript:void(0);" class="text-info ms-1" title="View SCN Card Details" onclick="show_gocab_modal('{{$trip->trip_id}}')">
+                            <i class="fa fa-info-circle"></i>
+                        </a>
+                    @else
+                        {{$trip->payment_method}}
+                    @endif
+                </td>
 
                 <td class="cost-td">
                     {{number_format($trip->trip_cost - $trip->extra_charges, 2, '.', ',')}}

@@ -137,7 +137,7 @@
                             <h5>Trip Payment method</h5>
                       </div>
                         <div class="col-6 pt-2 b-primary">
-                            <h6>{{$trip->payment_method}}</h6>
+                            <h6>{{ ($trip->payment_method == 'scn_card' || $trip->payment_method == 'gocab') ? 'SCN Card' : $trip->payment_method }}</h6>
                        </div>
                     </div>
                     <!-- <div class="row ">

@@ -111,7 +111,8 @@ class AdminController extends Controller
             ->selectRaw("SUM(CASE WHEN payper_trip = 1 THEN trip_cost ELSE 0 END) as total_papertrip,
                      SUM(trip_cost) as total_tripcost,
                      SUM(CASE WHEN payment_method = 'card' THEN trip_cost ELSE 0 END) as total_trip_card_method,
-                     SUM(CASE WHEN payment_method = 'account' THEN trip_cost ELSE 0 END) as total_trip_account_method")->first();
+                     SUM(CASE WHEN payment_method = 'account' THEN trip_cost ELSE 0 END) as total_trip_account_method,
+                     SUM(CASE WHEN payment_method IN ('scn_card', 'gocab') THEN trip_cost ELSE 0 END) as total_trip_scn_card_method")->first();
 
 
         $payment_data = Payment::where('is_delete', 0)
@@ -189,7 +190,7 @@ class AdminController extends Controller
         // })->where('payment_method', 'account')->pluck('id');
         $tripsUnpaid = Trip::where('is_delete', 0)
             ->whereBetween('created_at', [$fromlastweek . ' 00:00:00', $tolastweek . ' 23:59:59'])
-            ->whereIn('payment_method', ['account', 'card'])
+            ->whereIn('payment_method', ['account', 'card', 'scn_card', 'gocab'])
            // ->whereNotIn('id', $tripsidnotinc)
             ->get(['trip_id', 'trip_cost']); // Get only trip_id and trip_cost
 
@@ -923,8 +924,16 @@ class AdminController extends Controller
                     return $paid;
                 })
                 ->editColumn('payment_method', function ($row) {
+                    if ($row->payment_method == 'scn_card' || $row->payment_method == 'gocab') {
+                        $return = '<span class="badge bg-primary">SCN Card</span>';
+                        $return .= ' <a href="javascript:void(0);" class="text-info ms-1" title="View SCN Card Details" onclick="show_gocab_modal(\'' . $row->trip_id . '\')"><i class="fa fa-info-circle"></i></a>';
+                        return $return;
+                    }
                     $return = $row->payment_method;
                     if ($row->payment_method == 'cash') {
+                        if ($row->gocab_status === 'VOID') {
+                            $return .= ' <span class="badge bg-secondary">SCN Voided</span> <a href="javascript:void(0);" class="text-info ms-1" title="View SCN Card Details" onclick="show_gocab_modal(\'' . $row->trip_id . '\')"><i class="fa fa-info-circle"></i></a><br>';
+                        }
                         $return .= '<a target="_blank"
                             href="' . url('admin/trip/pay') . '/' . $row->trip_id . '"
                             class="btn-sm btn-primary w-100">Accept Customer Payment</a>';
@@ -959,6 +968,7 @@ class AdminController extends Controller
                                        <option value=\'account\'>Account</option>
                                        <option value=\'cash\'>Cash</option>
                                        <option value=\'card\'>Card</option>
+                                       <option value=\'scn_card\'>SCN Card</option>
                                    </select>
 
                                    <label for=\'\'>Please Enter Reason</label>
@@ -1452,7 +1462,7 @@ class AdminController extends Controller
                     $query->where('trips.status', 'NOT LIKE', '%Cancelled%')
                         ->orWhere('trips.status', 'NOT LIKE', '%Client canceled%');
                 })
-                ->whereIn('trips.payment_method', ['card', 'account'])
+                ->whereIn('trips.payment_method', ['card', 'account', 'scn_card', 'gocab'])
                 ->select(
                     'trips.extra_charges',
                     'trips.extra_stop_amount',
@@ -1522,8 +1532,16 @@ class AdminController extends Controller
                     return number_format($paid, 2, '.', ',');
                 })
                 ->editColumn('payment_method', function ($row) {
+                    if ($row->payment_method == 'scn_card' || $row->payment_method == 'gocab') {
+                        $return = '<span class="badge bg-primary">SCN Card</span>';
+                        $return .= ' <a href="javascript:void(0);" class="text-info ms-1" title="View SCN Card Details" onclick="show_gocab_modal(\'' . $row->trip_id . '\')"><i class="fa fa-info-circle"></i></a>';
+                        return $return;
+                    }
                     $return = $row->payment_method;
                     if ($row->payment_method == 'cash') {
+                        if ($row->gocab_status === 'VOID') {
+                            $return .= ' <span class="badge bg-secondary">SCN Voided</span> <a href="javascript:void(0);" class="text-info ms-1" title="View SCN Card Details" onclick="show_gocab_modal(\'' . $row->trip_id . '\')"><i class="fa fa-info-circle"></i></a><br>';
+                        }
                         $return .= '<a target="_blank"
                         href="' . url('admin/trip/pay') . '/' . $row->trip_id . '"
                         class="btn-sm btn-primary w-100">Accept Customer Payment</a>';

@@ -56,8 +56,24 @@ class Trip extends Model
         'icked_up',
         'first_destination',
         'payper_trip',
-        'order_id'
+        'order_id',
+        'pickup_lat',
+        'pickup_lng',
+        'dropoff_lat',
+        'dropoff_lng',
+        'gocab_card_number',
+        'gocab_status',
+        'gocab_reason',
+        'gocab_response',
+    ];
 
+    protected $casts = [
+        'gocab_response' => 'array',
+        'pickup_lat' => 'float',
+        'pickup_lng' => 'float',
+        'dropoff_lat' => 'float',
+        'dropoff_lng' => 'float',
+        'gocab_paid' => 'float',
     ];
     public function getActivitylogOptions(): LogOptions
     {
@@ -123,6 +139,38 @@ class Trip extends Model
             'order_id',   // foreign key on trips table
             'order_id'    // owner key on customer_bookings table
         );
+    }
+
+    /**
+     * Check if the trip was approved and charged via GoCab SCN.
+     */
+    public function isGoCabCovered(): bool
+    {
+        return $this->gocab_status === 'COVERED' && (float) $this->gocab_paid > 0;
+    }
+
+    /**
+     * Check if the trip was submitted to GoCab but declined (not covered).
+     */
+    public function isGoCabUncovered(): bool
+    {
+        return $this->gocab_status === 'UNCOVERED';
+    }
+
+    /**
+     * Check if the trip was voided on GoCab.
+     */
+    public function isGoCabVoided(): bool
+    {
+        return $this->gocab_status === 'VOID';
+    }
+
+    /**
+     * Determine if this trip can be voided via GoCab SCN API.
+     */
+    public function canVoidGoCab(): bool
+    {
+        return !empty($this->gocab_payment_id) && $this->gocab_status === 'COVERED';
     }
 }
 

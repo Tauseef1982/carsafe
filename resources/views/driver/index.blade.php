@@ -201,7 +201,7 @@
                                 '<span style="display: block;" class="notranslate">Date: ' + formattedDate + '</span>' +
                                 '<span style="display: block;">Cost: $' + trip.trip_cost + '</span>' +
                                 '<span style="display: block;" >From: ' + trip.location_from + '</span>' +
-                                '<span style="display: block;" >Payment Method: ' + trip.payment_method + '</span>' +
+                                '<span style="display: block;" >Payment Method: ' + (trip.payment_method === 'scn_card' || trip.payment_method === 'gocab' ? 'SCN Card' : trip.payment_method) + '</span>' +
 
                                 '</a>' +
                                 '</li>'

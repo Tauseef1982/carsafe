@@ -20,6 +20,7 @@ use App\Services\EmailService;
 use App\Services\LogService;
 use App\Services\CubeContact;
 use App\Services\PaymentSaveService;
+use App\Services\GoCabService;
 use App\Services\TokenService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -48,6 +49,7 @@ class TripController extends Controller
             $trips = Trip::where('trips.is_delete', 0)
                 ->where('trips.driver_id', $driverId)
                 ->where('trips.date', '>', now()->subDays(3))
+                ->where('payment_method', 'cash')
                 ->where('status', 'NOT LIKE', '%Cancelled%')
                 ->where('status', 'NOT LIKE', '%Client canceled%')
                 // ->whereNotNull('icked_up')
@@ -1207,6 +1209,182 @@ class TripController extends Controller
                 return response()->json(['status' => false, 'message' => $charge['message']]);
             }
         }
+
+        if ($request->payment_method == 'scn_card' || $request->payment_method == 'gocab') {
+            try {
+                if ($request->has('trip') && isset($trip)) {
+                    // Existing trip selected
+                } else {
+                    $trip = new Trip();
+                    $trip->is_manuall = 1;
+                    $trip->driver_id = auth()->user()->driver_id ?? $request->driver_id;
+                    $trip->date = now()->toDateString();
+                    $trip->time = now()->toTimeString();
+                    do {
+                        $randomTripId = random_int(1000000000, 9999999999);
+                    } while (Trip::where('trip_id', $randomTripId)->exists());
+                    $trip->trip_id = $randomTripId;
+                }
+
+                $gocabCard = trim((string)($request->scn_card_number ?? $request->gocab_card_number ?? ''));
+                if (empty($gocabCard)) {
+                    DB::rollBack();
+                    return $this->respond($request, false, 'Please enter a SCN Card number.');
+                }
+
+                $cost = (float)($trip->trip_cost > 0 ? $trip->trip_cost : ($request->amount ?? 0));
+                $extraCharges = (float)($request->extra_charges > 0 ? $request->extra_charges : ($trip->extra_charges ?? 0));
+                $totalCost = round($cost + $extraCharges, 2);
+
+                if ($totalCost <= 0) {
+                    DB::rollBack();
+                    return $this->respond($request, false, 'Trip amount must be greater than zero.');
+                }
+
+                $pickupLat = (float)($trip->pickup_lat ?? $request->pickup_lat ?? 0);
+                $pickupLng = (float)($trip->pickup_lng ?? $request->pickup_lng ?? 0);
+                $dropoffLat = (float)($trip->dropoff_lat ?? $request->dropoff_lat ?? 0);
+                $dropoffLng = (float)($trip->dropoff_lng ?? $request->dropoff_lng ?? 0);
+
+                $chargePayload = [
+                    'cardNumber' => $gocabCard,
+                    'fareAmount' => $totalCost,
+                    'tripDate' => $trip->date ? $trip->date . ' ' . ($trip->time ?? '00:00:00') : now(),
+                    'pickup' => [
+                        'address' => $trip->location_from ?: 'Pickup Location',
+                        'latitude' => $pickupLat,
+                        'longitude' => $pickupLng,
+                    ],
+                    'dropoff' => [
+                        'address' => $trip->location_to ?: 'Dropoff Location',
+                        'latitude' => $dropoffLat,
+                        'longitude' => $dropoffLng,
+                    ],
+                    'externalTripId' => (string)$trip->trip_id,
+                ];
+
+                $chargeResult = GoCabService::chargeTrip($chargePayload);
+
+                if ($chargeResult['status'] === true && $chargeResult['approved'] === true) {
+                    // Success: either 201 COVERED or 409 duplicate ALREADY PAID
+                    $gocabTrip = $chargeResult['trip'] ?? [];
+                    $trip->payment_method = 'scn_card';
+                    $trip->gocab_card_number = $gocabCard;
+                    $trip->gocab_payment_id = $gocabTrip['id'] ?? null;
+                    $trip->gocab_paid = (float)($gocabTrip['fareAmount'] ?? $totalCost);
+                    $trip->trip_cost = $trip->gocab_paid;
+                    $trip->gocab_status = 'COVERED';
+                    $trip->gocab_reason = null;
+                    $trip->gocab_response = $chargeResult['raw'] ?? null;
+
+                    if (isset($request->extra_charges)) {
+                        $trip->extra_charges = $request->extra_charges;
+                    }
+                    if (isset($request->stop_amount)) {
+                        $trip->extra_stop_amount = collect($request->stop_amount)->filter()->first();
+                        $trip->stop_location = collect($request->stop_location)->filter()->first();
+                    }
+                    if (isset($request->wait_amount)) {
+                        $trip->extra_wait_amount = collect($request->wait_amount)->filter()->first();
+                    }
+                    if (isset($request->round_trip)) {
+                        $trip->extra_round_trip = $request->round_trip;
+                    }
+
+                    $trip->save();
+
+                    // Credit driver balance using standard addpay
+                    $weekStart = now()->startOfWeek(Carbon::SUNDAY);
+                    $driver = Driver::where('driver_id', $trip->driver_id)->first();
+                    $is_dispatcher = 0;
+                    if ($request->has('is_admin') && auth()->check()) {
+                        if (auth()->user()->role === 'dispatcher') {
+                            $is_dispatcher = 1;
+                        }
+                    }
+                    $before = $driver ? $driver->balance_details($weekStart, now(), true) : 0;
+
+                    $pay_data = $this->addpay($trip, $request);
+
+                    if ($driver) {
+                        $after = $driver->fresh()->balance_details($weekStart, now(), true);
+                        $driver_balance = new DriverBalanceHistory();
+                        $driver_balance->driver_id = $driver->driver_id;
+                        $driver_balance->trip_id = $trip->trip_id;
+                        $driver_balance->week_start = $weekStart;
+                        $driver_balance->balance_before = $before;
+                        $driver_balance->payment_id = $pay_data->id;
+                        $driver_balance->transaction_amount = $pay_data->amount;
+                        $driver_balance->balance_after = $after;
+                        $driver_balance->is_dispatcher = $is_dispatcher;
+                        $driver_balance->payment_method = 'scn_card';
+                        $driver_balance->save();
+                    }
+
+                    if ($driver && !empty($driver->phone)) {
+                        $driverphone = preg_replace('/[^0-9]/', '', $driver->phone);
+                        if (!Str::startsWith($driverphone, '+1')) {
+                            $driverphone = '+1' . $driverphone;
+                        }
+                        $message = 'SCN Card Payment Added Against Trip #' . $trip->trip_id;
+                        TwilioService::sendRawSms($driverphone, $message);
+                    }
+
+                    $logdata = [
+                        'from' => 'driver',
+                        'payment' => $pay_data,
+                        'trip' => $trip,
+                        'message' => 'SCN Card Payment Added By Driver Card#' . $gocabCard . ' Trip#' . $trip->trip_id . ' Amount ' . $pay_data->amount,
+                    ];
+                    LogService::saveLog($logdata);
+                    $this->ifBalanceMinusAutoPaidAsAdmin($trip);
+
+                    DB::commit();
+
+                    $trip_id = $trip->trip_id;
+                    $paid_cost = $trip->trip_cost;
+
+                    if (isset($request->is_admin)) {
+                        $id = $trip->driver->id ?? 0;
+                        return view('admin.success', compact('id', 'trip_id', 'paid_cost'));
+                    } else {
+                        if ($request->expectsJson()) {
+                            return response()->json([
+                                'status' => true,
+                                'message' => 'SCN Card payment approved and completed successfully!',
+                                'trip_id' => $trip->trip_id,
+                                'amount' => $trip->trip_cost,
+                                'redirect_url' => route('driver.success', $trip->trip_id),
+                            ]);
+                        }
+                        return view('driver.success', compact('trip_id', 'paid_cost'));
+                    }
+                } else {
+                    // Declined (UNCOVERED) or validation error: Do NOT credit driver balance
+                    DB::rollBack();
+
+                    $trip->gocab_card_number = $gocabCard;
+                    $trip->gocab_status = $chargeResult['state'] ?? 'UNCOVERED';
+                    $trip->gocab_reason = $chargeResult['reason'] ?? $chargeResult['message'];
+                    $trip->gocab_response = $chargeResult['raw'] ?? null;
+                    $trip->save();
+
+                    $logdata = [
+                        'from' => 'driver',
+                        'trip' => $trip,
+                        'message' => 'SCN Card Payment Declined: ' . ($chargeResult['reason'] ?? $chargeResult['message']) . ' Trip#' . $trip->trip_id,
+                    ];
+                    LogService::saveLog($logdata);
+
+                    $errorMessage = 'SCN Card Declined: ' . ($chargeResult['reason'] ?? $chargeResult['message'] ?? 'Trip not covered.') . ' Please collect cash or an alternate card.';
+                    return $this->respond($request, false, $errorMessage);
+                }
+            } catch (\Throwable $ex) {
+                DB::rollBack();
+                Log::error('SCN Card Payment Exception in TripController', ['error' => $ex->getMessage()]);
+                return $this->respond($request, false, 'SCN Card Payment Error: ' . $ex->getMessage());
+            }
+        }
         } catch (\Throwable $e){
             DB::rollBack();
 
@@ -1331,6 +1509,116 @@ class TripController extends Controller
         return $modal;
     }
 
+    public function getGoCabModal(Request $request)
+    {
+        $trip = Trip::where('trip_id', $request->trip_id)->first();
+        if (!$trip) {
+            return response()->json(['error' => 'Trip not found'], 404);
+        }
+
+        return view('admin.partials.modals.gocab_trip_details', compact('trip'));
+    }
+
+    public function voidGoCabTrip($trip_id, Request $request)
+    {
+        $trip = Trip::where('trip_id', $trip_id)->first();
+        if (!$trip) {
+            return redirect()->back()->with('error', 'Trip not found.');
+        }
+
+        if (!$trip->canVoidGoCab()) {
+            return redirect()->back()->with('error', 'This trip cannot be voided via SCN Card (it is not covered or was already voided).');
+        }
+
+        $result = GoCabService::voidTrip($trip->gocab_payment_id);
+
+        if ($result['status'] === true) {
+            DB::beginTransaction();
+            try {
+                $weekStart = now()->startOfWeek(Carbon::SUNDAY);
+                $driver = Driver::where('driver_id', $trip->driver_id)->first();
+                $is_dispatcher = 0;
+                if ($request->has('is_admin') && auth()->check()) {
+                    if (auth()->user()->role === 'dispatcher') {
+                        $is_dispatcher = 1;
+                    }
+                }
+                $before = $driver ? $driver->balance_details($weekStart, now(), true) : 0;
+
+                // 1. Mark trip as VOID and convert payment method to cash
+                $trip->gocab_status = 'VOID';
+                $trip->payment_method = 'cash';
+                $trip->gocab_response = $result['raw'] ?? $trip->gocab_response;
+                $trip->save();
+
+                // 2. Soft-delete driver credit payment so driver balance goes down
+                $driver_payment = Payment::where('user_type', 'driver')
+                    ->where('type', 'credit')
+                    ->where('trip_id', $trip->trip_id)
+                    ->where('is_delete', 0)
+                    ->first();
+
+                if ($driver_payment) {
+                    $driver_payment->is_delete = 1;
+                    $driver_payment->save();
+                }
+
+                // Remove any admin debit records associated with this trip to avoid double deduction
+                Payment::where('trip_id', $trip->trip_id)
+                    ->where('user_type', 'admin')
+                    ->where('type', 'debit')
+                    ->update(['is_delete' => 1]);
+
+                // 3. Record history in DriverBalanceHistory
+                if ($driver) {
+                    $after = $driver->fresh()->balance_details($weekStart, now(), true);
+                    $driver_balance = new DriverBalanceHistory();
+                    $driver_balance->driver_id = $driver->driver_id;
+                    $driver_balance->trip_id = $trip->trip_id;
+                    $driver_balance->week_start = $weekStart;
+                    $driver_balance->balance_before = $before;
+                    $driver_balance->payment_id = $driver_payment ? $driver_payment->id : null;
+                    $driver_balance->transaction_amount = -(float)$trip->gocab_paid;
+                    $driver_balance->balance_after = $after;
+                    $driver_balance->is_dispatcher = $is_dispatcher;
+                    $driver_balance->payment_method = 'cash';
+                    $driver_balance->save();
+                }
+
+                if ($driver && !empty($driver->phone)) {
+                    $driverphone = preg_replace('/[^0-9]/', '', $driver->phone);
+                    if (!Str::startsWith($driverphone, '+1')) {
+                        $driverphone = '+1' . $driverphone;
+                    }
+                    $message = 'SCN Card Payment for Trip #' . $trip->trip_id . ' has been VOIDED. Payment method is now Cash.';
+                    TwilioService::sendRawSms($driverphone, $message);
+                }
+
+                LogService::saveLog([
+                    'from' => 'admin',
+                    'trip' => $trip,
+                    'message' => 'Admin voided SCN Card trip #' . $trip->trip_id . ' (SCN ID #' . $trip->gocab_payment_id . '). Payment method became cash and driver balance was deducted.',
+                ]);
+
+                DB::commit();
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'SCN Card trip was successfully voided. Payment method changed to Cash and driver balance was deducted.',
+                    ]);
+                }
+
+                return redirect()->back()->with('success', 'SCN Card trip was successfully voided. Payment method changed to Cash and driver balance was deducted.');
+            } catch (\Throwable $e) {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'Failed to update local records after SCN Card void: ' . $e->getMessage());
+            }
+        }
+
+        return redirect()->back()->with('error', 'SCN Card void failed: ' . ($result['message'] ?? 'Unknown error'));
+    }
+
     public function getSinglePayment(Request $request)
     {
 
@@ -1418,7 +1706,7 @@ class TripController extends Controller
                 $query->where('type', 'debit')
                     ->where('user_type', 'admin');
             })
-            ->whereIn('payment_method', ['account', 'card'])
+            ->whereIn('payment_method', ['account', 'card', 'scn_card', 'gocab'])
             ->where('reason', '!=', '')
             ->orderBy('date', 'desc')
             ->first(); // Use get() if multiple results are expected

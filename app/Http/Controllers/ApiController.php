@@ -17,6 +17,7 @@ use App\Models\Trip;
 use App\Services\CardKnoxService;
 use App\Services\CubeContact;
 use App\Services\EmailService;
+use App\Services\GeoapifyService;
 use App\Services\LogService;
 use App\Services\PaymentSaveService;
 use App\Services\TokenService;
@@ -444,16 +445,65 @@ public function getWebHookTrip(Request $request)
                     : ($trip['estimatedPrice'] ?? 0))
         );
 
-        // --- Step 14: Update or create trip record ---
+        // --- Step 14: Resolve coordinates & Update or create trip record ---
+        $pickupLocation = $trip['route.pick_up_text'] ?? '';
+        $dropoffLocation = $to_location ?? ($trip['route.drop_off_text'] ?? '');
+
         if ($existingTrip) {
-                if (!empty($trip['driverId'])) {
-                    $existingTrip->driver_id = $trip['driverId'];
-                    $existingTrip->save();
+            if (!empty($trip['driverId'])) {
+                $existingTrip->driver_id = $trip['driverId'];
+                $existingTrip->save();
+            }
+
+            // Backfill coordinates if existing trip is missing them
+            if (($existingTrip->pickup_lat === null || $existingTrip->dropoff_lat === null) && (!empty($pickupLocation) || !empty($dropoffLocation))) {
+                if ($existingTrip->pickup_lat === null && !empty($pickupLocation)) {
+                    $pCoords = GeoapifyService::getCoordinates($pickupLocation);
+                    if ($pCoords) {
+                        $existingTrip->pickup_lat = $pCoords['lat'];
+                        $existingTrip->pickup_lng = $pCoords['lng'];
+                    }
                 }
+                if ($existingTrip->dropoff_lat === null && !empty($dropoffLocation)) {
+                    $dCoords = GeoapifyService::getCoordinates($dropoffLocation);
+                    if ($dCoords) {
+                        $existingTrip->dropoff_lat = $dCoords['lat'];
+                        $existingTrip->dropoff_lng = $dCoords['lng'];
+                    }
+                }
+                $existingTrip->save();
+            }
+
             if ($existingTrip->payment_method === 'cash' && empty($existingTrip->temp_data)) {
+                // If pickup location changed or coords missing, resolve coordinates
+                $pickupLat = $existingTrip->pickup_lat;
+                $pickupLng = $existingTrip->pickup_lng;
+                if (($pickupLat === null || $existingTrip->location_from !== $pickupLocation) && !empty($pickupLocation)) {
+                    $pCoords = GeoapifyService::getCoordinates($pickupLocation);
+                    if ($pCoords) {
+                        $pickupLat = $pCoords['lat'];
+                        $pickupLng = $pCoords['lng'];
+                    }
+                }
+
+                // If dropoff location changed or coords missing, resolve coordinates
+                $dropoffLat = $existingTrip->dropoff_lat;
+                $dropoffLng = $existingTrip->dropoff_lng;
+                if (($dropoffLat === null || $existingTrip->location_to !== $dropoffLocation) && !empty($dropoffLocation)) {
+                    $dCoords = GeoapifyService::getCoordinates($dropoffLocation);
+                    if ($dCoords) {
+                        $dropoffLat = $dCoords['lat'];
+                        $dropoffLng = $dCoords['lng'];
+                    }
+                }
+
                 $existingTrip->update([
-                    'location_from' => $trip['route.pick_up_text'] ?? '',
-                    'location_to' => $to_location ?? '',
+                    'location_from' => $pickupLocation,
+                    'pickup_lat' => $pickupLat,
+                    'pickup_lng' => $pickupLng,
+                    'location_to' => $dropoffLocation,
+                    'dropoff_lat' => $dropoffLat,
+                    'dropoff_lng' => $dropoffLng,
                     'date' => $date ?? '',
                     'time' => $time ?? '',
                     'trip_cost' => $tripCost,
@@ -470,10 +520,17 @@ public function getWebHookTrip(Request $request)
                 return response()->json('updated', 200);
             }
         } else {
+            $pickupCoords = GeoapifyService::getCoordinates($pickupLocation);
+            $dropoffCoords = GeoapifyService::getCoordinates($dropoffLocation);
+
             Trip::create([
                 'trip_id' => $tripId,
-                'location_from' => $trip['route.pick_up_text'] ?? '',
-                'location_to' => $to_location,
+                'location_from' => $pickupLocation,
+                'pickup_lat' => $pickupCoords['lat'] ?? null,
+                'pickup_lng' => $pickupCoords['lng'] ?? null,
+                'location_to' => $dropoffLocation,
+                'dropoff_lat' => $dropoffCoords['lat'] ?? null,
+                'dropoff_lng' => $dropoffCoords['lng'] ?? null,
                 'date' => $date ?? '',
                 'time' => $time ?? '',
                 'trip_cost' => $tripCost,
@@ -490,12 +547,12 @@ public function getWebHookTrip(Request $request)
                 'order_id' => $order_id,
                 'stop_location' => $stops,
             ]);
-                $driver = Driver::where('driver_id', $trip['driverId'])->first();
-                if ($driver) {
-                    $driver->last_trip_at = $date;
-                    $driver->save();
-                }
-                return response()->json('created', 201);
+            $driver = Driver::where('driver_id', $trip['driverId'])->first();
+            if ($driver) {
+                $driver->last_trip_at = $date;
+                $driver->save();
+            }
+            return response()->json('created', 201);
         }
 
         return response()->json('no action', 200);

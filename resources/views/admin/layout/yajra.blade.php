@@ -261,6 +261,22 @@
           });
 
       }
+
+      function show_gocab_modal(trip_id) {
+          $('#extraModaleditbody').html('<div class="p-4 text-center"><i class="fa fa-spin fa-spinner"></i> Loading SCN Card details...</div>');
+          $('#extraModaledit').modal('show');
+          $.ajax({
+              url: '{{ url("admin/get-gocab-modal") }}',
+              type: 'GET',
+              data: { trip_id: trip_id },
+              success: function(response) {
+                  $('#extraModaleditbody').html(response);
+              },
+              error: function() {
+                  $('#extraModaleditbody').html('<div class="modal-content"><div class="modal-body text-danger p-3">Failed to load SCN Card details.</div></div>');
+              }
+          });
+      }
           </script>
 @yield('js')
 </body>

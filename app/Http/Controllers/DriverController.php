@@ -97,7 +97,7 @@ class DriverController extends Controller
         $lastweekbalance = Trip::where('driver_id', $driver_id)->where('is_delete',0)
             ->where('created_at','>=',$fromlastweek . ' 00:00:00')
             ->where('created_at','<=',$tolastweek . ' 23:59:59')
-            ->whereIn('payment_method', ['account', 'card'])
+            ->whereIn('payment_method', ['account', 'card', 'scn_card', 'gocab'])
             //->whereNotIn('id',$tripsidnotinc)
             ->get(['trip_id', 'trip_cost']); // Get only trip_id and trip_cost
 
@@ -125,7 +125,7 @@ class DriverController extends Controller
             ->where('created_at','>=',$fromcurrentweek . ' 00:00:00')
             ->where('created_at','<=',$tocurrentweek. ' 23:59:59')
            // ->whereNotIn('id',$tripsidnotinc)
-            ->whereIn('payment_method',['account','card'])
+            ->whereIn('payment_method', ['account', 'card', 'scn_card', 'gocab'])
             ->get(['trip_id', 'trip_cost']); // Get only trip_id and trip_cost
 
 
@@ -454,7 +454,7 @@ class DriverController extends Controller
             $creditSub = DB::table('trips')
                 ->select('driver_id', DB::raw('SUM(trip_cost) as total_credit'))
                 ->where('is_delete', 0)
-                ->whereIn('payment_method', ['account', 'card'])
+                ->whereIn('payment_method', ['account', 'card', 'scn_card', 'gocab'])
                 ->when(
                     $from && $to,
                     fn($q) => $q->whereBetween('created_at',

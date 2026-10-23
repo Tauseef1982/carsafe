@@ -79,6 +79,8 @@ Route::group(['middleware' => 'admin.auth'], function () {
         Route::get('/get-single-payment-modal', [TripController::class, 'getSinglePayment']);
         Route::post('/update-single-payment-modal', [TripController::class, 'updateSinglePayment']);
         Route::delete('/delete-single-payment', [TripController::class, 'deleteSinglePayment']);
+        Route::get('/get-gocab-modal', [TripController::class, 'getGoCabModal']);
+        Route::post('/trips/{trip_id}/gocab-void', [TripController::class, 'voidGoCabTrip'])->name('trips.gocab-void');
 
         Route::any('/trips_manually', [AdminController::class, 'dataTableManuallyTripstrips'])->name('dataTableManuallyTripstrips');
         //customer pay to gocab from this account credit card
