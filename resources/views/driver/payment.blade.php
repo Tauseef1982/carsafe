@@ -2,11 +2,8 @@
 use Illuminate\Support\Carbon;
 use App\Models\Driver;
 $util = new \App\Utils\dateUtil();
-$id = Auth::user()->id;
-    $driver = Driver::find($id);
-    $username = $driver->username;
-
-
+$driver = $driver ?? Auth::guard('driver')->user() ?? (Auth::user() ? Driver::find(Auth::user()->id) : null);
+$username = $driver->username ?? '';
 @endphp
 @extends('layout')
 
@@ -141,7 +138,7 @@ $id = Auth::user()->id;
                                             </div>
                                         </div>
                                     </div>
-                            @if($username == 'Fabian')
+                            @if(strcasecmp(trim($username), 'manuel r') === 0 || (isset($driver) && strcasecmp(trim($driver->first_name), 'manuel r') === 0))
                             <div class="card" id="gocab-check" style="cursor: pointer;">
                                 <div class="media p-20">
                                     <div class="form-check radio radio-primary me-3">
