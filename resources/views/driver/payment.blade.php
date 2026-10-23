@@ -141,7 +141,7 @@ $id = Auth::user()->id;
                                             </div>
                                         </div>
                                     </div>
-                            @if($username == 1234)
+                            @if($username == 'Fabian')
                             <div class="card" id="gocab-check" style="cursor: pointer;">
                                 <div class="media p-20">
                                     <div class="form-check radio radio-primary me-3">
