@@ -452,6 +452,7 @@ if (!$record) {
         $account->recharge = $request->recharge;
         $account->autofill = $request->autofill;
         $account->first_refill = $request->first_refill;
+        $account->auto_charge_trip_cost = $request->auto_charge_trip_cost ? 1 : 0;
         $account->f_name = $request->f_name;
         $account->phone = $request->phone;
         $account->email = $request->email;

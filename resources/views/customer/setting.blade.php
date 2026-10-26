@@ -95,6 +95,17 @@
 
                                    </div>
                                    <div class="d-flex justify-content-between autofilldiv mt-3">
+                                    <label for="">Do you want to auto charge card if balance is less than trip cost</label>
+                                    <div class=" ">
+                                         <input type="radio" class="form-check-input" id="on-auto_charge_trip_cost" name="auto_charge_trip_cost" value="1"
+                                           @if($account->auto_charge_trip_cost == 1) checked @endif><label for="on-auto_charge_trip_cost" class="">On</label>
+
+                                         <input type="radio" class="ms-3 form-check-input" id="off-auto_charge_trip_cost" name="auto_charge_trip_cost" value="0"
+                                           @if($account->auto_charge_trip_cost != 1) checked @endif>
+                                           <label for="off-auto_charge_trip_cost" class="">Off</label>
+                                    </div>
+                                   </div>
+                                   <div class="d-flex justify-content-between autofilldiv mt-3">
                                      <label for="">Do you want phone restriction on trip</label>
                                      <div>
                                         <input type="checkbox" id="is_trip_restricted_by_phone"

@@ -119,7 +119,8 @@ Route::group(['middleware' => 'admin.auth'], function () {
         Route::post('/pay-to-gocab', [AccountController::class, 'paymentToGocab'])->name('pay-to-gocab');
         Route::post('/update_account_restriction', [AccountController::class, 'account_restriction']);
         Route::post('/disable_stops', [AccountController::class, 'disable_stops']);
-         Route::post('/disable_account_payment', [AccountController::class, 'disable_account_payment']);
+        Route::post('/disable_account_payment', [AccountController::class, 'disable_account_payment']);
+        Route::post('/auto_charge_trip_cost', [AccountController::class, 'auto_charge_trip_cost']);
         Route::delete('/account/allowed-addresses/{id}', [AccountController::class, 'deleteAllowedAddress'])->name('allowed-addresses.delete');
 
         Route::post('/pay-to-refill', [AccountController::class, 'paymentToRefill']);

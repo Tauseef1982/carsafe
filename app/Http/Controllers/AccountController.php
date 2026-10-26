@@ -447,6 +447,7 @@ class AccountController extends Controller
         $account->autofill = $request->autofill;
         $account->first_refill = $request->first_refill;
         $account->paypertrip = $request->paypertrip;
+        $account->auto_charge_trip_cost = $request->auto_charge_trip_cost ? 1 : 0;
         $account->f_name = $request->f_name;
         $account->phone = $request->phone;
         $account->email = $request->email;
@@ -1934,6 +1935,15 @@ class AccountController extends Controller
 
         return back()->with('success', 'Account payment method is updated.');
 
+    }
+
+    public function auto_charge_trip_cost(Request $request)
+    {
+        $id = $request->account_id;
+        $account = Account::find($id);
+        $account->auto_charge_trip_cost = $request->has('auto_charge_trip_cost');
+        $account->save();
+        return back()->with('success', 'Account auto charge on low balance setting is updated.');
     }
 
     public function account_restriction(Request $request)

@@ -844,9 +844,10 @@ class TripController extends Controller
                                 $account->save();
                             } elseif($account->balance < $cost) {
 
-                                  $account_responce = PaymentSaveService::prepPaidRefill($account, "single", $cost);
+                                if ($account->auto_charge_trip_cost) {
+                                    $account_responce = PaymentSaveService::prepPaidRefill($account, "single", $cost);
 
-                                   if ($account_responce != false) {
+                                    if ($account_responce != false) {
                                         $account = $account_responce;
                                         Log::info("prepaid refill suddenly only for trip cost " . $trip->trip_id);
                                         $trip->update();
@@ -854,16 +855,16 @@ class TripController extends Controller
                                         $account->balance = $account->balance - $cost;
                                         $account->save();
 
-                                    }else{
-
+                                    } else {
+                                        DB::rollBack();
                                         \App\Services\TwilioService::voicecall($account->phone, 'refill-need');
                                         return $this->respond($request, false, 'Prepaid Account:Low Balance.');
                                     }
-
-
-
-
-
+                                } else {
+                                    DB::rollBack();
+                                    \App\Services\TwilioService::voicecall($account->phone, 'refill-need');
+                                    return $this->respond($request, false, 'Prepaid Account:Low Balance.');
+                                }
                             }
                         }
 

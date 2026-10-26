@@ -95,6 +95,9 @@
                               <label for="">Do you want to on pay per trip</label><br>
                               <input type="radio" id="on-paypertrip" name="paypertrip" @if($account->paypertrip == 'on') checked @endif value="on"><label for="on-paypertrip "> On</label>
                               <input type="radio" id="off-paypertrip"  name="paypertrip" @if($account->paypertrip == 'off') checked @endif value="off"><label for="off-paypertrip "> Off</label><br>
+                              <label for="">Auto charge card if balance is less than trip cost</label><br>
+                              <input type="radio" id="on-auto_charge_trip_cost" name="auto_charge_trip_cost" @if($account->auto_charge_trip_cost == 1) checked @endif value="1"><label for="on-auto_charge_trip_cost"> On</label>
+                              <input type="radio" id="off-auto_charge_trip_cost" name="auto_charge_trip_cost" @if($account->auto_charge_trip_cost != 1) checked @endif value="0"><label for="off-auto_charge_trip_cost"> Off</label><br>
 
                                 <label for="">Do you want phone restriction on trip</label><br>
                                 <input type="checkbox" id="is_trip_restricted_by_phone"

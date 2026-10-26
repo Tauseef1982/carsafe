@@ -124,7 +124,7 @@
                             <button type="submit" class="btn btn-primary mt-3">Save</button>
                         </form>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <form action="{{ url('admin/disable_stops') }}" method="post" class="mt-4">
                                     @csrf
                                     <input type="hidden" value="{{ $account->id }}" name="account_id">
@@ -135,7 +135,7 @@
                                     <button type="submit" class="btn btn-primary mt-3">Save</button>
                                 </form>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <form action="{{ url('admin/disable_account_payment') }}" method="post" class="mt-4">
                                     @csrf
                                     <input type="hidden" value="{{ $account->id }}" name="account_id">
@@ -143,6 +143,18 @@
                                         <input type="checkbox" name="disable_account_payment" id="disable_account_paymnet"
                                             {{ $account->disable_account_payment ? 'checked' : '' }}>
                                         Disable Account Payments
+                                    </label> <br>
+                                    <button type="submit" class="btn btn-primary mt-3">Save</button>
+                                </form>
+                            </div>
+                            <div class="col-md-4">
+                                <form action="{{ url('admin/auto_charge_trip_cost') }}" method="post" class="mt-4">
+                                    @csrf
+                                    <input type="hidden" value="{{ $account->id }}" name="account_id">
+                                    <label>
+                                        <input type="checkbox" name="auto_charge_trip_cost" id="auto_charge_trip_cost"
+                                            {{ $account->auto_charge_trip_cost ? 'checked' : '' }}>
+                                        Auto charge card if balance is less than trip cost
                                     </label> <br>
                                     <button type="submit" class="btn btn-primary mt-3">Save</button>
                                 </form>
