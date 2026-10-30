@@ -867,63 +867,76 @@ public function getWebHookTrip(Request $request)
 
     public function addcard(Request $request){
 
-        Log::info($request->all());
-          $checkCard = CreditCard::where('account_id', $request->account_id)->first();
-        $creditCard = new CreditCard;
-        $creditCard->account_id = $request->account_id;
+        Log::info('addcard request: ', $request->all());
 
-        if ($checkCard) {
+        try {
+            $accountId = $request->account_id ?? $request->account ?? $request->account_number;
 
-            $creditCard->charge_priority = 0;
+            if (empty($accountId)) {
+                return response()->json([
+                    'valid' => false,
+                    'message' => 'Account ID is required'
+                ], 400);
+            }
 
-        }
-         $cardNumber = $request->card_number;
+            $uaccount = Account::where('account_id', $accountId)->first();
+
+            $checkCard = CreditCard::where('account_id', $accountId)->where('is_deleted', 0)->first();
+            $creditCard = new CreditCard;
+            $creditCard->account_id = $accountId;
+            $creditCard->charge_priority = $checkCard ? 0 : 1;
+            $creditCard->account_number = $uaccount?->f_name ?? (string)$accountId;
+            $creditCard->account_name = $uaccount?->lname ?? '';
+
+            $cardNumber = trim($request->card_number);
             $maskedCard = substr($cardNumber, 0, 1) . str_repeat('*', strlen($cardNumber) - 5) . substr($cardNumber, -4);
-
             $creditCard->card_number = $maskedCard;
             $creditCard->cvc = $request->cvc;
-            // Process expiry date
 
-                $month = $request->expiry_month;
-                $year = $request->expiry_year;
-                $expiryWithoutSlash = $month.$year;
+            // Process expiry date safely (support 1 or 2 digit month, 2 or 4 digit year)
+            $month = str_pad(trim($request->expiry_month), 2, '0', STR_PAD_LEFT);
+            $rawYear = trim($request->expiry_year);
+            $year = strlen($rawYear) > 2 ? substr($rawYear, -2) : str_pad($rawYear, 2, '0', STR_PAD_LEFT);
+            $expiryWithoutSlash = $month . $year;
 
-
-            $fullYear = '20' . $year;
-            $expiryDate = \Carbon\Carbon::createFromDate($fullYear, $month, 1)->toDateString();
+            $fullYear = (int) ('20' . $year);
+            $expiryDate = \Carbon\Carbon::createFromDate($fullYear, (int)$month, 1)->toDateString();
             $creditCard->expiry = $expiryDate;
 
-            // Remove the slash from expiry for CardKnoxService
+            $cardZip = $request->card_zip ?? '';
+            $creditCard->card_zip = $cardZip;
 
             // Call CardKnoxService to save the card
             $cardResponse = CardKnoxService::saveCard(
-                $request->account_id,
+                $accountId,
                 'credit',
-                $request->card_number,
+                $cardNumber,
                 $expiryWithoutSlash,
-                $request->card_zip
+                $cardZip
             );
-             if ($cardResponse['status']) {
-            $creditCard->cardnox_token = $cardResponse['data']['xToken'];
-            $creditCard->save();
 
+            if (!empty($cardResponse['status'])) {
+                $creditCard->cardnox_token = $cardResponse['data']['xToken'];
+                $creditCard->save();
 
-
-                 return response()->json([
-            'valid' => true,
-            'message' => 'Charge Successfully'
-        ]);
-
-        } else {
-
-                 return response()->json([
-            'valid' => false,
-            'message' => 'Error in proccessing please try again'
-        ], 400);
-
+                return response()->json([
+                    'valid' => true,
+                    'message' => 'Charge Successfully'
+                ]);
+            } else {
+                Log::warning('CardKnox rejected card addition: ', $cardResponse ?? []);
+                return response()->json([
+                    'valid' => false,
+                    'message' => $cardResponse['msg'] ?? 'Error in processing please try again'
+                ], 400);
+            }
+        } catch (\Exception $e) {
+            Log::error('Exception in addcard: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json([
+                'valid' => false,
+                'message' => 'Error in processing please try again'
+            ], 500);
         }
-
-
     }
 
     public function driverByVehicle(Request $request)
