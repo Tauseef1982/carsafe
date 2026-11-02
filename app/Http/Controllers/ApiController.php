@@ -518,6 +518,32 @@ public function getWebHookTrip(Request $request)
                     'stop_location' => $stops,
                 ]);
                 return response()->json('updated', 200);
+            } else {
+                // When payment is already made or in-progress, only update addresses and their coordinates
+                $addressUpdates = [];
+
+                if (!empty($pickupLocation) && $existingTrip->location_from !== $pickupLocation) {
+                    $addressUpdates['location_from'] = $pickupLocation;
+                    $pCoords = GeoapifyService::getCoordinates($pickupLocation);
+                    if ($pCoords) {
+                        $addressUpdates['pickup_lat'] = $pCoords['lat'];
+                        $addressUpdates['pickup_lng'] = $pCoords['lng'];
+                    }
+                }
+
+                if (!empty($dropoffLocation) && $existingTrip->location_to !== $dropoffLocation) {
+                    $addressUpdates['location_to'] = $dropoffLocation;
+                    $dCoords = GeoapifyService::getCoordinates($dropoffLocation);
+                    if ($dCoords) {
+                        $addressUpdates['dropoff_lat'] = $dCoords['lat'];
+                        $addressUpdates['dropoff_lng'] = $dCoords['lng'];
+                    }
+                }
+
+                if (!empty($addressUpdates)) {
+                    $existingTrip->update($addressUpdates);
+                    return response()->json('updated', 200);
+                }
             }
         } else {
             $pickupCoords = GeoapifyService::getCoordinates($pickupLocation);
@@ -734,135 +760,119 @@ public function getWebHookTrip(Request $request)
         Log::info('recharge-refill-twilio');
 
         $to_refill = $request->amount;
-        $account_id = $request->account;
+        $account_id = $request->account ?? $request->account_id;
 
-        $uaccount = Account::where('account_id',$account_id)->first(); // Retrieve the account
+        $uaccount = Account::where('account_id', $account_id)->first();
+        if (!$uaccount) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Account not found'
+            ], 400);
+        }
 
-        $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',1)->where('is_deleted', 0)->first();
+        // Fetch active, non-deleted cards for the account, priority 1 first, then 0
+        $cards = CreditCard::where('account_id', $account_id)
+            ->where('is_deleted', 0)
+            ->orderBy('charge_priority', 'desc')
+            ->orderBy('id', 'desc')
+            ->get();
 
-        if (empty($cardDetails)) {
-            // if no primary then secondary
-            $cardDetails = CreditCard::where('account_id',$account_id)->where('charge_priority',0)->where('is_deleted', 0)->first();
-            if (empty($cardDetails)) {
+        if ($cards->isEmpty()) {
+            return response()->json([
+                'valid' => false,
+                'new_balace' => 'No credit card details found for Account'
+            ], 400);
+        }
 
-                return response()->json([
-                    'valid' => false,
-                    'new_balace' => 'No credit card details found for Account'
-                ], 400);
+        $paymentApproved = false;
+        $approvedResponse = null;
+        $chargedCard = null;
+        $lastFailureStatus = 'declined';
+        $lastFailureMessage = 'Card Decline';
 
+        foreach ($cards as $card) {
+            if (empty($card->cardnox_token)) {
+                continue;
+            }
 
+            Log::info("Attempting refill of {$to_refill} on card {$card->card_number} (priority {$card->charge_priority}) for account {$account_id}");
+
+            $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($card->cardnox_token, $to_refill, $account_id);
+
+            if (isset($cardknoxResponse['status']) && $cardknoxResponse['status'] == 'approved') {
+                $paymentApproved = true;
+                $approvedResponse = $cardknoxResponse;
+                $chargedCard = $card;
+                Log::info("Payment approved using card {$card->card_number} (priority {$card->charge_priority})");
+                break;
+            } else {
+                $lastFailureStatus = $cardknoxResponse['status'] ?? 'declined';
+                $lastFailureMessage = $cardknoxResponse['message'] ?? 'Card Decline';
+                Log::warning("Card {$card->card_number} declined/failed: {$lastFailureMessage}. Trying next card if available.");
             }
         }
 
-        $trip_ids = json_decode($request->trip_ids[0]);
-        $cardknoxToken = $cardDetails->cardnox_token;
-        $cardknoxResponse = CardKnoxService::processCardknoxPaymentRefill($cardknoxToken, $to_refill, $account_id);
-
-        if ($cardknoxResponse['status'] == 'approved') {
-            Log::info('got approved with this card ' . $cardknoxResponse['masked_card_number']);
-            $account_payment = new AccountPayment();
-            $account_payment->account_id = $uaccount->account_id;
-            $account_payment->account_type = $uaccount->account_type;
-            $account_payment->amount = $to_refill;
-            $account_payment->transaction_id = $cardknoxResponse['transaction_id'];
-            $account_payment->payment_date = Carbon::today();
-            $account_payment->payment_type = 'card';
-            $account_payment->save();
-            // if($uaccount->account_type == 'postpaid'){
-
-            //     $trips_to_be_paid = Trip::whereIn('trip_id',$trip_ids)->get();
-            //     Log::info('inside');
-            //     $total_payments = 0;
-            //     $batch_p = new BatchPayment();
-            //     $batch_p->account_id = $uaccount->account_id;
-            //     $batch_p->from = 'trips_paid_with_upfront_credit';
-            //     $batch_p->amount = $total_payments;
-            //     $batch_p->save();
-            //     Log::info('Batch='.$batch_p->id);
-            //     Log::info('refill='.$to_refill);
-
-            //     foreach ($trips_to_be_paid as $paytrip) {
-
-            //         $unpaid_amount = $paytrip->trip_cost;
-            //         Log::info($paytrip->trip_id);
-
-            //         // Only pay if unpaid amount is <= available to_refill
-            //         if ($unpaid_amount > 0 && $unpaid_amount <= $to_refill) {
-            //             //$pay_data = $this->addpay_customer($paytrip, $request,  $batch_p->id);
-            //             $new = new Payment();
-            //             $new->driver_id = $paytrip->driver_id;
-            //             $new->trip_id = $paytrip->trip_id;
-            //             $new->payment_date = now()->toDateString();
-            //             $new->amount = (float)$paytrip->trip_cost;
-            //             $new->user_id = 0;
-            //             $new->user_type = 'customer';
-            //             $new->type = 'debit';
-            //             $new->batch_id = $batch_p->id;
-            //             $new->description = 'payment_added_from_twilio_' . $request['account_id'];
-            //             $new->account_id = $paytrip->account_number;
-            //             $new->save();
-            //             $total_payments += $unpaid_amount;
-            //             $to_refill -= $unpaid_amount; // update to_refill after payment
-            //             Log::info($unpaid_amount);
-
-            //         }
-
-            //     }
-
-            //     $batch_p->amount = $total_payments;
-            //     $batch_p->save();
-            //     $account_payment->batch_id = $batch_p->id;
-            //     $account_payment->save();
-
-            // }
+        if ($paymentApproved && $approvedResponse) {
+            DB::beginTransaction();
+            try {
+                Log::info('got approved with this card ' . ($approvedResponse['masked_card_number'] ?? $chargedCard->card_number));
+                $account_payment = new AccountPayment();
+                $account_payment->account_id = $uaccount->account_id;
+                $account_payment->account_type = $uaccount->account_type;
+                $account_payment->amount = $to_refill;
+                $account_payment->transaction_id = $approvedResponse['transaction_id'];
+                $account_payment->payment_date = Carbon::today();
+                $account_payment->payment_type = 'card';
+                $account_payment->save();
 
                 $uaccount->balance += $to_refill;
                 $uaccount->save();
 
-
-                if($uaccount->account_type == 'prepaid') {
-
+                if ($uaccount->account_type == 'prepaid') {
                     if ($uaccount->balance > 0) {
                         $uaccount->status = 1;
                         $uaccount->save();
                     }
                 }
 
+                $logdata = [
+                    'from' => 'customer',
+                    'payment' => $to_refill,
+                    'cardknox_response' => $approvedResponse,
+                    'message' => 'Refill Payment added using Cardknox for Account#' . $account_id . ' Amount: ' . $to_refill
+                ];
+                LogService::saveLog($logdata);
+                Log::info('finallllllll');
 
+                DB::commit();
 
-            $logdata = [
-                'from' => 'customer',
-                'payment' => $to_refill,
-                'cardknox_response' => $cardknoxResponse,
-                'message' => 'Refill Payment added using Cardknox for Account#' . $account_id . ' Amount: ' . $to_refill
-            ];
-            LogService::saveLog($logdata);
-            Log::info('finallllllll');
+                return response()->json([
+                    'valid' => true,
+                    'message' => 'Charge Successfully'
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error('Error recording payment in tryrechargefinal: ' . $e->getMessage());
+                return response()->json([
+                    'valid' => false,
+                    'message' => 'Payment Failed'
+                ], 500);
+            }
+        }
 
-
-            DB::commit();
-        } elseif ($cardknoxResponse['status'] == 'declined') {
-             Log::info('got declined with this card ');
-
+        // All cards declined or failed
+        Log::info('All cards declined/failed for account ' . $account_id);
+        if ($lastFailureStatus == 'declined') {
             return response()->json([
-            'valid' => false,
-            'message' => 'Card Decline'
-        ], 400);
-
+                'valid' => false,
+                'message' => 'Card Decline'
+            ], 400);
         } else {
             return response()->json([
                 'valid' => false,
-                'message' => 'Payment Failed'
+                'message' => $lastFailureMessage ?: 'Payment Failed'
             ], 400);
-
         }
-
-        return response()->json([
-            'valid' => true,
-            'message' => 'Charge Successfully'
-        ]);
-
-
     }
 
     public function addcard(Request $request){
@@ -881,10 +891,9 @@ public function getWebHookTrip(Request $request)
 
             $uaccount = Account::where('account_id', $accountId)->first();
 
-            $checkCard = CreditCard::where('account_id', $accountId)->where('is_deleted', 0)->first();
             $creditCard = new CreditCard;
             $creditCard->account_id = $accountId;
-            $creditCard->charge_priority = $checkCard ? 0 : 1;
+            $creditCard->charge_priority = 1;
             $creditCard->account_number = $uaccount?->f_name ?? (string)$accountId;
             $creditCard->account_name = $uaccount?->lname ?? '';
 
@@ -916,7 +925,11 @@ public function getWebHookTrip(Request $request)
             );
 
             if (!empty($cardResponse['status'])) {
+                // Set all previous cards for this account to priority 0
+                CreditCard::where('account_id', $accountId)->update(['charge_priority' => 0]);
+
                 $creditCard->cardnox_token = $cardResponse['data']['xToken'];
+                $creditCard->charge_priority = 1;
                 $creditCard->save();
 
                 return response()->json([
