@@ -1,8 +1,9 @@
 {
+  "id": "/",
   "name": "CarSafe Driver Portal",
   "short_name": "CarSafe Driver",
   "description": "CarSafe Driver Portal for Ride and Trip Management",
-  "start_url": "/dashboard",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

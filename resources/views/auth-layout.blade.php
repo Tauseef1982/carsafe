@@ -9,7 +9,7 @@
     <link rel="shortcut icon" href="{{asset('assets/images/logo/carsafe-icon.png')}}" type="image/x-icon">
 
     <!-- Progressive Web App (PWA) Tags for Driver -->
-    @if(request()->is('send-otp*') || request()->is('driver*') || request()->is('login*'))
+    @if(!request()->is('admin*') && !request()->is('customer*'))
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#7366ff">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -75,7 +75,7 @@
        @yield('js')
     
     </div>
-    @if(request()->is('send-otp*') || request()->is('driver*'))
+    @if(!request()->is('admin*') && !request()->is('customer*'))
         @include('partials.pwa-driver-banner')
     @endif
   </body>
