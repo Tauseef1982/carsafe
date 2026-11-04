@@ -9,7 +9,7 @@
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="{{ asset('manifest.json') }}">
-    <meta name="theme-color" content="#7366ff">
+    <meta name="theme-color" content="#F05829">
 
     <!-- Apple iOS Safari Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
