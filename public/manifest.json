@@ -1,0 +1,30 @@
+{
+  "name": "CarSafe Driver Portal",
+  "short_name": "CarSafe Driver",
+  "description": "CarSafe Driver Portal for Ride and Trip Management",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#7366ff",
+  "categories": [
+    "transportation",
+    "business",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "/assets/images/logo/carsafe-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/images/logo/carsafe-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

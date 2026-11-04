@@ -6,6 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <!-- Progressive Web App (PWA) Tags -->
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#7366ff">
+
+    <!-- Apple iOS Safari Specific Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CarSafe Driver">
+    <link rel="apple-touch-icon" href="{{ asset('assets/images/logo/carsafe-icon-192.png') }}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('assets/images/logo/carsafe-icon-192.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/images/logo/carsafe-icon-192.png') }}">
+    <link rel="apple-touch-icon" sizes="167x167" href="{{ asset('assets/images/logo/carsafe-icon-192.png') }}">
+
     <link rel="icon" href="{{asset('assets/images/logo/carsafe-icon.png')}}" type="image/x-icon">
     <link rel="shortcut icon" href="{{asset('assets/images/logo/carsafe-icon.png')}}" type="image/x-icon">
     <title>CarSafe - Driver Dashboard </title>
@@ -358,5 +371,6 @@ function googleTranslateElementInit() {
 </script>
 
 
+    @include('partials.pwa-driver-banner')
   </body>
 </html>

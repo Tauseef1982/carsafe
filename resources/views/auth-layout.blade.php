@@ -7,6 +7,19 @@
    
     <link rel="icon" href="{{asset('assets/images/logo/carsafe-icon.png')}}" type="image/x-icon">
     <link rel="shortcut icon" href="{{asset('assets/images/logo/carsafe-icon.png')}}" type="image/x-icon">
+
+    <!-- Progressive Web App (PWA) Tags for Driver -->
+    @if(request()->is('send-otp*') || request()->is('driver*') || request()->is('login*'))
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#7366ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CarSafe Driver">
+    <link rel="apple-touch-icon" href="{{ asset('assets/images/logo/carsafe-icon-192.png') }}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('assets/images/logo/carsafe-icon-192.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/images/logo/carsafe-icon-192.png') }}">
+    <link rel="apple-touch-icon" sizes="167x167" href="{{ asset('assets/images/logo/carsafe-icon-192.png') }}">
+    @endif
     <title>CarSafe</title>
     <!-- Google font-->
     <link href="https://fonts.googleapis.com/css?family=Rubik:400,400i,500,500i,700,700i&amp;display=swap" rel="stylesheet">
@@ -62,5 +75,8 @@
        @yield('js')
     
     </div>
+    @if(request()->is('send-otp*') || request()->is('driver*'))
+        @include('partials.pwa-driver-banner')
+    @endif
   </body>
 </html>
