@@ -1,4 +1,4 @@
-const CACHE_NAME = 'carsafe-driver-v1.0.0';
+const CACHE_NAME = 'carsafe-driver-v1.0.1';
 const OFFLINE_URL = '/offline.html';
 
 // Core static assets to pre-cache on service worker installation
@@ -7,6 +7,8 @@ const PRECACHE_ASSETS = [
     '/assets/images/logo/carsafe-icon.png',
     '/assets/images/logo/carsafe-icon-192.png',
     '/assets/images/logo/carsafe-icon-512.png',
+    '/assets/images/logo/carsafe-maskable-192.png',
+    '/assets/images/logo/carsafe-maskable-512.png',
     '/assets/css/vendors/bootstrap.css',
     '/assets/css/style.css',
     '/assets/css/responsive.css',
@@ -113,3 +115,4 @@ self.addEventListener('fetch', (event) => {
         );
     }
 });
+
