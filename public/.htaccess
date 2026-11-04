@@ -19,3 +19,18 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+<IfModule mod_headers.c>
+    # Ensure Service Worker is never cached by browser HTTP cache
+    <Files "sw.js">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </Files>
+
+    # Correct MIME type and cache header for Web App Manifest
+    <Files "manifest.json">
+        Header set Content-Type "application/manifest+json; charset=utf-8"
+        Header set Cache-Control "max-age=604800, public"
+    </Files>
+</IfModule>
